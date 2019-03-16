@@ -1,0 +1,23 @@
+<div class="row">
+  <form [formGroup]="categoriesForm" (ngSubmit)="onSubmit()" class="col s12">
+    <div class="row">
+      <label>Icon</label>
+      <div class="chip">
+        Tag
+        <i class="close material-icons">close</i>
+      </div>
+    </div>
+    <div class="row">
+      <div class="input-field col s6">
+        <input formNameGroup="description" id="description" type="text" class="validate character-counter"
+          [ngClass]="{ invalid: submitted && categoriesForm.controls.description.errors }"
+          required="required" data-length="255">
+        <label for="description">Description</label>
+        <span class="helper-text" [attr.data-error]="getFieldErrors('description')"></span>
+      </div>
+    </div>
+    <button class="btn waves-effect waves-light" type="submit" name="action">Salvar
+      <i class="material-icons right">send</i>
+    </button>
+  </form>
+</div>

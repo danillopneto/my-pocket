@@ -1,1 +1,26 @@
 /* You can add global styles to this file, and also import other style files */
+@import "~materialize-css/dist/css/materialize.min.css";
+@import "~font-awesome/css/font-awesome.css";
+
+body, html {
+    height: 100%;
+    margin: 0 auto;
+}
+
+a {
+    text-decoration: none;
+}
+
+header nav {
+    background: linear-gradient(135deg,#0143a3,#0273d4);
+}
+
+.container {
+    width: 80%;
+}
+
+section {
+    width: 80%;
+    margin: 0 auto;
+    padding: 2em;
+}
