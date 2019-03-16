@@ -1,23 +1,34 @@
 <div class="row">
-  <form [formGroup]="categoriesForm" (ngSubmit)="onSubmit()" class="col s12">
-    <div class="row">
-      <label>Icon</label>
-      <div class="chip">
-        Tag
-        <i class="close material-icons">close</i>
+  <form [formGroup]="categoriesForm" (ngSubmit)="onSubmit(categoriesForm.value)" class="col s12">
+    <div class="categoriesContainer" formGroupName="category" novalidate>
+      <div class="row">
+        <div class="input-field col s1">
+          <input name="category.color" placeholder="" type="text" [value]="color" [style.background]="color"
+            [cpCancelButton]="true" [cpCancelButtonClass]="'btn btn-primary btn-xs'" [(colorPicker)]="color"
+            (colorPickerChange)="cmykColor=onChangeColorCmyk($event);color=$event" />
+          <label>Color</label>
+          <span class="helper-text" [attr.data-error]=""></span>
+        </div>
+        <div class="input-field col s6">
+          <input formControlName="description" name="category.description" type="text"
+            class="validate character-counter" required="required" data-length="255">
+          <label for="description">Description</label>
+          <span class="helper-text" [attr.data-error]=""></span>
+        </div>
+        <div class="input-field col s2">
+          <button class="btn waves-effect waves-light" type="submit" name="action">Save
+            <i class="material-icons right">send</i>
+          </button>
+        </div>
       </div>
     </div>
-    <div class="row">
-      <div class="input-field col s6">
-        <input formNameGroup="description" id="description" type="text" class="validate character-counter"
-          [ngClass]="{ invalid: submitted && categoriesForm.controls.description.errors }"
-          required="required" data-length="255">
-        <label for="description">Description</label>
-        <span class="helper-text" [attr.data-error]="getFieldErrors('description')"></span>
-      </div>
-    </div>
-    <button class="btn waves-effect waves-light" type="submit" name="action">Salvar
-      <i class="material-icons right">send</i>
-    </button>
   </form>
+
+  <ul *ngFor="let category of categories" class="collection with-header col s8">
+    <li class="collection-item avatar">
+      <img src="" alt="" class="circle" [style.background]="category.color" style="border: 1px solid #dadada;">
+      <span class="title">{{ category.description }}</span>
+      <i class="material-icons right">edit</i>
+    </li>
+  </ul>
 </div>

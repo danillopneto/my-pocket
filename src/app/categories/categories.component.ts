@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ValidationErrors } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 import { UtilityService } from '../utility.service';
+import { Category } from './../models/category.model';
 
 @Component({
   selector: 'app-categories',
@@ -12,77 +13,21 @@ export class CategoriesComponent implements OnInit {
   categoriesForm: FormGroup;
   submitted: boolean = false;
   success: boolean = false;
+  categories: Category[] = [];
+  color: string = '#ffffff';
 
   constructor(private formBuilder: FormBuilder, private util: UtilityService) {
-    this.categoriesForm = this.formBuilder.group({
-      description: ['', Validators.required]
-    })
+    this.categoriesForm = this.createFormGroup();
   }
 
-  onSubmit() {
-    this.submitted = true;
-
-    if (this.categoriesForm.invalid) {
-      this.getDescriptionErrors();
-      return;
-    }
-
-    this.success = true;
-  }
-
-  getFieldErrors(field: string) {
-    switch (field) {
-      case "description":
-        return this.getDescriptionErrors();
-      default:
-        return "";
-    }
-  }
-
-  getDescriptionErrors() {
-    var result = this.getControlValidationErrors("description");
-    var errors = [];
-    result.forEach(function (item, index) {
-      if (item.error == "required") {
-        errors.push("This field is required!");
-      }
-    })
-
-    return errors.toString();
-  }
-
-  getControlValidationErrors(control: string) {
-    const result = [];
-    const controlErrors: ValidationErrors = this.categoriesForm.get(control).errors;
-    if (controlErrors) {
-      Object.keys(controlErrors).forEach(keyError => {
-        result.push({
-          'error': keyError,
-          'value': controlErrors[keyError]
-        });
-      });
-    }
-
-    return result;
-  }
-
-  getFormValidationErrors() {
-    const result = [];
-    Object.keys(this.categoriesForm.controls).forEach(key => {
-
-      const controlErrors: ValidationErrors = this.categoriesForm.get(key).errors;
-      if (controlErrors) {
-        Object.keys(controlErrors).forEach(keyError => {
-          result.push({
-            'control ': key,
-            'error': keyError,
-            'value': controlErrors[keyError]
-          });
-        });
-      }
+  createFormGroup() {
+    return this.formBuilder.group({
+      category: this.formBuilder.group({
+        color: ['#ffffff', null],
+        description: new FormControl(),
+        id: new FormControl()
+      })
     });
-
-    return result;
   }
 
   ngOnInit() {
@@ -90,5 +35,24 @@ export class CategoriesComponent implements OnInit {
 
   ngAfterViewInit() {
     this.util.prepareComponents();
+  }
+
+  onSubmit() {
+    this.submitted = true;
+
+    if (this.categoriesForm.invalid) {
+      return;
+    }
+
+    var data = this.categoriesForm.value;
+    this.categories.push(new Category("", this.color, data.category.description));
+    this.categoriesForm = this.createFormGroup();
+    this.util.prepareComponents();
+
+    this.success = true;
+  }
+
+  onChangeColorCmyk($value) {
+    this.color = $value;
   }
 }
