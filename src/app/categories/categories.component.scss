@@ -4,4 +4,12 @@
 
 .collection .collection-item.avatar {
     min-height: 60px !important;
+
+    a:last-child {
+        margin-right: 10px;
+    }
+
+    .btn-floating{
+        margin-top: 5px;
+    }
 }

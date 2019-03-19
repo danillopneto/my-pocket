@@ -1,3 +1,4 @@
+import { CategoriesService } from './../categories.service';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 import { UtilityService } from '../utility.service';
@@ -13,10 +14,13 @@ export class CategoriesComponent implements OnInit {
   categoriesForm: FormGroup;
   submitted: boolean = false;
   success: boolean = false;
-  categories: Category[] = [];
+  categories: Category[];
   color: string = '#ffffff';
 
-  constructor(private formBuilder: FormBuilder, private util: UtilityService) {
+  constructor(
+              private formBuilder: FormBuilder, 
+              private util: UtilityService,
+              private categoriesService: CategoriesService) {
     this.categoriesForm = this.createFormGroup();
   }
 
@@ -35,6 +39,7 @@ export class CategoriesComponent implements OnInit {
 
   ngAfterViewInit() {
     this.util.prepareComponents();
+    this.getCategories();
   }
 
   onSubmit() {
@@ -44,8 +49,7 @@ export class CategoriesComponent implements OnInit {
       return;
     }
 
-    var data = this.categoriesForm.value;
-    this.categories.push(new Category("", this.color, data.category.description));
+    this.saveCategory();    
     this.categoriesForm = this.createFormGroup();
     this.util.prepareComponents();
 
@@ -54,5 +58,42 @@ export class CategoriesComponent implements OnInit {
 
   onChangeColorCmyk($value) {
     this.color = $value;
+  }
+
+  getParentElementFromEvent($event) {
+    return $event.srcElement.parentElement.parentElement;
+  }
+
+  getDataFromEvent($event, selector) {
+    var id = this.getParentElementFromEvent($event).querySelectorAll('[name$="' + selector + '"]')[0];
+    return id.value;
+  }
+
+  editCategory($event) {
+    this.categoriesForm.patchValue({
+      category: {
+        id: this.getDataFromEvent($event, 'id'),
+        color: this.getDataFromEvent($event, 'color'),
+        description: this.getDataFromEvent($event, 'description')
+      }
+    });
+  }
+
+  getCategories() {
+    this.categoriesService.getCategories()
+          .subscribe((data: Category[]) => this.categories = data);
+  }
+
+  removeCategory($event) {    
+    this.categoriesService
+        .removeCategory(this.getDataFromEvent($event, 'id'))
+        .subscribe(() => this.getCategories());
+  }
+
+  saveCategory() {
+    var newCategory = new Category(this.categoriesForm.value.category.id, this.color, this.categoriesForm.value.category.description);
+    this.categoriesService
+        .saveCategory(newCategory)
+        .subscribe(() => this.getCategories());
   }
 }

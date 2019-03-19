@@ -1,11 +1,13 @@
 <div class="row">
-  <form [formGroup]="categoriesForm" (ngSubmit)="onSubmit(categoriesForm.value)" class="col s12">
-    <div class="categoriesContainer" formGroupName="category" novalidate>
+  <form [formGroup]="categoriesForm" (ngSubmit)="onSubmit(categoriesForm.value)" class="categoriesContainer col s12">
+    <div formGroupName="category" novalidate>
       <div class="row">
+        <input formControlName="id" type="hidden" />
         <div class="input-field col s1">
           <input name="category.color" placeholder="" type="text" [value]="color" [style.background]="color"
             [cpCancelButton]="true" [cpCancelButtonClass]="'btn btn-primary btn-xs'" [(colorPicker)]="color"
-            (colorPickerChange)="cmykColor=onChangeColorCmyk($event);color=$event" />
+            (colorPickerChange)="cmykColor=onChangeColorCmyk($event);color=$event"
+            formControlName="color" />
           <label>Color</label>
           <span class="helper-text" [attr.data-error]=""></span>
         </div>
@@ -21,14 +23,18 @@
           </button>
         </div>
       </div>
-    </div>
+    </div>    
   </form>
 
-  <ul *ngFor="let category of categories" class="collection with-header col s8">
-    <li class="collection-item avatar">
+  <ul class="collection with-header col s8">
+    <li class="collection-item avatar" *ngFor="let category of categories" >
+      <input type="hidden" name="category.id" [value]="category.id" />
+      <input type="hidden" name="category.color" [value]="category.color" />
+      <input type="hidden" name="category.description" [value]="category.description" />
       <img src="" alt="" class="circle" [style.background]="category.color" style="border: 1px solid #dadada;">
       <span class="title">{{ category.description }}</span>
-      <i class="material-icons right">edit</i>
+      <a (click)="removeCategory($event)" class="btn-floating btn-small waves-effect waves-light red right"><i class="material-icons">remove_circle_outline</i></a>
+      <a (click)="editCategory($event)" class="btn-floating btn-small waves-effect waves-light red right"><i class="material-icons">edit</i></a>
     </li>
   </ul>
 </div>
