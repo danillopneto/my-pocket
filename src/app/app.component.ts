@@ -1,3 +1,4 @@
+import { UtilityService } from './utility.service';
 import { Component, OnInit } from '@angular/core';
 
 @Component({
@@ -7,6 +8,15 @@ import { Component, OnInit } from '@angular/core';
 })
 export class AppComponent implements OnInit {
   title = 'my-pocket';
+  private loading: boolean;
+
+  constructor(private util: UtilityService) {
+      this.util.loading.subscribe(
+        (loading) => {
+          this.loading = loading;
+        }
+     );
+  }
 
   ngOnInit() {
   }

@@ -24,6 +24,7 @@
     "font-awesome": "^4.7.0",
     "materialize-css": "^1.0.0-rc.2",
     "ngx-color-picker": "^7.4.0",
+    "ngx-loading": "^3.0.1",
     "rxjs": "~6.3.3",
     "tslib": "^1.9.0",
     "zone.js": "~0.8.26"

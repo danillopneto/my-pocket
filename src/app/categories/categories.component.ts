@@ -18,9 +18,9 @@ export class CategoriesComponent implements OnInit {
   color: string = '#ffffff';
 
   constructor(
-              private formBuilder: FormBuilder, 
-              private util: UtilityService,
-              private categoriesService: CategoriesService) {
+    private formBuilder: FormBuilder,
+    private util: UtilityService,
+    private categoriesService: CategoriesService) {
     this.categoriesForm = this.createFormGroup();
   }
 
@@ -49,7 +49,7 @@ export class CategoriesComponent implements OnInit {
       return;
     }
 
-    this.saveCategory();    
+    this.saveCategory();
     this.categoriesForm = this.createFormGroup();
     this.util.prepareComponents();
 
@@ -80,20 +80,41 @@ export class CategoriesComponent implements OnInit {
   }
 
   getCategories() {
+    this.util.showLoading();
+
     this.categoriesService.getCategories()
-          .subscribe((data: Category[]) => this.categories = data);
+      .subscribe((data: Category[]) => {
+        this.categories = data;
+        this.util.hideLoading();
+      }, err => {
+        this.util.hideLoading();
+      });
   }
 
-  removeCategory($event) {    
+  removeCategory($event) {
+    this.util.showLoading();
+
     this.categoriesService
-        .removeCategory(this.getDataFromEvent($event, 'id'))
-        .subscribe(() => this.getCategories());
+      .removeCategory(this.getDataFromEvent($event, 'id'))
+      .subscribe(() => {
+        this.getCategories();
+        this.util.hideLoading();
+      }, err => {
+        this.util.hideLoading();
+      });
   }
 
   saveCategory() {
+    this.util.showLoading();
+    
     var newCategory = new Category(this.categoriesForm.value.category.id, this.color, this.categoriesForm.value.category.description);
     this.categoriesService
-        .saveCategory(newCategory)
-        .subscribe(() => this.getCategories());
+      .saveCategory(newCategory)
+      .subscribe(() => {
+        this.getCategories();
+        this.util.hideLoading();
+      }, err => {
+        this.util.hideLoading();
+      });
   }
 }
