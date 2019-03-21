@@ -7,7 +7,7 @@ import M from "materialize-css/dist/js/materialize.min.js";
 })
 export class UtilityService {
   
-  loading: EventEmitter = new EventEmitter();;
+  loading: EventEmitter<boolean> = new EventEmitter();;
 
   constructor() { }
 
