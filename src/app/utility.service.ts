@@ -1,6 +1,5 @@
 import { Injectable, EventEmitter } from '@angular/core';
 import { FormGroup, ValidationErrors } from '@angular/forms';
-import M from "materialize-css/dist/js/materialize.min.js";
 
 @Injectable({
   providedIn: 'root'
@@ -46,8 +45,7 @@ export class UtilityService {
   }
 
   prepareComponents() {
-    M.CharacterCounter.init(document.querySelectorAll('.character-counter'));
-    M.Carousel.init(document.querySelectorAll('.carousel'));
+    
   }
 
   showLoading() {

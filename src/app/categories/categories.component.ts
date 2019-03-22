@@ -50,7 +50,6 @@ export class CategoriesComponent implements OnInit {
     }
 
     this.saveCategory();
-    this.categoriesForm = this.createFormGroup();
     this.util.prepareComponents();
 
     this.success = true;
@@ -113,6 +112,7 @@ export class CategoriesComponent implements OnInit {
       .subscribe(() => {
         this.getCategories();
         this.util.hideLoading();
+        this.categoriesForm = this.createFormGroup();
       }, err => {
         this.util.hideLoading();
       });

@@ -3,38 +3,38 @@
     <div formGroupName="category" novalidate>
       <div class="row">
         <input formControlName="id" type="hidden" />
-        <div class="input-field col s1">
-          <input name="category.color" placeholder="" type="text" [value]="color" [style.background]="color"
+        <mat-form-field>
+          <input matInput placeholder="Color" type="text" [value]="color" [style.background]="color"
             [cpCancelButton]="true" [cpCancelButtonClass]="'btn btn-primary btn-xs'" [(colorPicker)]="color"
-            (colorPickerChange)="onChangeColorCmyk($event);color=$event"
-            formControlName="color" />
-          <label>Color</label>
-          <span class="helper-text" [attr.data-error]=""></span>
-        </div>
-        <div class="input-field col s6">
-          <input formControlName="description" name="category.description" type="text"
-            class="validate character-counter" required="required" data-length="255">
-          <label for="description">Description</label>
-          <span class="helper-text" [attr.data-error]=""></span>
-        </div>
+            (colorPickerChange)="onChangeColorCmyk($event);color=$event" formControlName="color" />
+        </mat-form-field>
+        <mat-form-field>
+          <input matInput #input formControlName="description" [value]="description || ''" 
+            placeholder="Description"
+            required="required" data-length="255" />
+          <mat-hint align="end">{{input.value?.length || 0}}/255</mat-hint>
+        </mat-form-field>
         <div class="input-field col s2">
-          <button class="btn waves-effect waves-light" type="submit" name="action">Save
+          <button mat-raised-button color="primary">
+            Save
             <i class="material-icons right">send</i>
           </button>
         </div>
       </div>
-    </div>    
+    </div>
   </form>
 
   <ul class="collection with-header col s8">
-    <li class="collection-item avatar" *ngFor="let category of categories" >
+    <li class="collection-item avatar" *ngFor="let category of categories">
       <input type="hidden" name="category.id" [value]="category.id" />
       <input type="hidden" name="category.color" [value]="category.color" />
       <input type="hidden" name="category.description" [value]="category.description" />
       <img src="" alt="" class="circle" [style.background]="category.color" style="border: 1px solid #dadada;">
       <span class="title">{{ category.description }}</span>
-      <a (click)="removeCategory($event)" class="btn-floating btn-small waves-effect waves-light red right"><i class="material-icons">remove_circle_outline</i></a>
-      <a (click)="editCategory($event)" class="btn-floating btn-small waves-effect waves-light red right"><i class="material-icons">edit</i></a>
+      <a (click)="removeCategory($event)" class="btn-floating btn-small waves-effect waves-light red right"><i
+          class="material-icons">remove_circle_outline</i></a>
+      <a (click)="editCategory($event)" class="btn-floating btn-small waves-effect waves-light red right"><i
+          class="material-icons">edit</i></a>
     </li>
   </ul>
 </div>
