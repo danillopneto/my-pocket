@@ -9,7 +9,7 @@
             (colorPickerChange)="onChangeColorCmyk($event);color=$event" formControlName="color" />
         </mat-form-field>
         <mat-form-field>
-          <input matInput #input formControlName="description" [value]="description || ''" 
+          <input matInput #input formControlName="description" 
             placeholder="Description"
             required="required" data-length="255" />
           <mat-hint align="end">{{input.value?.length || 0}}/255</mat-hint>
