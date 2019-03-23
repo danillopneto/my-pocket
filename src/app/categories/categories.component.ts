@@ -60,7 +60,7 @@ export class CategoriesComponent implements OnInit {
   }
 
   getParentElementFromEvent($event) {
-    return $event.srcElement.parentElement.parentElement;
+    return $event.srcElement.parentElement.parentElement.parentElement;
   }
 
   getDataFromEvent($event, selector) {
@@ -68,37 +68,45 @@ export class CategoriesComponent implements OnInit {
     return id.value;
   }
 
-  editCategory($event) {
-    this.categoriesForm.patchValue({
-      category: {
-        id: this.getDataFromEvent($event, 'id'),
-        color: this.getDataFromEvent($event, 'color'),
-        description: this.getDataFromEvent($event, 'description')
-      }
-    });
+  editCategory(id) {
+    this.categoriesService.getCategory(id).subscribe(data => {
+      this.categoriesForm.patchValue({
+        category: data
+      });
+      this.util.hideLoading();
+    }, err => {
+      this.util.hideLoading();
+    });  
   }
 
   getCategories() {
     this.util.showLoading();
 
-    this.categoriesService.getCategories()
-      .subscribe((data: Category[]) => {
-        this.categories = data;
+    this.categoriesService.getCategories().subscribe(data => {
+        this.categories = data.map(e => {
+          return {
+              id: e.payload.doc.id,
+              color: e.payload.doc.get('color'),
+              description: e.payload.doc.get('description'),
+          }
+        });
         this.util.hideLoading();
       }, err => {
         this.util.hideLoading();
       });
   }
 
-  removeCategory($event) {
+  removeCategory(id) {
     this.util.showLoading();
 
     this.categoriesService
-      .removeCategory(this.getDataFromEvent($event, 'id'))
-      .subscribe(() => {
+      .removeCategory(id)
+      .catch(() => {        
+      })
+      .then(() => {
         this.getCategories();
-        this.util.hideLoading();
-      }, err => {
+      })
+      .finally(() => {
         this.util.hideLoading();
       });
   }
@@ -109,12 +117,15 @@ export class CategoriesComponent implements OnInit {
     var newCategory = new Category(this.categoriesForm.value.category.id, this.color, this.categoriesForm.value.category.description);
     this.categoriesService
       .saveCategory(newCategory)
-      .subscribe(() => {
-        this.getCategories();
-        this.util.hideLoading();
+      .catch(() => {     
+        this.util.hideLoading();   
+      })
+      .then(() => {
         this.categoriesForm = this.createFormGroup();
-      }, err => {
+        this.getCategories();
+      })
+      .finally(() => {
         this.util.hideLoading();
-      });
+      });;
   }
 }

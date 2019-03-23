@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { AngularFirestore } from '@angular/fire/firestore';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { Category } from './models/category.model';
 import { throwError } from 'rxjs';
@@ -10,22 +11,31 @@ import { catchError, retry } from 'rxjs/operators';
 export class CategoriesService {
   private categoriesUrl: string = 'https://localhost:44305/api/v1/category';
   
-  constructor(private http: HttpClient) {
+  constructor(private firestore: AngularFirestore, private http: HttpClient) {
+  }
+
+  getCollectionReference() {
+    return this.firestore.collection('danillopneto').doc("userSettings").collection<Category>("categories");
+  }
+
+  getCategory(id: string) {
+    return this.getCollectionReference().doc(id).valueChanges();
   }
 
   getCategories() {
-    return this.http.get<Category[]>(this.categoriesUrl);
+    return this.getCollectionReference().snapshotChanges();
   }
 
   removeCategory(id: string) {
-    return this.http.delete(this.categoriesUrl + '/' + id);
+    return this.getCollectionReference().doc(id).delete();
   }
 
   saveCategory(category: Category) {
     if (category.id == null || category.id == '') {
-      return this.http.post(this.categoriesUrl, category);
-    } else {
-      return this.http.put(this.categoriesUrl + '/' + category.id, category);
+      const uuidv1 = require('uuid/v1');
+      category.id = uuidv1();
     }
+
+    return this.getCollectionReference().doc(category.id).set({... category});
   }
 }

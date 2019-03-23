@@ -1,15 +1,13 @@
-.categoriesContainer input {
-    margin-top: 5px;    
+.default-card {
+  width: 250px;
+  margin: 0 10px 10px 0;
+  display: inline-block;
 }
 
-.collection .collection-item.avatar {
-    min-height: 60px !important;
+.color-header {
+  border: 1px solid #dadada;
+}
 
-    a:last-child {
-        margin-right: 10px;
-    }
-
-    .btn-floating{
-        margin-top: 5px;
-    }
+.categoriesContainer {
+  padding-top: 20px;
 }

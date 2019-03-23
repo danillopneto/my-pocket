@@ -3,8 +3,12 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
 import { ReactiveFormsModule } from '@angular/forms';
+import { AngularFirestore } from '@angular/fire/firestore';
+import { AngularFireModule } from '@angular/fire';
+import { AngularFireDatabaseModule } from '@angular/fire/database';
 import { ColorPickerModule } from 'ngx-color-picker';
 import { NgxLoadingModule, ngxLoadingAnimationTypes } from 'ngx-loading';
+import { environment } from '../environments/environment';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -62,6 +66,8 @@ import {
     AppRoutingModule,
     HttpClientModule,
     ReactiveFormsModule,
+    AngularFireModule.initializeApp(environment.firebaseConfig),
+    AngularFireDatabaseModule,
     ColorPickerModule,
     NgxLoadingModule.forRoot({
       animationType: ngxLoadingAnimationTypes.wanderingCubes,
@@ -105,7 +111,7 @@ import {
     MatTooltipModule,
     MatTreeModule
   ],
-  providers: [UtilityService],
+  providers: [UtilityService, AngularFirestore],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
