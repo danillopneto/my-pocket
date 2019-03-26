@@ -1,8 +1,8 @@
-import { CategoriesService } from './../categories.service';
+import { Category } from './../models/category.model';
+import { CategoriesService } from '../services/categories.service';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
-import { UtilityService } from '../utility.service';
-import { Category } from './../models/category.model';
+import { UtilityService } from '../services/utility.service';
 
 @Component({
   selector: 'app-categories',
@@ -11,17 +11,17 @@ import { Category } from './../models/category.model';
 })
 export class CategoriesComponent implements OnInit {
 
-  categoriesForm: FormGroup;
+  form: FormGroup;
   submitted: boolean = false;
   success: boolean = false;
   categories: Category[];
   color: string = '#ffffff';
 
   constructor(
-    private formBuilder: FormBuilder,
-    private util: UtilityService,
-    private categoriesService: CategoriesService) {
-    this.categoriesForm = this.createFormGroup();
+              private formBuilder: FormBuilder,
+              private util: UtilityService,
+              private categoriesService: CategoriesService) {
+              this.form = this.createFormGroup();
   }
 
   createFormGroup() {
@@ -38,20 +38,17 @@ export class CategoriesComponent implements OnInit {
   }
 
   ngAfterViewInit() {
-    this.util.prepareComponents();
     this.getCategories();
   }
 
   onSubmit() {
     this.submitted = true;
 
-    if (this.categoriesForm.invalid) {
+    if (this.form.invalid) {
       return;
     }
 
     this.saveCategory();
-    this.util.prepareComponents();
-
     this.success = true;
   }
 
@@ -59,20 +56,13 @@ export class CategoriesComponent implements OnInit {
     this.color = $value;
   }
 
-  getParentElementFromEvent($event) {
-    return $event.srcElement.parentElement.parentElement.parentElement;
-  }
-
-  getDataFromEvent($event, selector) {
-    var id = this.getParentElementFromEvent($event).querySelectorAll('[name$="' + selector + '"]')[0];
-    return id.value;
-  }
-
   editCategory(id) {
-    this.categoriesService.getCategory(id).subscribe(data => {
-      this.categoriesForm.patchValue({
+    this.categoriesService.get(id).subscribe(data => {      
+      this.form.patchValue({
         category: data
       });
+
+      this.color = data.color;
       this.util.hideLoading();
     }, err => {
       this.util.hideLoading();
@@ -82,7 +72,7 @@ export class CategoriesComponent implements OnInit {
   getCategories() {
     this.util.showLoading();
 
-    this.categoriesService.getCategories().subscribe(data => {
+    this.categoriesService.getAll('description').subscribe(data => {
         this.categories = data.map(e => {
           return {
               id: e.payload.doc.id,
@@ -100,7 +90,7 @@ export class CategoriesComponent implements OnInit {
     this.util.showLoading();
 
     this.categoriesService
-      .removeCategory(id)
+      .remove(id)
       .catch(() => {        
       })
       .then(() => {
@@ -114,14 +104,14 @@ export class CategoriesComponent implements OnInit {
   saveCategory() {
     this.util.showLoading();
     
-    var newCategory = new Category(this.categoriesForm.value.category.id, this.color, this.categoriesForm.value.category.description);
+    var newCategory = new Category(this.form.value.category.id, this.color, this.form.value.category.description);
     this.categoriesService
-      .saveCategory(newCategory)
+      .save(newCategory)
       .catch(() => {     
         this.util.hideLoading();   
       })
       .then(() => {
-        this.categoriesForm = this.createFormGroup();
+        this.form = this.createFormGroup();
         this.getCategories();
       })
       .finally(() => {

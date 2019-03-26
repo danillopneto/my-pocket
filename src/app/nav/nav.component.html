@@ -1,13 +1,16 @@
 <header>
-  <mat-toolbar color="primary">
-    <mat-toolbar-row>
-      <mat-icon class="example-icon" aria-hidden="false" aria-label="">account_balance_wallet</mat-icon>
-      <a routerLink="/">
-        <span>{{ appTitle }}</span>
-      </a>
-      <span class="example-spacer"></span>
-      <a routerLink="/" class="nav-link">Home</a>
-      <a routerLink="/categories" class="nav-link">Categories</a>
-    </mat-toolbar-row>
-  </mat-toolbar>
+  <nav>
+    <mat-toolbar color="primary">
+      <mat-toolbar-row>
+        <mat-icon aria-hidden="false" aria-label="">account_balance_wallet</mat-icon>
+        <a routerLink="/">
+          <span>{{ appTitle }}</span>
+        </a>
+        <span class="default-spacer"></span>
+        <a routerLink="/" class="nav-link">Home</a>
+        <a routerLink="/categories" class="nav-link">Categories</a>
+        <a routerLink="/expense" class="nav-link">New Expense</a>
+      </mat-toolbar-row>
+    </mat-toolbar>
+  </nav>
 </header>

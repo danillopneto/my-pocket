@@ -1,4 +1,4 @@
-import { UtilityService } from './utility.service';
+import { UtilityService } from './services/utility.service';
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
@@ -8,6 +8,7 @@ import { AngularFireModule } from '@angular/fire';
 import { AngularFireDatabaseModule } from '@angular/fire/database';
 import { ColorPickerModule } from 'ngx-color-picker';
 import { NgxLoadingModule, ngxLoadingAnimationTypes } from 'ngx-loading';
+import { CurrencyMaskModule } from "ng2-currency-mask";
 import { environment } from '../environments/environment';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -53,13 +54,15 @@ import {
   MatTooltipModule,
   MatTreeModule,
 } from '@angular/material';
+import { ExpenseComponent } from './expense/expense.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     CategoriesComponent,
     NavComponent,
-    HomeComponent
+    HomeComponent,
+    ExpenseComponent
   ],
   imports: [
     BrowserModule,
@@ -74,6 +77,7 @@ import {
       primaryColour: '#0143a3',
       secondaryColour: '#0273d4'
     }),
+    CurrencyMaskModule,
     BrowserAnimationsModule,
     MatAutocompleteModule,
     MatBadgeModule,

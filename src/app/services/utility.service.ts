@@ -1,5 +1,6 @@
 import { Injectable, EventEmitter } from '@angular/core';
 import { FormGroup, ValidationErrors } from '@angular/forms';
+import { Expense } from '../models/expense.model';
 
 @Injectable({
   providedIn: 'root'
@@ -44,15 +45,27 @@ export class UtilityService {
     return result;
   }
 
-  prepareComponents() {
-    
-  }
-
   showLoading() {
     setTimeout(() => this.loading.emit(true));    
   }
 
   hideLoading() {
     setTimeout(() => this.loading.emit(false));
+  }
+
+  getDayFromDate(date: string) {
+    return date.replace('-', '').substr(7, 2);
+  }
+
+  getMonthFromDate(date: string) {
+    return date.replace('-', '').substr(4, 2);
+  }
+
+  getYearFromDate(date: string) {
+    return date.substr(0, 4);
+  }
+
+  getFullDate(expense: Expense): string {
+    return expense.month.concat('/', expense.day, '/', expense.year);
   }
 }

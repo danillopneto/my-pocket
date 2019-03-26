@@ -1,0 +1,49 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="row">
+  <div novalidate>
+    <div class="row">
+      <input formControlName="id" type="hidden" />
+      <mat-form-field class="col s2">
+        <input matInput formControlName="date" [matDatepicker]="date" placeholder="Choose a date" disabled>
+        <mat-datepicker-toggle matSuffix [for]="date"></mat-datepicker-toggle>
+        <mat-datepicker #date disabled="false"></mat-datepicker>
+      </mat-form-field>
+      <mat-form-field class="col s12">
+        <mat-label>Category</mat-label>
+        <mat-select formControlName="idCategory" required>
+          <mat-option *ngFor="let category of categories" [value]="category.id">
+            {{category.description}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field class="col s12">
+        <input matInput #input formControlName="description" placeholder="Description" required="required"
+          data-length="255" />
+        <mat-hint align="end">{{input.value?.length || 0}}/255</mat-hint>
+      </mat-form-field>
+      <mat-form-field class="col s2">
+        <input matInput #input currencyMask formControlName="value" placeholder="Value"
+          [options]="{ prefix: 'R$ ', thousands: '.', decimal: ',' }" required="required" data-length="255" />
+      </mat-form-field>
+    </div>
+    <div class="col s12">
+      <button mat-raised-button color="primary">
+        Save
+        <i class="material-icons right">send</i>
+      </button>
+    </div>
+  </div>
+</form>
+
+<div class="expensesContainer">
+  <mat-card class="default-card" *ngFor="let expense of expenses">
+    <mat-card-header>
+      <div mat-card-avatar></div>
+      <mat-card-title>{{ expense.description }}</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      {{ util.getFullDate(expense) }} - R$ {{ expense.value }}
+    </mat-card-content>
+    <mat-card-actions>
+    </mat-card-actions>
+  </mat-card>
+</div>

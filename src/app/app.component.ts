@@ -1,4 +1,4 @@
-import { UtilityService } from './utility.service';
+import { UtilityService } from './services/utility.service';
 import { Component, OnInit } from '@angular/core';
 
 @Component({
