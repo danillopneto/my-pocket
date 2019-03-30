@@ -13,13 +13,13 @@ export abstract class BaseAngularService<T extends BaseResourceModel>{
         return this.getCollectionReference().doc<T>(id).valueChanges();
     }
 
-    getAll(orderBy?: string): Observable<DocumentChangeAction<T>[]> {
+    getAll(orderBy?: string): Observable<T[]> {
         if (orderBy != null
             && orderBy != '') {
-            return this.getCollectionReference(ref => ref.orderBy(orderBy)).snapshotChanges();
+            return this.getCollectionReference(ref => ref.orderBy(orderBy)).valueChanges();
         }
 
-        return this.getCollectionReference().snapshotChanges();
+        return this.getCollectionReference().valueChanges();
     }
 
     remove(id: string): Promise<void> {

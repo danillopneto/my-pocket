@@ -67,24 +67,13 @@ export class ExpenseComponent implements OnInit {
 
   getExpenses() {
     this.expensesService.getAll().subscribe(data => {
-      this.expenses = data.map(e => {
-        return {
-            id: e.payload.doc.id,
-            idCategory: e.payload.doc.get('idCategory'),
-            day: e.payload.doc.get('day'),
-            month: e.payload.doc.get('month'),
-            year: e.payload.doc.get('year'),
-            description: e.payload.doc.get('description'),
-            paymentMethod: e.payload.doc.get('paymentMethod'),
-            value: e.payload.doc.get('value')
-        }
-      });
+      this.expenses = data;
       this.util.hideLoading();
     }, err => {
       this.util.hideLoading();
     });
   }
-  
+
   onSubmit() {
     this.submitted = true;
 
@@ -99,20 +88,24 @@ export class ExpenseComponent implements OnInit {
   saveExpense() {
     debugger;
     this.util.showLoading();
-    
+
+    var idCategory = this.form.value.idCategory;
     var newExpense = new Expense(
-                                 this.form.value.id, 
-                                 this.util.getDayFromDate(this.form.value.date.toJSON()),
-                                 this.util.getMonthFromDate(this.form.value.date.toJSON()),
-                                 this.util.getYearFromDate(this.form.value.date.toJSON()),
-                                 this.form.value.idCategory,
-                                 this.form.value.description,
-                                 this.form.value.value,
-                                 PaymentMethod.Credit);
+      this.form.value.id,
+      this.util.getDayFromDate(this.form.value.date.toJSON()),
+      this.util.getMonthFromDate(this.form.value.date.toJSON()),
+      this.util.getYearFromDate(this.form.value.date.toJSON()),
+      idCategory,
+      this.form.value.description,
+      this.form.value.value,
+      PaymentMethod.Credit);
+
+    newExpense.category = this.categoriesService.getCollectionReference().doc(idCategory).ref;
+
     this.expensesService
       .save(newExpense)
-      .catch(() => {     
-        this.util.hideLoading();   
+      .catch(() => {
+        this.util.hideLoading();
       })
       .then(() => {
         this.form = this.createFormGroup();

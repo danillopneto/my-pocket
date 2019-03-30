@@ -66,6 +66,6 @@ export class UtilityService {
   }
 
   getFullDate(expense: Expense): string {
-    return expense.month.concat('/', expense.day, '/', expense.year);
+    return expense.day.concat('/', expense.month, '/', expense.year);
   }
 }

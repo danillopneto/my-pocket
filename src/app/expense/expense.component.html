@@ -3,12 +3,12 @@
     <div class="row">
       <input formControlName="id" type="hidden" />
       <mat-form-field class="col s2">
-        <input matInput formControlName="date" [matDatepicker]="date" placeholder="Choose a date" disabled>
+        <input matInput formControlName="date" [matDatepicker]="date" placeholder="Data da despesa" disabled>
         <mat-datepicker-toggle matSuffix [for]="date"></mat-datepicker-toggle>
-        <mat-datepicker #date disabled="false"></mat-datepicker>
+        <mat-datepicker #date touchUi disabled="false"></mat-datepicker>
       </mat-form-field>
       <mat-form-field class="col s12">
-        <mat-label>Category</mat-label>
+        <mat-label>Categoria</mat-label>
         <mat-select formControlName="idCategory" required>
           <mat-option *ngFor="let category of categories" [value]="category.id">
             {{category.description}}
@@ -16,18 +16,18 @@
         </mat-select>
       </mat-form-field>
       <mat-form-field class="col s12">
-        <input matInput #input formControlName="description" placeholder="Description" required="required"
+        <input matInput #input formControlName="description" placeholder="Descrição" required="required"
           data-length="255" />
         <mat-hint align="end">{{input.value?.length || 0}}/255</mat-hint>
       </mat-form-field>
       <mat-form-field class="col s2">
-        <input matInput #input currencyMask formControlName="value" placeholder="Value"
+        <input matInput #input currencyMask formControlName="value" placeholder="Valor"
           [options]="{ prefix: 'R$ ', thousands: '.', decimal: ',' }" required="required" data-length="255" />
       </mat-form-field>
     </div>
     <div class="col s12">
       <button mat-raised-button color="primary">
-        Save
+        Salvar
         <i class="material-icons right">send</i>
       </button>
     </div>

@@ -10,6 +10,7 @@ import { ColorPickerModule } from 'ngx-color-picker';
 import { NgxLoadingModule, ngxLoadingAnimationTypes } from 'ngx-loading';
 import { CurrencyMaskModule } from "ng2-currency-mask";
 import { environment } from '../environments/environment';
+import { DocPipe } from './doc.pipe';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -53,8 +54,10 @@ import {
   MatToolbarModule,
   MatTooltipModule,
   MatTreeModule,
+  MAT_DATE_LOCALE,
 } from '@angular/material';
 import { ExpenseComponent } from './expense/expense.component';
+import { ExpensesComponent } from './expenses/expenses.component';
 
 @NgModule({
   declarations: [
@@ -62,7 +65,9 @@ import { ExpenseComponent } from './expense/expense.component';
     CategoriesComponent,
     NavComponent,
     HomeComponent,
-    ExpenseComponent
+    ExpenseComponent,
+    ExpensesComponent,
+    DocPipe
   ],
   imports: [
     BrowserModule,
@@ -115,7 +120,7 @@ import { ExpenseComponent } from './expense/expense.component';
     MatTooltipModule,
     MatTreeModule
   ],
-  providers: [UtilityService, AngularFirestore],
+  providers: [UtilityService, AngularFirestore, {provide: MAT_DATE_LOCALE, useValue: 'pt-BR'}],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -1,6 +1,8 @@
 import { PaymentMethod } from '../enumerators/enum.payment.method';
 
 export class Expense {
+    category: firebase.firestore.DocumentReference;
+    
     constructor(
         public id: string = '',
         public day: string = null,

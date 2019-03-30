@@ -73,13 +73,7 @@ export class CategoriesComponent implements OnInit {
     this.util.showLoading();
 
     this.categoriesService.getAll('description').subscribe(data => {
-        this.categories = data.map(e => {
-          return {
-              id: e.payload.doc.id,
-              color: e.payload.doc.get('color'),
-              description: e.payload.doc.get('description'),
-          }
-        });
+        this.categories = data;
         this.util.hideLoading();
       }, err => {
         this.util.hideLoading();
