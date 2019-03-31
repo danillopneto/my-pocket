@@ -16,6 +16,8 @@ export class AppComponent implements OnInit {
           this.loading = loading;
         }
      );
+
+     this.util.userId = 'danillopneto';
   }
 
   ngOnInit() {

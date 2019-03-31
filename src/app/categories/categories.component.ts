@@ -18,19 +18,17 @@ export class CategoriesComponent implements OnInit {
   color: string = '#ffffff';
 
   constructor(
-              private formBuilder: FormBuilder,
-              private util: UtilityService,
-              private categoriesService: CategoriesService) {
-              this.form = this.createFormGroup();
+    private formBuilder: FormBuilder,
+    private util: UtilityService,
+    private categoriesService: CategoriesService) {
+    this.form = this.createFormGroup();
   }
 
   createFormGroup() {
     return this.formBuilder.group({
-      category: this.formBuilder.group({
-        color: ['#ffffff', null],
-        description: new FormControl(),
-        id: new FormControl()
-      })
+      color: ['#ffffff', null],
+      description: new FormControl(),
+      id: new FormControl()
     });
   }
 
@@ -57,27 +55,24 @@ export class CategoriesComponent implements OnInit {
   }
 
   editCategory(id) {
-    this.categoriesService.get(id).subscribe(data => {      
-      this.form.patchValue({
-        category: data
-      });
-
-      this.color = data.color;
+    this.categoriesService.get(id).subscribe(data => {
+      this.form.patchValue(data || {});
+      this.color = (data|| { color: '#ffffff'}).color;
       this.util.hideLoading();
     }, err => {
       this.util.hideLoading();
-    });  
+    });
   }
 
   getCategories() {
     this.util.showLoading();
 
-    this.categoriesService.getAll('description').subscribe(data => {
-        this.categories = data;
-        this.util.hideLoading();
-      }, err => {
-        this.util.hideLoading();
-      });
+    this.categoriesService.getAllFromUser().subscribe(data => {
+      this.categories = data;
+      this.util.hideLoading();
+    }, err => {
+      this.util.hideLoading();
+    });
   }
 
   removeCategory(id) {
@@ -85,9 +80,9 @@ export class CategoriesComponent implements OnInit {
 
     this.categoriesService
       .remove(id)
-      .catch(() => {        
+      .catch(() => {
       })
-      .then(() => {        
+      .then(() => {
       })
       .finally(() => {
         this.util.hideLoading();
@@ -96,12 +91,12 @@ export class CategoriesComponent implements OnInit {
 
   saveCategory() {
     this.util.showLoading();
-    
-    var newCategory = new Category(this.form.value.category.id, this.color, this.form.value.category.description);
+
+    var newCategory = new Category(this.form.value.id, this.color, this.form.value.description);
     this.categoriesService
       .save(newCategory)
-      .catch(() => {     
-        this.util.hideLoading();   
+      .catch(() => {
+        this.util.hideLoading();
       })
       .then(() => {
         this.form = this.createFormGroup();

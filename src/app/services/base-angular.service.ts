@@ -1,9 +1,10 @@
+import { UtilityService } from './utility.service';
 import { AngularFirestore, QueryFn, AngularFirestoreCollection, DocumentChangeAction } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import { BaseResourceModel } from '../models/base-resource.model';
 
 export abstract class BaseAngularService<T extends BaseResourceModel>{
-    constructor(protected firestore: AngularFirestore) {
+    constructor(protected firestore: AngularFirestore, protected util: UtilityService) {
     }
 
     abstract getCollectionReference(queryFn?: QueryFn): AngularFirestoreCollection<T>
@@ -29,6 +30,14 @@ export abstract class BaseAngularService<T extends BaseResourceModel>{
         return this.getCollectionReference().valueChanges();
     }
 
+    getAllFromUser() : Observable<T[]> {        
+        return this.getUserReference().valueChanges();
+    }
+
+    getUserReference() {
+        return this.getCollectionReference(r => r.where('userId', '==', this.util.userId));
+    }
+
     remove(id: string): Promise<void> {
         return this.getCollectionReference().doc(id).delete();
     }
@@ -38,7 +47,8 @@ export abstract class BaseAngularService<T extends BaseResourceModel>{
         const uuidv1 = require('uuid/v1');
         model.id = uuidv1();
       }
-  
+      
+      model.userId = this.util.userId;
       return this.getCollectionReference().doc(model.id).set({... model});
     }
 }

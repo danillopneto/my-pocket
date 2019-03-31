@@ -10,7 +10,7 @@
       <mat-form-field class="col s12">
         <mat-label>Categoria</mat-label>
         <mat-select formControlName="idCategory" required>
-          <mat-option *ngFor="let category of categories | async" [value]="category.id">
+          <mat-option *ngFor="let category of categories | async | orderBy: 'description'" [value]="category.id">
             {{category.description}}
           </mat-option>
         </mat-select>
@@ -23,7 +23,7 @@
       <mat-form-field class="col s12">
         <mat-label>Método de pagamento</mat-label>
         <mat-select formControlName="idPaymentMethod" required>
-          <mat-option *ngFor="let paymentMethod of paymentMethods | async" [value]="paymentMethod.id">
+          <mat-option *ngFor="let paymentMethod of paymentMethods | async | orderBy: 'description'" [value]="paymentMethod.id">
             {{paymentMethod.description}}
           </mat-option>
         </mat-select>

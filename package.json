@@ -29,6 +29,7 @@
     "ng2-currency-mask": "^5.3.1",
     "ngx-color-picker": "^7.4.0",
     "ngx-loading": "^3.0.1",
+    "ngx-order-pipe": "^2.0.2",
     "rxjs": "~6.3.3",
     "tslib": "^1.9.0",
     "uuid": "^3.3.2",

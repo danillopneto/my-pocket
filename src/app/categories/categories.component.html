@@ -1,5 +1,5 @@
 <form [formGroup]="form" (ngSubmit)="onSubmit()" class="row">
-  <div formGroupName="category" novalidate>
+  <div novalidate>
     <div class="row">
       <input formControlName="id" type="hidden" />
       <mat-form-field class="col s2">
@@ -23,7 +23,7 @@
 </form>
 
 <div class="categoriesContainer">
-  <mat-card class="default-card" *ngFor="let category of categories">
+  <mat-card class="default-card" *ngFor="let category of categories | orderBy: 'description'">
     <mat-card-header>
       <div mat-card-avatar [style.background]="category.color" class="color-header"></div>
       <mat-card-title>{{category.description}}</mat-card-title>

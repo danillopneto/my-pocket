@@ -1,6 +1,9 @@
 .expensesContainer
 {
     display: grid;
+    height: 320px;
+    overflow: auto;
+    padding-top: 10px;
 }
 
 tr.mat-footer-row

@@ -12,8 +12,8 @@ export class ExpensesService extends BaseAngularService<Expense> {
 
   constructor(
               protected firestore: AngularFirestore,
-              private util: UtilityService) {
-    super(firestore);
+              protected util: UtilityService) {
+    super(firestore, util);
   }
 
   getCollectionReference(queryFn?: QueryFn) {

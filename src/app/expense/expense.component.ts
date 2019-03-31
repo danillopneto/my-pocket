@@ -35,8 +35,8 @@ export class ExpenseComponent implements OnInit {
   }
 
   ngAfterViewInit() {
-    this.categories = this.categoriesService.getAll('description');
-    this.paymentMethods = this.paymentMethodsService.getAll('description');
+    this.categories = this.categoriesService.getAllFromUser();
+    this.paymentMethods = this.paymentMethodsService.getAllFromUser();
   }
 
   createFormGroup() {
@@ -76,9 +76,6 @@ export class ExpenseComponent implements OnInit {
       this.form.value.description,
       this.form.value.value,
       idPaymentMethod);
-
-    newExpense.category = this.categoriesService.getCollectionReference().doc(idCategory).ref;
-    newExpense.paymentMethod = this.paymentMethodsService.getCollectionReference().doc(idPaymentMethod).ref;
 
     this.expensesService
       .save(newExpense)

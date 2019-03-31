@@ -1,6 +1,9 @@
+import { Category } from './category.model';
+import { PaymentMethod } from './payment-method.model';
+
 export class Expense {
-    category: firebase.firestore.DocumentReference;
-    paymentMethod: firebase.firestore.DocumentReference;
+    category: Category;
+    paymentMethod: PaymentMethod;
     
     constructor(
         public id: string = '',

@@ -1,63 +1,61 @@
-<div class="row expensesContainer">
+<div class="row expensesContainer mat-elevation-z8">
   <mat-form-field class="col s12">
     <input matInput (keyup)="applyFilter($event.target.value)" placeholder="Filtro">
   </mat-form-field>
 
-  <div class="mat-elevation-z8">
-    <table mat-table [dataSource]="dataSource" matSort class="col s12">
-      <ng-container matColumnDef="day">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Data </th>
-        <td mat-cell *matCellDef="let element"> {{ util.getFullDate(element) }} </td>
-        <td mat-footer-cell *matFooterCellDef> Total </td>
-      </ng-container>
-      <ng-container matColumnDef="category">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Categoria </th>
-        <td mat-cell *matCellDef="let element">
-          <label *ngIf="element.category | doc | async as category" [style.color]="category.color">
-            {{category.description}}
-          </label>
-        </td>
-        <td mat-footer-cell *matFooterCellDef></td>
-      </ng-container>
-      <ng-container matColumnDef="description">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Descrição </th>
-        <td mat-cell *matCellDef="let element"> {{ element.description }} </td>
-        <td mat-footer-cell *matFooterCellDef></td>
-      </ng-container>
-      <ng-container matColumnDef="value">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Valor </th>
-        <td mat-cell *matCellDef="let element"> {{ element.value | currencyFormat: 'BRL' : true }} </td>
-        <td mat-footer-cell *matFooterCellDef> {{ getTotalCost() | currencyFormat: 'BRL' : true }} </td>
-      </ng-container>
-      <ng-container matColumnDef="paymentMethod">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Tipo de pagamento </th>
-        <td mat-cell *matCellDef="let element">
-          <label *ngIf="element.paymentMethod | doc | async as paymentMethod">{{paymentMethod.description}}</label>
-        </td>
-        <td mat-footer-cell *matFooterCellDef></td>
-      </ng-container>
-      <ng-container matColumnDef="edit">
-        <th mat-header-cell *matHeaderCellDef> Editar </th>
-        <td mat-cell *matCellDef="let element">
-          <button mat-icon-button aria-label="edit" (click)="editExpense(element.id)">
-            <mat-icon>edit</mat-icon>
-          </button>
-        </td>
-        <td mat-footer-cell *matFooterCellDef></td>
-      </ng-container>
-      <ng-container matColumnDef="remove">
-        <th mat-header-cell *matHeaderCellDef> Remover </th>
-        <td mat-cell *matCellDef="let element">
-          <button mat-icon-button aria-label="edit" (click)="removeExpense(element.id)">
-            <mat-icon>delete</mat-icon>
-          </button>
-        </td>
-        <td mat-footer-cell *matFooterCellDef></td>
-      </ng-container>
+  <table mat-table [dataSource]="dataSource" matSort class="col s12">
+    <ng-container matColumnDef="day">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Data </th>
+      <td mat-cell *matCellDef="let element"> {{ util.getFullDate(element) }} </td>
+      <td mat-footer-cell *matFooterCellDef> Total </td>
+    </ng-container>
+    <ng-container matColumnDef="category.description">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Categoria </th>
+      <td mat-cell *matCellDef="let element">        
+        <label [style.color]="element.category.color">
+            {{ element.category.description }}
+        </label>
+      </td>
+      <td mat-footer-cell *matFooterCellDef></td>
+    </ng-container>
+    <ng-container matColumnDef="description">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Descrição </th>
+      <td mat-cell *matCellDef="let element"> {{ element.description }} </td>
+      <td mat-footer-cell *matFooterCellDef></td>
+    </ng-container>
+    <ng-container matColumnDef="value">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Valor </th>
+      <td mat-cell *matCellDef="let element"> {{ element.value | currencyFormat: 'BRL' : true }} </td>
+      <td mat-footer-cell *matFooterCellDef> {{ getTotalCost() | currencyFormat: 'BRL' : true }} </td>
+    </ng-container>
+    <ng-container matColumnDef="paymentMethod.description">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Tipo de pagamento </th>
+      <td mat-cell *matCellDef="let element">
+        {{ element.paymentMethod.description }}
+      </td>
+      <td mat-footer-cell *matFooterCellDef></td>
+    </ng-container>
+    <ng-container matColumnDef="edit">
+      <th mat-header-cell *matHeaderCellDef> Editar </th>
+      <td mat-cell *matCellDef="let element">
+        <button mat-icon-button aria-label="edit" (click)="editExpense(element.id)">
+          <mat-icon>edit</mat-icon>
+        </button>
+      </td>
+      <td mat-footer-cell *matFooterCellDef></td>
+    </ng-container>
+    <ng-container matColumnDef="remove">
+      <th mat-header-cell *matHeaderCellDef> Remover </th>
+      <td mat-cell *matCellDef="let element">
+        <button mat-icon-button aria-label="edit" (click)="removeExpense(element.id)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </td>
+      <td mat-footer-cell *matFooterCellDef></td>
+    </ng-container>
 
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-      <tr mat-footer-row *matFooterRowDef="displayedColumns; sticky: true"></tr>
-    </table>
-  </div>
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    <tr mat-footer-row *matFooterRowDef="displayedColumns; sticky: true"></tr>
+  </table>
 </div>

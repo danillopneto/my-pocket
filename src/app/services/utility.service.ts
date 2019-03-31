@@ -6,8 +6,9 @@ import { Expense } from '../models/expense.model';
   providedIn: 'root'
 })
 export class UtilityService {
-  
-  loading: EventEmitter<boolean> = new EventEmitter();;
+  userId: string;
+
+  loading: EventEmitter<boolean> = new EventEmitter();
 
   constructor() { }
 
@@ -67,5 +68,9 @@ export class UtilityService {
 
   getFullDate(expense: Expense): string {
     return expense.day.concat('/', expense.month, '/', expense.year);
+  }
+
+  setUserId(userId: string) {
+    this.userId = userId;
   }
 }
