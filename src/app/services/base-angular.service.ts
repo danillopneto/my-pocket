@@ -1,4 +1,3 @@
-import { Injectable } from '@angular/core';
 import { AngularFirestore, QueryFn, AngularFirestoreCollection, DocumentChangeAction } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import { BaseResourceModel } from '../models/base-resource.model';
@@ -17,6 +16,14 @@ export abstract class BaseAngularService<T extends BaseResourceModel>{
         if (orderBy != null
             && orderBy != '') {
             return this.getCollectionReference(ref => ref.orderBy(orderBy)).valueChanges();
+        }
+
+        return this.getCollectionReference().valueChanges();
+    }
+
+    getAllWithQuery(queryFn?: QueryFn): Observable<T[]> {
+        if (queryFn != null) {
+            return this.getCollectionReference(queryFn).valueChanges();
         }
 
         return this.getCollectionReference().valueChanges();

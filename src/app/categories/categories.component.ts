@@ -87,8 +87,7 @@ export class CategoriesComponent implements OnInit {
       .remove(id)
       .catch(() => {        
       })
-      .then(() => {
-        this.getCategories();
+      .then(() => {        
       })
       .finally(() => {
         this.util.hideLoading();
@@ -106,7 +105,6 @@ export class CategoriesComponent implements OnInit {
       })
       .then(() => {
         this.form = this.createFormGroup();
-        this.getCategories();
       })
       .finally(() => {
         this.util.hideLoading();

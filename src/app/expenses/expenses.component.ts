@@ -4,7 +4,6 @@ import { ExpensesService } from '../services/expense.service';
 import { UtilityService } from '../services/utility.service';
 import { Expense } from '../models/expense.model';
 import { CategoriesService } from '../services/categories.service';
-import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-expenses',
@@ -12,7 +11,7 @@ import { Observable } from 'rxjs';
   styleUrls: ['./expenses.component.scss']
 })
 export class ExpensesComponent implements OnInit {
-  displayedColumns: string[] = ['day', 'category', 'description', 'value', 'paymentMethod'];
+  displayedColumns: string[] = ['day', 'category', 'description', 'value', 'paymentMethod', 'edit', 'remove'];
   dataSource: MatTableDataSource<Expense>;
   expenses: Expense[];
 
@@ -31,7 +30,8 @@ export class ExpensesComponent implements OnInit {
 
   getExpenses() {
     this.util.showLoading();
-    this.expensesService.getAll().subscribe(data => {
+    this.expensesService.getAllWithQuery((x => x.orderBy('day', 'desc')))
+          .subscribe(data => {
       this.expenses = data;
       this.dataSource = new MatTableDataSource(this.expenses);
       this.util.hideLoading();
@@ -44,5 +44,16 @@ export class ExpensesComponent implements OnInit {
     return this.categoriesService.get(idCategory).subscribe(data => {
       return data;
     });
+  }
+
+  removeExpense(id: string) {
+    this.util.showLoading();
+    this.expensesService
+      .remove(id)
+      .catch(() => {        
+      })
+      .finally(() => {
+        this.util.hideLoading();
+      });
   }
 }
