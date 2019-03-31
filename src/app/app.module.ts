@@ -58,6 +58,11 @@ import {
 } from '@angular/material';
 import { ExpenseComponent } from './expense/expense.component';
 import { ExpensesComponent } from './expenses/expenses.component';
+import { CurrencyFormatPipe } from './currency-format-pipe';
+import { registerLocaleData } from '@angular/common';
+import localePt from '@angular/common/locales/pt';
+
+registerLocaleData(localePt, 'pt');
 
 @NgModule({
   declarations: [
@@ -67,7 +72,8 @@ import { ExpensesComponent } from './expenses/expenses.component';
     HomeComponent,
     ExpenseComponent,
     ExpensesComponent,
-    DocPipe
+    DocPipe,
+    CurrencyFormatPipe
   ],
   imports: [
     BrowserModule,
