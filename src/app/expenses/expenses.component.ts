@@ -5,6 +5,8 @@ import { UtilityService } from '../services/utility.service';
 import { Expense } from '../models/expense.model';
 import { CategoriesService } from '../services/categories.service';
 import { PaymentMethodsService } from '../services/payment-methods.service';
+import { Category } from '../models/category.model';
+import { PaymentMethod } from '../models/payment-method.model';
 
 @Component({
   selector: 'app-expenses',
@@ -17,6 +19,8 @@ export class ExpensesComponent implements OnInit {
   @ViewChild(MatSort) sort: MatSort;
 
   expenses: Expense[];
+  categories: Category[];
+  paymentMethods: PaymentMethod[];
 
   constructor(
     private util: UtilityService,
@@ -47,36 +51,42 @@ export class ExpensesComponent implements OnInit {
 
   getExpenses() {
     this.util.showLoading();
-    this.expensesService.getAllWithQuery((x => x.orderBy('day', 'desc')))
-      .subscribe(data => {
-        this.expenses = data;
-        this.expenses.forEach((expense) => {
-          this.categoriesService.get(expense.idCategory).subscribe(data => {
-            expense.category = data;
-            this.paymentMethodsService.get(expense.idPaymentMethod).subscribe(data => {
-              expense.paymentMethod = data;
-              debugger;
-              this.dataSource = new MatTableDataSource(this.expenses);
-              this.dataSource.sort = this.sort;
 
-              this.dataSource.filterPredicate = (data, filter: string) => {
-                const accumulator = (currentTerm, key) => {
-                  return this.nestedFilterCheck(currentTerm, data, key);
-                };
-                const dataStr = Object.keys(data).reduce(accumulator, '').toLowerCase();
-                // Transform the filter by converting it to lowercase and removing whitespace.
-                const transformedFilter = filter.trim().toLowerCase();
-                return dataStr.indexOf(transformedFilter) !== -1;
-              };
+    const expenses = this.expensesService.getAllFromUser();
+    const categories = this.categoriesService.getAllFromUser();
+    const payments = this.paymentMethodsService.getAllFromUser();
 
-              this.util.hideLoading();
-            });
-          });
-        })
+    expenses.subscribe(data => { this.expenses = data; this.fillDataSource(); });
+    categories.subscribe(data => { this.categories = data; this.fillDataSource(); });
+    payments.subscribe(data => { this.paymentMethods = data; this.fillDataSource(); });
+  }
 
-      }, err => {
-        this.util.hideLoading();
-      });
+  fillDataSource() {
+    if (this.expenses == null
+      || this.categories == null
+      || this.paymentMethods == null) {
+      return;
+    }
+
+    this.expenses.forEach(expense => {
+      expense.category = this.categories.find(x => x.id == expense.idCategory);
+      expense.paymentMethod = this.paymentMethods.find(x => x.id == expense.idPaymentMethod);
+    })
+
+    this.dataSource = new MatTableDataSource(this.expenses);
+    this.dataSource.sort = this.sort;
+
+    this.dataSource.filterPredicate = (data, filter: string) => {
+      const accumulator = (currentTerm, key) => {
+        return this.nestedFilterCheck(currentTerm, data, key);
+      };
+      const dataStr = Object.keys(data).reduce(accumulator, '').toLowerCase();
+      // Transform the filter by converting it to lowercase and removing whitespace.
+      const transformedFilter = filter.trim().toLowerCase();
+      return dataStr.indexOf(transformedFilter) !== -1;
+    };
+    
+    this.util.hideLoading();
   }
 
   getTotalCost() {

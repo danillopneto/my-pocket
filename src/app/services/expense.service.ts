@@ -17,7 +17,7 @@ export class ExpensesService extends BaseAngularService<Expense> {
   }
 
   getCollectionReference(queryFn?: QueryFn) {
-    return this.firestore.collection('danillopneto').doc("userData").collection<Expense>('expenses', queryFn);
+    return this.firestore.collection<Expense>('expenses', queryFn);
   }
 
   getYearReference(date: string) {
