@@ -61,7 +61,7 @@ import { ExpensesComponent } from './expenses/expenses.component';
 import { CurrencyFormatPipe } from './currency-format-pipe';
 import { registerLocaleData } from '@angular/common';
 import localePt from '@angular/common/locales/pt';
-import { OrderPipe } from 'ngx-order-pipe';
+import { OrderModule } from 'ngx-order-pipe';
 
 registerLocaleData(localePt, 'pt');
 
@@ -74,8 +74,7 @@ registerLocaleData(localePt, 'pt');
     ExpenseComponent,
     ExpensesComponent,
     DocPipe,
-    CurrencyFormatPipe,
-    OrderPipe
+    CurrencyFormatPipe
   ],
   imports: [
     BrowserModule,
@@ -90,6 +89,7 @@ registerLocaleData(localePt, 'pt');
       primaryColour: '#0143a3',
       secondaryColour: '#0273d4'
     }),
+    OrderModule,
     CurrencyMaskModule,
     BrowserAnimationsModule,
     MatAutocompleteModule,
