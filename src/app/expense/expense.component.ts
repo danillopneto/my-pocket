@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Expense } from './../models/expense.model';
 import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
@@ -8,6 +8,7 @@ import { CategoriesService } from '../services/categories.service';
 import { ExpensesService } from '../services/expense.service';
 import { PaymentMethod } from '../models/payment-method.model';
 import { PaymentMethodsService } from './../services/payment-methods.service';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 
 @Component({
   selector: 'app-expense',
@@ -27,8 +28,16 @@ export class ExpenseComponent implements OnInit {
     private util: UtilityService,
     private expensesService: ExpensesService,
     private categoriesService: CategoriesService,
-    private paymentMethodsService: PaymentMethodsService) {
-    this.form = this.createFormGroup();
+    private paymentMethodsService: PaymentMethodsService,
+    public dialogRef: MatDialogRef<ExpenseComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: string) {
+      this.form = this.createFormGroup();
+
+      if (data != null && data != '') {
+        this.expensesService.get(data).subscribe(expense => {
+          this.form = this.createFormGroup(expense);
+        });
+      }
   }
 
   ngOnInit() {
@@ -39,15 +48,27 @@ export class ExpenseComponent implements OnInit {
     this.paymentMethods = this.paymentMethodsService.getAllFromUser();
   }
 
-  createFormGroup() {
-    return this.formBuilder.group({
+  createFormGroup(expense?: Expense) {
+    var builder = this.formBuilder.group({
       idCategory: new FormControl('', [Validators.required]),
-      date: new FormControl(),
+      dateJson: new FormControl(),
       description: new FormControl(),
       id: new FormControl(),
       idPaymentMethod: new FormControl(),
       value: new FormControl()
     });
+
+    if (expense != null) {
+      var data: any = expense;
+      data.dateJson = this.util.getDateFormat(expense.date);
+      builder.patchValue(data);
+    }
+
+    return builder;
+  }
+
+  onCancelClick() {
+    this.dialogRef.close();
   }
 
   onSubmit() {
@@ -69,9 +90,7 @@ export class ExpenseComponent implements OnInit {
 
     var newExpense = new Expense(
       this.form.value.id,
-      this.util.getDayFromDate(this.form.value.date.toJSON()),
-      this.util.getMonthFromDate(this.form.value.date.toJSON()),
-      this.util.getYearFromDate(this.form.value.date.toJSON()),
+      this.util.getFullDate(this.form.value.dateJson.toJSON()),
       idCategory,
       this.form.value.description,
       this.form.value.value,
@@ -83,7 +102,8 @@ export class ExpenseComponent implements OnInit {
         this.util.hideLoading();
       })
       .then(() => {
-        this.form = this.createFormGroup();
+        this.onCancelClick();
+        this.util.hideLoading();   
       })
       .finally(() => {
         this.util.hideLoading();

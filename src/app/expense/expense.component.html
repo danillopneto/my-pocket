@@ -2,8 +2,8 @@
   <div novalidate>
     <div class="row">
       <input formControlName="id" type="hidden" />
-      <mat-form-field class="col s2">
-        <input matInput formControlName="date" [matDatepicker]="date" placeholder="Data da despesa" disabled>
+      <mat-form-field class="col s12">
+        <input matInput formControlName="dateJson" [matDatepicker]="date" placeholder="Data da despesa" disabled required>
         <mat-datepicker-toggle matSuffix [for]="date"></mat-datepicker-toggle>
         <mat-datepicker #date disabled="false"></mat-datepicker>
       </mat-form-field>
@@ -28,16 +28,14 @@
           </mat-option>
         </mat-select>
       </mat-form-field>
-      <mat-form-field class="col s2">
+      <mat-form-field class="col s12">
         <input matInput #input currencyMask formControlName="value" placeholder="Valor"
           [options]="{ prefix: 'R$ ', thousands: '.', decimal: ',' }" required="required" data-length="255" />
       </mat-form-field>
     </div>
     <div class="col s12">
-      <button mat-raised-button color="primary">
-        Salvar
-        <i class="material-icons right">send</i>
-      </button>
+      <button type="button" mat-raised-button (click)="onCancelClick()">Cancelar</button>
+      <button mat-raised-button class="right" color="primary">Salvar<i class="material-icons">send</i></button>
     </div>
   </div>
 </form>

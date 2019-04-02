@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { MatTableDataSource, MatSort } from '@angular/material';
+import { MatTableDataSource, MatSort, MatDialog } from '@angular/material';
 import { ExpensesService } from '../services/expense.service';
 import { UtilityService } from '../services/utility.service';
 import { Expense } from '../models/expense.model';
@@ -7,6 +7,7 @@ import { CategoriesService } from '../services/categories.service';
 import { PaymentMethodsService } from '../services/payment-methods.service';
 import { Category } from '../models/category.model';
 import { PaymentMethod } from '../models/payment-method.model';
+import { ExpenseComponent } from '../expense/expense.component';
 
 @Component({
   selector: 'app-expenses',
@@ -26,7 +27,8 @@ export class ExpensesComponent implements OnInit {
     private util: UtilityService,
     private expensesService: ExpensesService,
     private categoriesService: CategoriesService,
-    private paymentMethodsService: PaymentMethodsService) { }
+    private paymentMethodsService: PaymentMethodsService,
+    private dialog: MatDialog) { }
 
   ngOnInit() {
     this.getExpenses();
@@ -85,7 +87,7 @@ export class ExpensesComponent implements OnInit {
       const transformedFilter = filter.trim().toLowerCase();
       return dataStr.indexOf(transformedFilter) !== -1;
     };
-    
+
     this.util.hideLoading();
   }
 
@@ -100,6 +102,27 @@ export class ExpensesComponent implements OnInit {
   getCategory(idCategory: string) {
     return this.categoriesService.get(idCategory).subscribe(data => {
       return data;
+    });
+  }
+
+  newExpense() {
+    const dialogRef = this.dialog.open(ExpenseComponent, {
+      width: '550px'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The dialog was closed');
+    });
+  }
+
+  editExpense(id: string) {
+    const dialogRef = this.dialog.open(ExpenseComponent, {
+      width: '550px',
+      data: id
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The dialog was closed');
     });
   }
 

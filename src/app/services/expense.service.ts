@@ -20,24 +20,54 @@ export class ExpensesService extends BaseAngularService<Expense> {
     return this.firestore.collection<Expense>('expenses', queryFn);
   }
 
-  getYearReference(date: string) {
-    return this.getCollectionReference(ref => ref.where('year', '==', this.util.getYearFromDate(date)));
+  getYearReference(date: number) {
+    var year = this.util.getYearFromDate(date);
+    return this.getCollectionReference(ref => ref
+          .where('date', '>=', parseInt(year.concat('0000'), 10))
+          .where('date', '<=', parseInt(year.concat('1231'), 10)));
   }
   
-  getMonthReference(date: string) {
+  getMonthReference(date: number) {
+    var year = this.util.getYearFromDate(date);
+    var month = this.util.getMonthFromDate(date);
     return this.getCollectionReference(ref => 
-        ref.where('year', '==', this.util.getYearFromDate(date))
-           .where('month', '==', this.util.getMonthFromDate(date)));
+        ref.where('date', '>=', parseInt(year.concat(month, '00'), 10))
+           .where('date', '<=', parseInt(year.concat(month, '31'), 10)));
   }
 
-  getDayReference(date: string) {
+  getDayReference(date: number) {
     return this.getCollectionReference(ref => 
-        ref.where('year', '==', this.util.getYearFromDate(date))
-          .where('month', '==', this.util.getMonthFromDate(date))
-          .where('day', '==', this.util.getDayFromDate(date)));
+        ref.where('date', '==', date));
   }
 
-  getExpensesOnDay(date: string) {
-    return this.getDayReference(date).snapshotChanges();
+  getExpensesOnDay(date: number) {
+    return this.getDayReference(date).valueChanges();
+  }
+
+  getUserYearReference(date: number) {
+    var year = this.util.getYearFromDate(date);
+    return this.getCollectionReference(ref => ref
+          .where('userId', '==', this.util.userId)
+          .where('date', '>=', parseInt(year.concat('0000'), 10))
+          .where('date', '<=', parseInt(year.concat('1231'), 10)));
+  }
+  
+  getUserMonthReference(date: number) {
+    var year = this.util.getYearFromDate(date);
+    var month = this.util.getMonthFromDate(date);
+    return this.getCollectionReference(ref => 
+        ref.where('userId', '==', this.util.userId)
+           .where('date', '>=', parseInt(year.concat(month, '01'), 10))
+           .where('date', '<=', parseInt(year.concat(month, '31'))));
+  }
+
+  getUserDayReference(date: number) {
+    return this.getCollectionReference(ref => 
+        ref.where('userId', '==', this.util.userId)
+           .where('date', '==', date));
+  }
+
+  getUserExpensesOnDay(date: number) {
+    return this.getUserDayReference(date).valueChanges();
   }
 }
