@@ -54,6 +54,7 @@ export class ExpenseComponent implements OnInit {
             this.options.push(value.description);
         });
 
+        this.options = this.options.sort();
         this.filteredOptions = this.form.controls.place.valueChanges
         .pipe(
           startWith(''),
