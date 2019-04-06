@@ -34,6 +34,10 @@ export abstract class BaseAngularService<T extends BaseResourceModel>{
         return this.getUserReference().valueChanges();
     }
 
+    getAllFromUserWithLimit(limit: number) : Observable<T[]> {        
+        return this.getCollectionReference(r => r.where('userId', '==', this.util.userId).limit(limit)).valueChanges();
+    }
+
     getUserReference() {
         return this.getCollectionReference(r => r.where('userId', '==', this.util.userId));
     }

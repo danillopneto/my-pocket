@@ -3,7 +3,7 @@
     <div class="row">
       <input formControlName="id" type="hidden" />
       <mat-form-field class="col s12">
-        <input matInput formControlName="dateJson" [matDatepicker]="date" placeholder="Data da despesa" disabled required>
+        <input matInput formControlName="dateJson" [matDatepicker]="date" placeholder="Data da despesa" disabled="disabled" required>
         <mat-datepicker-toggle matSuffix [for]="date"></mat-datepicker-toggle>
         <mat-datepicker #date disabled="false"></mat-datepicker>
       </mat-form-field>
@@ -16,9 +16,18 @@
         </mat-select>
       </mat-form-field>
       <mat-form-field class="col s12">
-        <input matInput #input formControlName="description" placeholder="Descrição" required="required"
+        <input type="text" placeholder="Estabelecimento" aria-label="Number" matInput 
+          formControlName="place" [matAutocomplete]="auto">
+        <mat-autocomplete #auto="matAutocomplete">
+          <mat-option *ngFor="let option of filteredOptions | async" [value]="option">
+            {{option}}
+          </mat-option>
+        </mat-autocomplete>
+      </mat-form-field>
+      <mat-form-field class="col s12">
+        <input matInput #inputDescription formControlName="description" placeholder="Descrição" required="required"
           data-length="255" />
-        <mat-hint align="end">{{input.value?.length || 0}}/255</mat-hint>
+        <mat-hint align="end">{{inputDescription.value?.length || 0}}/255</mat-hint>
       </mat-form-field>
       <mat-form-field class="col s12">
         <mat-label>Método de pagamento</mat-label>
@@ -29,7 +38,7 @@
         </mat-select>
       </mat-form-field>
       <mat-form-field class="col s12">
-        <input matInput #input currencyMask formControlName="value" placeholder="Valor"
+        <input matInput currencyMask formControlName="value" placeholder="Valor"
           [options]="{ prefix: 'R$ ', thousands: '.', decimal: ',' }" required="required" data-length="255" />
       </mat-form-field>
     </div>

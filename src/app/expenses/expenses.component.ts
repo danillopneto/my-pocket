@@ -15,7 +15,7 @@ import { ExpenseComponent } from '../expense/expense.component';
   styleUrls: ['./expenses.component.scss']
 })
 export class ExpensesComponent implements OnInit {
-  displayedColumns: string[] = ['day', 'category.description', 'description', 'value', 'paymentMethod.description', 'edit', 'remove'];
+  displayedColumns: string[] = ['day', 'category.description', 'place', 'description', 'value', 'paymentMethod.description', 'edit', 'remove'];
   dataSource: MatTableDataSource<Expense>;
   @ViewChild(MatSort) sort: MatSort;
 
@@ -58,7 +58,7 @@ export class ExpensesComponent implements OnInit {
     const categories = this.categoriesService.getAllFromUser();
     const payments = this.paymentMethodsService.getAllFromUser();
 
-    expenses.subscribe(data => { this.expenses = data; this.fillDataSource(); });
+    expenses.subscribe(data => { this.expenses = data.sort((a, b) => b.date-a.date); this.fillDataSource(); });
     categories.subscribe(data => { this.categories = data; this.fillDataSource(); });
     payments.subscribe(data => { this.paymentMethods = data; this.fillDataSource(); });
   }
