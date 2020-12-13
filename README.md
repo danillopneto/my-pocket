@@ -1,5 +1,7 @@
 # MyPocket
 
+MyPocket was designed to be a budget app that allows you to track how you've spent of your money in daily life.
+
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 7.3.6.
 
 ## Development server
