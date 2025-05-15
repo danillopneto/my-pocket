@@ -1,0 +1,62 @@
+// Expense model
+class Expense {
+  final String? id;
+  final DateTime date;
+  final DateTime createdAt;
+  final String description;
+  final double value;
+  final int installments;
+  final String place;
+  final String categoryId;
+  final String accountId;
+
+  Expense({
+    this.id,
+    required this.date,
+    required this.createdAt,
+    required this.description,
+    required this.value,
+    required this.installments,
+    required this.place,
+    required this.categoryId,
+    required this.accountId,
+  });
+
+  factory Expense.fromMap(Map<String, dynamic> map, {String? id}) {
+    DateTime parseDate(dynamic value) {
+      if (value is DateTime) return value;
+      if (value != null && value.runtimeType.toString() == 'Timestamp') {
+        // Firestore Timestamp support
+        return (value as dynamic).toDate();
+      }
+      return DateTime.tryParse(value?.toString() ?? '') ?? DateTime.now();
+    }
+
+    return Expense(
+      id: id,
+      date: parseDate(map['date']),
+      createdAt: parseDate(map['createdAt']),
+      description: map['description'] ?? '',
+      value: (map['value'] is int)
+          ? (map['value'] as int).toDouble()
+          : (map['value'] as num?)?.toDouble() ?? 0.0,
+      installments: map['installments'] ?? 1,
+      place: map['place'] ?? '',
+      categoryId: map['categoryId'] ?? '',
+      accountId: map['accountId'] ?? '',
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'date': date.toIso8601String(),
+      'createdAt': createdAt.toIso8601String(),
+      'description': description,
+      'value': value,
+      'installments': installments,
+      'place': place,
+      'categoryId': categoryId,
+      'accountId': accountId,
+    };
+  }
+}
