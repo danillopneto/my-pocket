@@ -151,6 +151,8 @@ class DashboardScreen extends StatelessWidget {
                                                                     context)
                                                                 .textTheme
                                                                 .titleSmall),
+                                                        const SizedBox(
+                                                            height: 12),
                                                         SizedBox(
                                                           height: 300,
                                                           child:
@@ -176,6 +178,8 @@ class DashboardScreen extends StatelessWidget {
                                                                     context)
                                                                 .textTheme
                                                                 .titleSmall),
+                                                        const SizedBox(
+                                                            height: 12),
                                                         SizedBox(
                                                           height: 300,
                                                           child:
@@ -201,6 +205,7 @@ class DashboardScreen extends StatelessWidget {
                                                       style: Theme.of(context)
                                                           .textTheme
                                                           .titleSmall),
+                                                  const SizedBox(height: 12),
                                                   SizedBox(
                                                     height: 280,
                                                     child: AccountDonutChart(
@@ -216,6 +221,7 @@ class DashboardScreen extends StatelessWidget {
                                                       style: Theme.of(context)
                                                           .textTheme
                                                           .titleSmall),
+                                                  const SizedBox(height: 12),
                                                   SizedBox(
                                                     height: 280,
                                                     child: CategoryDonutChart(

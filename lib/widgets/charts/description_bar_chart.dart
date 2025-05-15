@@ -33,13 +33,13 @@ class _DescriptionBarChartState extends State<DescriptionBarChart> {
           (descTotals[expense.description] ?? 0) + expense.value;
     }
 
-    // Show only top 10 descriptions by total value
+    // Show all descriptions by total value
     final sortedEntries = descTotals.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
-    final topEntries = sortedEntries.take(10).toList();
+    final allEntries = sortedEntries;
 
-    final maxY = topEntries.isNotEmpty
-        ? topEntries.map((e) => e.value).reduce((a, b) => a > b ? a : b)
+    final maxY = allEntries.isNotEmpty
+        ? allEntries.map((e) => e.value).reduce((a, b) => a > b ? a : b)
         : 0.0;
 
     // Excel-like vibrant colors for bars
@@ -64,154 +64,183 @@ class _DescriptionBarChartState extends State<DescriptionBarChart> {
             flex: 4,
             child: Padding(
               padding: const EdgeInsets.only(top: 16, right: 16, left: 8),
-              child: BarChart(
-                BarChartData(
-                  alignment: BarChartAlignment.spaceAround,
-                  maxY: maxY == 0 ? 10 : maxY * 1.2,
-                  minY: 0,
-                  barTouchData: BarTouchData(
-                    touchTooltipData: BarTouchTooltipData(
-                      tooltipBgColor: Colors.grey.shade800,
-                      getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                        final entry = topEntries[groupIndex];
-                        return BarTooltipItem(
-                          '${entry.key}\n',
-                          const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  const minBarWidth = 40.0;
+                  const barSpacing = 16.0;
+                  final barCount = allEntries.length;
+                  final neededWidth = barCount > 0
+                      ? (barCount * minBarWidth) + ((barCount - 1) * barSpacing)
+                      : constraints.maxWidth;
+                  final chartWidth = neededWidth < constraints.maxWidth
+                      ? constraints.maxWidth
+                      : neededWidth;
+                  return SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: SizedBox(
+                      width: chartWidth,
+                      child: BarChart(
+                        BarChartData(
+                          alignment: barCount * (minBarWidth + barSpacing) <
+                                  constraints.maxWidth
+                              ? BarChartAlignment.spaceEvenly
+                              : BarChartAlignment.spaceBetween,
+                          maxY: maxY == 0 ? 10 : maxY * 1.2,
+                          minY: 0,
+                          barTouchData: BarTouchData(
+                            touchTooltipData: BarTouchTooltipData(
+                              tooltipBgColor: Colors.grey.shade800,
+                              getTooltipItem:
+                                  (group, groupIndex, rod, rodIndex) {
+                                final entry = allEntries[groupIndex];
+                                return BarTooltipItem(
+                                  '${entry.key}\n',
+                                  const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  children: [
+                                    TextSpan(
+                                      text:
+                                          CurrencyFormatService.formatCurrency(
+                                              entry.value, context),
+                                      style: TextStyle(
+                                        color: Colors.yellow.shade400,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
+                            touchCallback:
+                                (FlTouchEvent event, barTouchResponse) {
+                              setState(() {
+                                if (!event.isInterestedForInteractions ||
+                                    barTouchResponse == null ||
+                                    barTouchResponse.spot == null) {
+                                  touchedIndex = -1;
+                                  return;
+                                }
+                                touchedIndex =
+                                    barTouchResponse.spot!.touchedBarGroupIndex;
+                              });
+                            },
                           ),
-                          children: [
-                            TextSpan(
-                              text: CurrencyFormatService.formatCurrency(
-                                  entry.value, context),
-                              style: TextStyle(
-                                color: Colors.yellow.shade400,
-                                fontWeight: FontWeight.bold,
+                          titlesData: FlTitlesData(
+                            show: true,
+                            bottomTitles: AxisTitles(
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                                reservedSize: 36,
+                                getTitlesWidget:
+                                    (double value, TitleMeta meta) {
+                                  final idx = value.toInt();
+                                  if (idx < 0 || idx >= allEntries.length) {
+                                    return const SizedBox.shrink();
+                                  }
+                                  final desc = allEntries[idx].key;
+                                  return Padding(
+                                    padding: const EdgeInsets.only(top: 8.0),
+                                    child: Transform.rotate(
+                                      angle: -0.4,
+                                      child: Text(
+                                        desc.length > 12
+                                            ? '${desc.substring(0, 12)}…'
+                                            : desc,
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          fontWeight: idx == touchedIndex
+                                              ? FontWeight.bold
+                                              : FontWeight.normal,
+                                          color: idx == touchedIndex
+                                              ? Colors.black
+                                              : Colors.black54,
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
                               ),
                             ),
+                            leftTitles: AxisTitles(
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                                reservedSize: 40,
+                                getTitlesWidget: (value, meta) {
+                                  return Text(
+                                    value.toInt().toString(),
+                                    style: const TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black54,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                            topTitles: AxisTitles(
+                                sideTitles: SideTitles(showTitles: false)),
+                            rightTitles: AxisTitles(
+                                sideTitles: SideTitles(showTitles: false)),
+                          ),
+                          gridData: FlGridData(
+                            show: true,
+                            checkToShowHorizontalLine: (value) {
+                              // Prevent division by zero and handle small values better
+                              if (maxY <= 0) return value == 0;
+                              double interval = maxY > 5 ? (maxY / 5) : 1;
+                              return value % interval < 0.01 ||
+                                  (value % interval) > interval - 0.01;
+                            },
+                            getDrawingHorizontalLine: (value) {
+                              return FlLine(
+                                color: const Color(0xffe7e8ec),
+                                strokeWidth: 1,
+                                dashArray: [5, 5],
+                              );
+                            },
+                          ),
+                          borderData: FlBorderData(
+                            show: true,
+                            border: Border(
+                              bottom: BorderSide(
+                                  color: Colors.grey.shade300, width: 1),
+                              left: BorderSide(
+                                  color: Colors.grey.shade300, width: 1),
+                            ),
+                          ),
+                          barGroups: [
+                            for (int i = 0; i < allEntries.length; i++)
+                              BarChartGroupData(
+                                x: i,
+                                barRods: [
+                                  BarChartRodData(
+                                    toY: allEntries[i].value,
+                                    color: i == touchedIndex
+                                        ? Colors.amber
+                                        : barColors[i % barColors.length],
+                                    width: 16,
+                                    borderRadius: const BorderRadius.only(
+                                      topLeft: Radius.circular(4),
+                                      topRight: Radius.circular(4),
+                                    ),
+                                    backDrawRodData: BackgroundBarChartRodData(
+                                      show: true,
+                                      toY: maxY * 1.1,
+                                      color: const Color(0xFFEEEEEE),
+                                    ),
+                                  ),
+                                ],
+                                showingTooltipIndicators:
+                                    i == touchedIndex ? [0] : [],
+                              ),
                           ],
-                        );
-                      },
-                    ),
-                    touchCallback: (FlTouchEvent event, barTouchResponse) {
-                      setState(() {
-                        if (!event.isInterestedForInteractions ||
-                            barTouchResponse == null ||
-                            barTouchResponse.spot == null) {
-                          touchedIndex = -1;
-                          return;
-                        }
-                        touchedIndex =
-                            barTouchResponse.spot!.touchedBarGroupIndex;
-                      });
-                    },
-                  ),
-                  titlesData: FlTitlesData(
-                    show: true,
-                    bottomTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        reservedSize: 36,
-                        getTitlesWidget: (double value, TitleMeta meta) {
-                          final idx = value.toInt();
-                          if (idx < 0 || idx >= topEntries.length) {
-                            return const SizedBox.shrink();
-                          }
-                          final desc = topEntries[idx].key;
-                          return Padding(
-                            padding: const EdgeInsets.only(top: 8.0),
-                            child: Transform.rotate(
-                              angle: -0.4,
-                              child: Text(
-                                desc.length > 12
-                                    ? '${desc.substring(0, 12)}…'
-                                    : desc,
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: idx == touchedIndex
-                                      ? FontWeight.bold
-                                      : FontWeight.normal,
-                                  color: idx == touchedIndex
-                                      ? Colors.black
-                                      : Colors.black54,
-                                ),
-                              ),
-                            ),
-                          );
-                        },
+                        ),
                       ),
                     ),
-                    leftTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        reservedSize: 40,
-                        getTitlesWidget: (value, meta) {
-                          return Text(
-                            value.toInt().toString(),
-                            style: const TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black54,
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                    topTitles:
-                        AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                    rightTitles:
-                        AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  ),
-                  gridData: FlGridData(
-                    show: true,
-                    checkToShowHorizontalLine: (value) {
-                      // Prevent division by zero and handle small values better
-                      if (maxY <= 0) return value == 0;
-                      double interval = maxY > 5 ? (maxY / 5) : 1;
-                      return value % interval < 0.01 ||
-                          (value % interval) > interval - 0.01;
-                    },
-                    getDrawingHorizontalLine: (value) {
-                      return FlLine(
-                        color: const Color(0xffe7e8ec),
-                        strokeWidth: 1,
-                        dashArray: [5, 5],
-                      );
-                    },
-                  ),
-                  borderData: FlBorderData(
-                    show: true,
-                    border: Border(
-                      bottom: BorderSide(color: Colors.grey.shade300, width: 1),
-                      left: BorderSide(color: Colors.grey.shade300, width: 1),
-                    ),
-                  ),
-                  barGroups: [
-                    for (int i = 0; i < topEntries.length; i++)
-                      BarChartGroupData(
-                        x: i,
-                        barRods: [
-                          BarChartRodData(
-                            toY: topEntries[i].value,
-                            color: i == touchedIndex
-                                ? Colors.amber
-                                : barColors[i % barColors.length],
-                            width: 16,
-                            borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(4),
-                              topRight: Radius.circular(4),
-                            ),
-                            backDrawRodData: BackgroundBarChartRodData(
-                              show: true,
-                              toY: maxY * 1.1,
-                              color: const Color(0xFFEEEEEE),
-                            ),
-                          ),
-                        ],
-                        showingTooltipIndicators: i == touchedIndex ? [0] : [],
-                      ),
-                  ],
-                ),
+                  );
+                },
               ),
             ),
           ),
@@ -225,7 +254,7 @@ class _DescriptionBarChartState extends State<DescriptionBarChart> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   for (int i = 0;
-                      i < (topEntries.length > 5 ? 5 : topEntries.length);
+                      i < (allEntries.length > 5 ? 5 : allEntries.length);
                       i++)
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -242,15 +271,15 @@ class _DescriptionBarChartState extends State<DescriptionBarChart> {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            topEntries[i].key.length > 6
-                                ? '${topEntries[i].key.substring(0, 6)}...'
-                                : topEntries[i].key,
+                            allEntries[i].key.length > 6
+                                ? '${allEntries[i].key.substring(0, 6)}...'
+                                : allEntries[i].key,
                             style: const TextStyle(fontSize: 10),
                           ),
                           const SizedBox(width: 4),
                           Text(
                             CurrencyFormatService.formatCurrency(
-                                topEntries[i].value, context),
+                                allEntries[i].value, context),
                             style: const TextStyle(
                                 fontSize: 10, fontWeight: FontWeight.bold),
                           ),

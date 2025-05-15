@@ -54,169 +54,198 @@ class _DateBarChartState extends State<DateBarChart> {
             flex: 4,
             child: Padding(
               padding: const EdgeInsets.only(top: 16, right: 16, left: 8),
-              child: BarChart(
-                BarChartData(
-                  alignment: BarChartAlignment.spaceAround,
-                  maxY: maxY == 0 ? 10 : maxY * 1.2,
-                  minY: 0,
-                  barTouchData: BarTouchData(
-                    touchTooltipData: BarTouchTooltipData(
-                      tooltipBgColor: Colors.grey.shade800,
-                      getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                        final date = sortedDates[groupIndex];
-                        return BarTooltipItem(
-                          '${DateFormatService.formatDate(date, context)}\n',
-                          const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  const minBarWidth = 40.0;
+                  const barSpacing = 16.0;
+                  final barCount = sortedDates.length;
+                  final neededWidth = barCount > 0
+                      ? (barCount * minBarWidth) + ((barCount - 1) * barSpacing)
+                      : constraints.maxWidth;
+                  final chartWidth = neededWidth < constraints.maxWidth
+                      ? constraints.maxWidth
+                      : neededWidth;
+                  return SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: SizedBox(
+                      width: chartWidth,
+                      child: BarChart(
+                        BarChartData(
+                          alignment: barCount * (minBarWidth + barSpacing) <
+                                  constraints.maxWidth
+                              ? BarChartAlignment.spaceEvenly
+                              : BarChartAlignment.spaceBetween,
+                          maxY: maxY == 0 ? 10 : maxY * 1.2,
+                          minY: 0,
+                          barTouchData: BarTouchData(
+                            touchTooltipData: BarTouchTooltipData(
+                              tooltipBgColor: Colors.grey.shade800,
+                              getTooltipItem:
+                                  (group, groupIndex, rod, rodIndex) {
+                                final date = sortedDates[groupIndex];
+                                return BarTooltipItem(
+                                  '${DateFormatService.formatDate(date, context)}\n',
+                                  const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  children: [
+                                    TextSpan(
+                                      text:
+                                          CurrencyFormatService.formatCurrency(
+                                              dateTotals[date]!, context),
+                                      style: TextStyle(
+                                        color: Colors.yellow.shade400,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
+                            touchCallback:
+                                (FlTouchEvent event, barTouchResponse) {
+                              setState(() {
+                                if (!event.isInterestedForInteractions ||
+                                    barTouchResponse == null ||
+                                    barTouchResponse.spot == null) {
+                                  touchedIndex = -1;
+                                  return;
+                                }
+                                touchedIndex =
+                                    barTouchResponse.spot!.touchedBarGroupIndex;
+                              });
+                            },
                           ),
-                          children: [
-                            TextSpan(
-                              text: CurrencyFormatService.formatCurrency(
-                                  dateTotals[date]!, context),
-                              style: TextStyle(
-                                color: Colors.yellow.shade400,
-                                fontWeight: FontWeight.bold,
+                          titlesData: FlTitlesData(
+                            show: true,
+                            bottomTitles: AxisTitles(
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                                getTitlesWidget:
+                                    (double value, TitleMeta meta) {
+                                  final idx = value.toInt();
+                                  if (idx < 0 || idx >= sortedDates.length) {
+                                    return const SizedBox.shrink();
+                                  }
+                                  final date = sortedDates[idx];
+                                  String label = DateFormatService.formatDate(
+                                      date, context);
+                                  return Padding(
+                                    padding: const EdgeInsets.only(top: 8.0),
+                                    child: Text(
+                                      label,
+                                      style: const TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black54,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                reservedSize: 30,
                               ),
                             ),
+                            leftTitles: AxisTitles(
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                                reservedSize: 40,
+                                getTitlesWidget: (value, meta) {
+                                  return Text(
+                                    value.toInt().toString(),
+                                    style: const TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black54,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                            topTitles: AxisTitles(
+                                sideTitles: SideTitles(showTitles: false)),
+                            rightTitles: AxisTitles(
+                                sideTitles: SideTitles(showTitles: false)),
+                          ),
+                          gridData: FlGridData(
+                            show: true,
+                            checkToShowHorizontalLine: (value) {
+                              // Prevent division by zero and handle small values better
+                              if (maxY <= 0) return value == 0;
+                              double interval = maxY > 5 ? (maxY / 5) : 1;
+                              return value % interval < 0.01 ||
+                                  (value % interval) > interval - 0.01;
+                            },
+                            getDrawingHorizontalLine: (value) {
+                              return FlLine(
+                                color: const Color(0xffe7e8ec),
+                                strokeWidth: 1,
+                                dashArray: [5, 5],
+                              );
+                            },
+                          ),
+                          borderData: FlBorderData(
+                            show: true,
+                            border: Border(
+                              bottom: BorderSide(
+                                  color: Colors.grey.shade300, width: 1),
+                              left: BorderSide(
+                                  color: Colors.grey.shade300, width: 1),
+                            ),
+                          ),
+                          // Average value line
+                          extraLinesData: ExtraLinesData(
+                            horizontalLines: [
+                              HorizontalLine(
+                                y: avgValue,
+                                color: const Color(0xFFFF5722),
+                                strokeWidth: 2,
+                                dashArray: [8, 4],
+                                label: HorizontalLineLabel(
+                                  show: true,
+                                  alignment: Alignment.topRight,
+                                  padding: const EdgeInsets.only(
+                                      right: 8, bottom: 4),
+                                  style: const TextStyle(
+                                    color: Color(0xFFFF5722),
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 10,
+                                  ),
+                                  labelResolver: (line) =>
+                                      'Avg: ${CurrencyFormatService.formatCurrency(avgValue, context)}',
+                                ),
+                              ),
+                            ],
+                          ),
+                          barGroups: [
+                            for (int i = 0; i < sortedDates.length; i++)
+                              BarChartGroupData(
+                                x: i,
+                                barRods: [
+                                  BarChartRodData(
+                                    toY: dateTotals[sortedDates[i]]!,
+                                    color: i == touchedIndex
+                                        ? Colors.amber
+                                        : const Color(0xFF2196F3),
+                                    width: 16,
+                                    borderRadius: const BorderRadius.only(
+                                      topLeft: Radius.circular(4),
+                                      topRight: Radius.circular(4),
+                                    ),
+                                    backDrawRodData: BackgroundBarChartRodData(
+                                      show: true,
+                                      toY: maxY * 1.1,
+                                      color: const Color(0xFFEEEEEE),
+                                    ),
+                                  ),
+                                ],
+                              ),
                           ],
-                        );
-                      },
-                    ),
-                    touchCallback: (FlTouchEvent event, barTouchResponse) {
-                      setState(() {
-                        if (!event.isInterestedForInteractions ||
-                            barTouchResponse == null ||
-                            barTouchResponse.spot == null) {
-                          touchedIndex = -1;
-                          return;
-                        }
-                        touchedIndex =
-                            barTouchResponse.spot!.touchedBarGroupIndex;
-                      });
-                    },
-                  ),
-                  titlesData: FlTitlesData(
-                    show: true,
-                    bottomTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        getTitlesWidget: (double value, TitleMeta meta) {
-                          final idx = value.toInt();
-                          if (idx < 0 || idx >= sortedDates.length) {
-                            return const SizedBox.shrink();
-                          }
-                          final date = sortedDates[idx];
-                          String label =
-                              DateFormatService.formatDate(date, context);
-                          return Padding(
-                            padding: const EdgeInsets.only(top: 8.0),
-                            child: Text(
-                              label,
-                              style: const TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black54,
-                              ),
-                            ),
-                          );
-                        },
-                        reservedSize: 30,
-                      ),
-                    ),
-                    leftTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        reservedSize: 40,
-                        getTitlesWidget: (value, meta) {
-                          return Text(
-                            value.toInt().toString(),
-                            style: const TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black54,
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                    topTitles:
-                        AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                    rightTitles:
-                        AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  ),
-                  gridData: FlGridData(
-                    show: true,
-                    checkToShowHorizontalLine: (value) {
-                      // Prevent division by zero and handle small values better
-                      if (maxY <= 0) return value == 0;
-                      double interval = maxY > 5 ? (maxY / 5) : 1;
-                      return value % interval < 0.01 ||
-                          (value % interval) > interval - 0.01;
-                    },
-                    getDrawingHorizontalLine: (value) {
-                      return FlLine(
-                        color: const Color(0xffe7e8ec),
-                        strokeWidth: 1,
-                        dashArray: [5, 5],
-                      );
-                    },
-                  ),
-                  borderData: FlBorderData(
-                    show: true,
-                    border: Border(
-                      bottom: BorderSide(color: Colors.grey.shade300, width: 1),
-                      left: BorderSide(color: Colors.grey.shade300, width: 1),
-                    ),
-                  ),
-                  // Average value line
-                  extraLinesData: ExtraLinesData(
-                    horizontalLines: [
-                      HorizontalLine(
-                        y: avgValue,
-                        color: const Color(0xFFFF5722),
-                        strokeWidth: 2,
-                        dashArray: [8, 4],
-                        label: HorizontalLineLabel(
-                          show: true,
-                          alignment: Alignment.topRight,
-                          padding: const EdgeInsets.only(right: 8, bottom: 4),
-                          style: const TextStyle(
-                            color: Color(0xFFFF5722),
-                            fontWeight: FontWeight.bold,
-                            fontSize: 10,
-                          ),
-                          labelResolver: (line) =>
-                              'Avg: ${CurrencyFormatService.formatCurrency(avgValue, context)}',
                         ),
                       ),
-                    ],
-                  ),
-                  barGroups: [
-                    for (int i = 0; i < sortedDates.length; i++)
-                      BarChartGroupData(
-                        x: i,
-                        barRods: [
-                          BarChartRodData(
-                            toY: dateTotals[sortedDates[i]]!,
-                            color: i == touchedIndex
-                                ? Colors.amber
-                                : const Color(0xFF2196F3),
-                            width: 16,
-                            borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(4),
-                              topRight: Radius.circular(4),
-                            ),
-                            backDrawRodData: BackgroundBarChartRodData(
-                              show: true,
-                              toY: maxY * 1.1,
-                              color: const Color(0xFFEEEEEE),
-                            ),
-                          ),
-                        ],
-                      ),
-                  ],
-                ),
+                    ),
+                  );
+                },
               ),
             ),
           ),
