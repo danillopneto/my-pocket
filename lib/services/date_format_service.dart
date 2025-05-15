@@ -14,13 +14,19 @@ class DateFormatService {
     return locale.languageCode;
   }
 
-  static String getDateFormat(BuildContext context) {
+  static String getDateFormat(BuildContext context, {int yearDigits = 4}) {
     final lang = getCurrentLanguage(context);
-    return _formats[lang] ?? _formats['pt']!;
+    String format = _formats[lang] ?? _formats['pt']!;
+    if (yearDigits == 2) {
+      // Replace 'yyyy' with 'yy' for 2-digit year
+      format = format.replaceAll('yyyy', 'yy');
+    }
+    return format;
   }
 
-  static String formatDate(DateTime date, BuildContext context) {
-    final format = getDateFormat(context);
+  static String formatDate(DateTime date, BuildContext context,
+      {int yearDigits = 4}) {
+    final format = getDateFormat(context, yearDigits: yearDigits);
     return DateFormat(format).format(date);
   }
 }

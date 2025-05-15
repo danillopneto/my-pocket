@@ -39,7 +39,8 @@
   "no_expenses_found": "No se encontraron gastos",
   "user": "Usuario",
   "currency_symbol": "Símbolo de Moneda",
-  "currency_format": "Formato de Moneda",  "expenses_by_category": "Gastos por Categoría",
+  "currency_format": "Formato de Moneda",
+  "expenses_by_category": "Gastos por Categoría",
   "expenses_by_account": "Gastos por Cuenta",
   "expenses_by_date": "Gastos por Fecha",
   "expenses_by_description": "Gastos por Descripción",
@@ -69,5 +70,6 @@
   "no_expenses_to_display": "No hay gastos para mostrar",
   "account_deleted": "Cuenta eliminada",
   "are_you_sure_delete_account": "¿Está seguro de que desea eliminar esta cuenta?",
-  "filter": "Filtrar"
+  "filter": "Filtrar",
+  "avg": "Prom"
 }
