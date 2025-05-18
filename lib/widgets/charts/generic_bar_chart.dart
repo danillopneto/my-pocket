@@ -72,14 +72,23 @@ class _GenericBarChartState<T> extends State<GenericBarChart<T>> {
       const Color(0xFF607D8B), // Blue Grey
     ];
 
+    // Calculate legend rows for dynamic height
+    const legendItemWidth = 120.0;
+    final chartWidth =
+        MediaQuery.of(context).size.width - 32; // 16px padding each side
+    final itemsPerRow = chartWidth ~/ legendItemWidth;
+    final legendRows =
+        (allEntries.length / (itemsPerRow > 0 ? itemsPerRow : 1)).ceil();
+    // Chart height: base + legend rows * per-row height
+    final chartHeight = 220.0 - (legendRows - 1) * 18.0;
+
     return ClipRect(
       child: Column(
         children: [
           Expanded(
-            flex: 4,
             child: Padding(
-              padding:
-                  const EdgeInsets.only(top: 16, right: 8, left: 8, bottom: 24),
+              padding: const EdgeInsets.only(
+                  top: 16, right: 40, left: 8, bottom: 24),
               child: LayoutBuilder(
                 builder: (context, constraints) {
                   const minBarWidth = 40.0;
@@ -97,7 +106,7 @@ class _GenericBarChartState<T> extends State<GenericBarChart<T>> {
                         scrollDirection: Axis.horizontal,
                         child: Padding(
                           padding:
-                              const EdgeInsets.only(right: 16.0, bottom: 24.0),
+                              const EdgeInsets.only(right: 40.0, bottom: 24.0),
                           child: SizedBox(
                             width: neededWidth,
                             child: _buildBarChart(context, allEntries, maxY,
@@ -108,7 +117,7 @@ class _GenericBarChartState<T> extends State<GenericBarChart<T>> {
                     );
                   } else {
                     return Padding(
-                      padding: const EdgeInsets.only(right: 16.0),
+                      padding: const EdgeInsets.only(right: 40.0),
                       child: SizedBox(
                         width: constraints.maxWidth,
                         child: _buildBarChart(
@@ -124,46 +133,60 @@ class _GenericBarChartState<T> extends State<GenericBarChart<T>> {
           Padding(
             padding:
                 const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  for (int i = 0; i < allEntries.length; i++)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 12,
-                            height: 12,
-                            decoration: BoxDecoration(
-                              color: barColors[i % barColors.length],
-                              shape: BoxShape.rectangle,
-                              borderRadius: BorderRadius.circular(2),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                // Calculate how many legend items fit per row
+                const legendItemWidth = 120.0; // Estimate per legend item
+                final itemsPerRow = constraints.maxWidth ~/ legendItemWidth;
+                final rows = <List<Widget>>[];
+                for (int i = 0; i < allEntries.length; i += itemsPerRow) {
+                  rows.add([
+                    for (int j = i;
+                        j < i + itemsPerRow && j < allEntries.length;
+                        j++)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8.0, vertical: 4.0),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 12,
+                              height: 12,
+                              decoration: BoxDecoration(
+                                color: barColors[j % barColors.length],
+                                shape: BoxShape.rectangle,
+                                borderRadius: BorderRadius.circular(2),
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            (keyToName[allEntries[i].key] ?? allEntries[i].key)
-                                        .length >
-                                    6
-                                ? '${(keyToName[allEntries[i].key] ?? allEntries[i].key).substring(0, 6)}...'
-                                : (keyToName[allEntries[i].key] ??
-                                    allEntries[i].key),
-                            style: const TextStyle(fontSize: 10),
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            widget.formatValue(allEntries[i].value, context),
-                            style: const TextStyle(
-                                fontSize: 10, fontWeight: FontWeight.bold),
-                          ),
-                        ],
+                            const SizedBox(width: 4),
+                            Text(
+                              keyToName[allEntries[j].key] ?? allEntries[j].key,
+                              style: const TextStyle(fontSize: 10),
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              widget.formatValue(allEntries[j].value, context),
+                              style: const TextStyle(
+                                  fontSize: 10, fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                ],
-              ),
+                  ]);
+                }
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    for (final row in rows)
+                      Wrap(
+                        spacing: 0,
+                        runSpacing: 0,
+                        children: row,
+                      ),
+                  ],
+                );
+              },
             ),
           ),
         ],
