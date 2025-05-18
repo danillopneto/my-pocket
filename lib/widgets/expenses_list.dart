@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import '../models/expense.dart';
 import '../models/category.dart';
-import '../models/account.dart';
+import '../models/payment-method.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'expense_card.dart';
 
 class ExpensesList extends StatelessWidget {
   final List<Expense> expenses;
   final List<Category> categories;
-  final List<Account> accounts;
+  final List<PaymentMethod> paymentMethods;
   final void Function(Expense)? onEdit;
   final void Function(Expense)? onDelete;
   final bool showTotal;
@@ -21,7 +21,7 @@ class ExpensesList extends StatelessWidget {
     super.key,
     required this.expenses,
     required this.categories,
-    required this.accounts,
+    required this.paymentMethods,
     this.onEdit,
     this.onDelete,
     this.showTotal = true,
@@ -63,14 +63,15 @@ class ExpensesList extends StatelessWidget {
                             (c) => c.id == e.categoryId,
                             orElse: () => Category(id: '', name: 'Unknown'),
                           );
-                          final account = accounts.firstWhere(
-                            (a) => a.id == e.accountId,
-                            orElse: () => Account(id: '', name: 'Unknown'),
+                          final paymentMethod = paymentMethods.firstWhere(
+                            (a) => a.id == e.paymentMethodId,
+                            orElse: () =>
+                                PaymentMethod(id: '', name: 'Unknown'),
                           );
                           return ExpenseCard(
                             expense: e,
                             category: category,
-                            account: account,
+                            paymentMethod: paymentMethod,
                             onEdit: onEdit != null ? () => onEdit!(e) : () {},
                             onDelete:
                                 onDelete != null ? () => onDelete!(e) : () {},

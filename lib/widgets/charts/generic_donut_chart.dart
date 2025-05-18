@@ -143,64 +143,102 @@ class _GenericDonutChartState<T> extends State<GenericDonutChart<T>> {
       );
       colorIndex++;
     }
-    return Column(
-      children: [
-        Expanded(
-          flex: 2,
-          child: Padding(
-            padding: const EdgeInsets.only(
-                top: 24.0, bottom: 12.0), // Add bottom padding
-            child: Row(
+    // Responsive layout: legend right on wide, below on narrow
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth > 600) {
+          // Side by side (Row), legend vertically centered with chart
+          return Row(
+            crossAxisAlignment:
+                CrossAxisAlignment.center, // <-- center legend vertically
+            children: [
+              SizedBox(
+                width:
+                    300, // or use Expanded if you want it to grow horizontally
+                height: 300,
+                child: PieChart(
+                  PieChartData(
+                    sections: sections,
+                    centerSpaceRadius: 45,
+                    sectionsSpace: 2,
+                    pieTouchData: PieTouchData(
+                      touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                        setState(() {
+                          if (!event.isInterestedForInteractions ||
+                              pieTouchResponse == null ||
+                              pieTouchResponse.touchedSection == null) {
+                            touchedIndex = -1;
+                            return;
+                          }
+                          touchedIndex = pieTouchResponse
+                              .touchedSection!.touchedSectionIndex;
+                        });
+                      },
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 24),
+              Flexible(
+                flex: 3,
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: legendItems,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
+        } else {
+          // Stack (Column): chart then legend, card height fits content
+          final donutHeight = 220.0;
+          final legendItemHeight = 28.0; // Estimate for each legend row
+          final legendHeight = legendItems.length * legendItemHeight;
+          final totalHeight = donutHeight + legendHeight + 32; // 32 for padding
+          return SizedBox(
+            height: totalHeight,
+            child: Column(
               children: [
-                Expanded(
-                  flex: 3,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      PieChart(
-                        PieChartData(
-                          sections: sections,
-                          centerSpaceRadius: 45,
-                          sectionsSpace: 2,
-                          pieTouchData: PieTouchData(
-                            touchCallback:
-                                (FlTouchEvent event, pieTouchResponse) {
-                              setState(() {
-                                if (!event.isInterestedForInteractions ||
-                                    pieTouchResponse == null ||
-                                    pieTouchResponse.touchedSection == null) {
-                                  touchedIndex = -1;
-                                  return;
-                                }
-                                touchedIndex = pieTouchResponse
-                                    .touchedSection!.touchedSectionIndex;
-                              });
-                            },
-                          ),
-                        ),
+                SizedBox(
+                  height: donutHeight,
+                  child: PieChart(
+                    PieChartData(
+                      sections: sections,
+                      centerSpaceRadius: 45,
+                      sectionsSpace: 2,
+                      pieTouchData: PieTouchData(
+                        touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                          setState(() {
+                            if (!event.isInterestedForInteractions ||
+                                pieTouchResponse == null ||
+                                pieTouchResponse.touchedSection == null) {
+                              touchedIndex = -1;
+                              return;
+                            }
+                            touchedIndex = pieTouchResponse
+                                .touchedSection!.touchedSectionIndex;
+                          });
+                        },
                       ),
-                    ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Column(
+                    children: legendItems,
                   ),
                 ),
               ],
             ),
-          ),
-        ),
-        // Add extra space between chart and legend
-        const SizedBox(height: 12),
-        Expanded(
-          flex: 1,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: legendItems,
-              ),
-            ),
-          ),
-        ),
-      ],
+          );
+        }
+      },
     );
   }
 }

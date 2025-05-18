@@ -21,7 +21,7 @@ class ExpensesService {
         installments: edited.installments,
         place: edited.place,
         categoryId: edited.categoryId,
-        accountId: edited.accountId,
+        paymentMethodId: edited.paymentMethodId,
       );
       await firestoreService.updateExpense(user.uid, updated);
     });

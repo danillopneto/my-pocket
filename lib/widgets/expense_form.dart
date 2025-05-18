@@ -4,19 +4,19 @@ import 'package:flutter/services.dart';
 import 'package:easy_localization/easy_localization.dart';
 import '../models/expense.dart';
 import '../models/category.dart';
-import '../models/account.dart';
+import '../models/payment-method.dart';
 import '../services/date_format_service.dart';
 
 class ExpenseForm extends StatefulWidget {
   final void Function(Expense expense) onSubmit;
   final Expense? initial;
   final List<Category> categories;
-  final List<Account> accounts;
+  final List<PaymentMethod> paymentMethods;
   const ExpenseForm({
     required this.onSubmit,
     this.initial,
     this.categories = const [],
-    this.accounts = const [],
+    this.paymentMethods = const [],
     super.key,
   });
 
@@ -32,7 +32,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
   late int _installments;
   late String _place;
   late String _categoryId;
-  late String _accountId;
+  late String _payment_methodId;
 
   @override
   void initState() {
@@ -44,20 +44,20 @@ class _ExpenseFormState extends State<ExpenseForm> {
     _installments = i?.installments ?? 1;
     _place = i?.place ?? '';
     _categoryId = i?.categoryId ?? '';
-    _accountId = i?.accountId ?? '';
+    _payment_methodId = i?.paymentMethodId ?? '';
   }
 
   @override
   void didUpdateWidget(covariant ExpenseForm oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // If the categories/accounts list changes and the current value is not present, reset to first available
+    // If the categories/paymentMethods list changes and the current value is not present, reset to first available
     if (widget.categories.isNotEmpty &&
         !widget.categories.any((c) => c.id == _categoryId)) {
       setState(() => _categoryId = widget.categories.first.id ?? '');
     }
-    if (widget.accounts.isNotEmpty &&
-        !widget.accounts.any((a) => a.id == _accountId)) {
-      setState(() => _accountId = widget.accounts.first.id ?? '');
+    if (widget.paymentMethods.isNotEmpty &&
+        !widget.paymentMethods.any((a) => a.id == _payment_methodId)) {
+      setState(() => _payment_methodId = widget.paymentMethods.first.id ?? '');
     }
   }
 
@@ -154,19 +154,19 @@ class _ExpenseFormState extends State<ExpenseForm> {
               onSaved: (v) => _categoryId = v ?? '',
             ),
             DropdownButtonFormField<String>(
-              value: widget.accounts.any((a) => a.id == _accountId)
-                  ? _accountId
+              value: widget.paymentMethods.any((a) => a.id == _payment_methodId)
+                  ? _payment_methodId
                   : null,
-              decoration: InputDecoration(labelText: 'account'.tr()),
-              items: widget.accounts
+              decoration: InputDecoration(labelText: 'paymentMethod'.tr()),
+              items: widget.paymentMethods
                   .map((acc) => DropdownMenuItem(
                         value: acc.id,
                         child: Text(acc.name),
                       ))
                   .toList(),
-              onChanged: (v) => setState(() => _accountId = v ?? ''),
+              onChanged: (v) => setState(() => _payment_methodId = v ?? ''),
               validator: (v) => v == null || v.isEmpty ? 'required'.tr() : null,
-              onSaved: (v) => _accountId = v ?? '',
+              onSaved: (v) => _payment_methodId = v ?? '',
             ),
             const SizedBox(height: 16),
             ElevatedButton(
@@ -183,7 +183,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
                       installments: _installments,
                       place: _place,
                       categoryId: _categoryId,
-                      accountId: _accountId,
+                      paymentMethodId: _payment_methodId,
                     ),
                   );
                 }

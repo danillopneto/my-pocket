@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import '../models/expense.dart';
 import '../models/category.dart';
-import '../models/account.dart';
+import '../models/payment-method.dart';
 import '../services/currency_format_service.dart';
 import '../services/date_format_service.dart';
 
 class ExpenseCard extends StatelessWidget {
   final Expense expense;
   final Category category;
-  final Account account;
+  final PaymentMethod paymentMethod;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
 
@@ -16,7 +16,7 @@ class ExpenseCard extends StatelessWidget {
     super.key,
     required this.expense,
     required this.category,
-    required this.account,
+    required this.paymentMethod,
     required this.onEdit,
     required this.onDelete,
   });
@@ -76,7 +76,8 @@ class ExpenseCard extends StatelessWidget {
                   Icon(Icons.account_balance_wallet,
                       size: 16, color: Colors.grey[600]),
                   const SizedBox(width: 4),
-                  Text(account.name, style: const TextStyle(fontSize: 14)),
+                  Text(paymentMethod.name,
+                      style: const TextStyle(fontSize: 14)),
                   const SizedBox(width: 12),
                   Icon(Icons.repeat, size: 16, color: Colors.grey[600]),
                   const SizedBox(width: 4),

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../services/firestore_service.dart';
 import '../models/expense.dart';
 import '../models/category.dart';
-import '../models/account.dart';
+import '../models/payment-method.dart';
 import 'package:easy_localization/easy_localization.dart';
 import '../services/expenses_service.dart';
 import '../widgets/edit_expense_dialog.dart';
@@ -31,14 +31,14 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
     firestoreService: FirestoreService(),
     entityType: 'categories',
   );
-  final EntityDataProvider<Account> _accountProvider =
-      EntityDataProvider<Account>(
+  final EntityDataProvider<PaymentMethod> _payment_methodProvider =
+      EntityDataProvider<PaymentMethod>(
     firestoreService: FirestoreService(),
-    entityType: 'accounts',
+    entityType: 'paymentMethods',
   );
   final bool _loading = false;
   List<Category> _categories = [];
-  List<Account> _accounts = [];
+  List<PaymentMethod> _payment_methods = [];
   List<Expense> _recentExpenses = [];
   final List<String> _pendingDeleteIds = [];
 
@@ -51,11 +51,11 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
 
   void _loadEntities() async {
     final cats = await _categoryProvider.fetchEntities();
-    final accs = await _accountProvider.fetchEntities();
+    final accs = await _payment_methodProvider.fetchEntities();
     if (!mounted) return;
     setState(() {
       _categories = cats;
-      _accounts = accs;
+      _payment_methods = accs;
     });
   }
 
@@ -77,7 +77,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
       builder: (context) => EditExpenseDialog(
         expense: expense,
         categories: _categories,
-        accounts: _accounts,
+        paymentMethods: _payment_methods,
         isNew: false,
         onSubmit: (edited) async {
           await _expensesService.updateExpense(context, expense, edited);
@@ -106,10 +106,12 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
           installments: 1,
           place: '',
           categoryId: _categories.isNotEmpty ? _categories.first.id ?? '' : '',
-          accountId: _accounts.isNotEmpty ? _accounts.first.id ?? '' : '',
+          paymentMethodId: _payment_methods.isNotEmpty
+              ? _payment_methods.first.id ?? ''
+              : '',
         ),
         categories: _categories,
-        accounts: _accounts,
+        paymentMethods: _payment_methods,
         isNew: true,
         onSubmit: (expense) async {
           await _expensesService.updateExpense(context, expense, expense);
@@ -144,7 +146,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
               child: ExpensesList(
                 expenses: _recentExpenses,
                 categories: _categories,
-                accounts: _accounts,
+                paymentMethods: _payment_methods,
                 onEdit: _openEditExpenseDialog,
                 onDelete: (expense) async {
                   final confirm = await showDialog<bool>(

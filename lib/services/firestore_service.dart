@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/expense.dart';
 import '../models/category.dart';
-import '../models/account.dart';
+import '../models/payment-method.dart';
 
-// Handles CRUD operations for expenses, categories, accounts
+// Handles CRUD operations for expenses, categories, paymentMethods
 class FirestoreService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
@@ -106,43 +106,46 @@ class FirestoreService {
             .toList());
   }
 
-  // Accounts
-  Future<void> addAccount(String userId, Account account) async {
+  // Payment Methods
+  Future<void> addPaymentMethod(
+      String userId, PaymentMethod paymentMethod) async {
     await _db
         .collection('users')
         .doc(userId)
-        .collection('accounts')
-        .add(account.toMap());
+        .collection('paymentMethods')
+        .add(paymentMethod.toMap());
   }
 
-  Future<void> updateAccount(String userId, Account account) async {
-    if (account.id == null) return;
+  Future<void> updatePaymentMethod(
+      String userId, PaymentMethod paymentMethod) async {
+    if (paymentMethod.id == null) return;
     await _db
         .collection('users')
         .doc(userId)
-        .collection('accounts')
-        .doc(account.id)
-        .update(account.toMap());
+        .collection('paymentMethods')
+        .doc(paymentMethod.id)
+        .update(paymentMethod.toMap());
   }
 
-  Future<void> deleteAccount(String userId, String accountId) async {
+  Future<void> deletePaymentMethod(
+      String userId, String paymentMethodId) async {
     await _db
         .collection('users')
         .doc(userId)
-        .collection('accounts')
-        .doc(accountId)
+        .collection('paymentMethods')
+        .doc(paymentMethodId)
         .delete();
   }
 
-  Stream<List<Account>> getAccounts(String userId) {
+  Stream<List<PaymentMethod>> getPaymentMethods(String userId) {
     return _db
         .collection('users')
         .doc(userId)
-        .collection('accounts')
+        .collection('paymentMethods')
         .orderBy('name')
         .snapshots()
         .map((snapshot) => snapshot.docs
-            .map((doc) => Account.fromMap(doc.data(), id: doc.id))
+            .map((doc) => PaymentMethod.fromMap(doc.data(), id: doc.id))
             .toList());
   }
 }

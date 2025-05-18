@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import '../models/expense.dart';
 import '../models/category.dart';
-import '../models/account.dart';
+import '../models/payment-method.dart';
 import '../services/firestore_service.dart';
 import '../widgets/drawer_widget.dart';
 import '../services/entity_data_provider.dart';
@@ -23,16 +23,16 @@ class _BulkAddExpensesScreenState extends State<BulkAddExpensesScreen> {
     firestoreService: FirestoreService(),
     entityType: 'categories',
   );
-  final EntityDataProvider<Account> _accountProvider =
-      EntityDataProvider<Account>(
+  final EntityDataProvider<PaymentMethod> _payment_methodProvider =
+      EntityDataProvider<PaymentMethod>(
     firestoreService: FirestoreService(),
-    entityType: 'accounts',
+    entityType: 'paymentMethods',
   );
   final TextEditingController controller = TextEditingController();
   bool parsing = false;
   List<List<String>> previewRows = [];
   List<Category> _categories = [];
-  List<Account> _accounts = [];
+  List<PaymentMethod> _payment_methods = [];
   bool _loading = true;
 
   @override
@@ -44,11 +44,11 @@ class _BulkAddExpensesScreenState extends State<BulkAddExpensesScreen> {
 
   Future<void> _fetchEntities() async {
     final cats = await _categoryProvider.fetchEntities();
-    final accs = await _accountProvider.fetchEntities();
+    final accs = await _payment_methodProvider.fetchEntities();
     if (!mounted) return;
     setState(() {
       _categories = cats;
-      _accounts = accs;
+      _payment_methods = accs;
       _loading = false;
     });
   }
@@ -75,15 +75,15 @@ class _BulkAddExpensesScreenState extends State<BulkAddExpensesScreen> {
     for (final line in dataLines) {
       final cols = line.split('\t');
       if (cols.length >= 6) {
-        // Validate category and account
+        // Validate category and paymentMethod
         final categoryValid = _categories
             .any((c) => c.name.toLowerCase() == cols[4].toLowerCase());
-        final accountValid =
-            _accounts.any((a) => a.name.toLowerCase() == cols[5].toLowerCase());
+        final paymentMethodValid = _payment_methods
+            .any((a) => a.name.toLowerCase() == cols[5].toLowerCase());
         // Mark invalids visually
         final displayCols = List<String>.from(cols.take(6));
         if (!categoryValid) displayCols[4] = '[${displayCols[4]}]';
-        if (!accountValid) displayCols[5] = '[${displayCols[5]}]';
+        if (!paymentMethodValid) displayCols[5] = '[${displayCols[5]}]';
         rows.add(displayCols);
       }
     }
@@ -219,16 +219,17 @@ class _BulkAddExpensesScreenState extends State<BulkAddExpensesScreen> {
                                       double.tryParse(valueStr) ?? 0.0;
                                   final place = cols[3];
                                   final categoryName = cols[4];
-                                  final accountName = cols[5];
+                                  final paymentMethodName = cols[5];
                                   final category = _categories.firstWhereOrNull(
                                       (c) =>
                                           c.name.toLowerCase() ==
                                           categoryName.toLowerCase());
-                                  final account = _accounts.firstWhereOrNull(
-                                      (a) =>
+                                  final paymentMethod =
+                                      _payment_methods.firstWhereOrNull((a) =>
                                           a.name.toLowerCase() ==
-                                          accountName.toLowerCase());
-                                  if (category == null || account == null) {
+                                          paymentMethodName.toLowerCase());
+                                  if (category == null ||
+                                      paymentMethod == null) {
                                     failed++;
                                     continue;
                                   }
@@ -241,7 +242,7 @@ class _BulkAddExpensesScreenState extends State<BulkAddExpensesScreen> {
                                     installments: 1,
                                     place: place,
                                     categoryId: category.id!,
-                                    accountId: account.id!,
+                                    paymentMethodId: paymentMethod.id!,
                                   );
                                   validExpenses.add(expense);
                                   added++;

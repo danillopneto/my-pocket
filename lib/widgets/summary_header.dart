@@ -9,7 +9,7 @@ class SummaryHeader extends StatelessWidget {
   final double avgPerMonth;
   final dynamic mostExp; // Expense or null
   final List categories;
-  final List accounts;
+  final List paymentMethods;
   final UserPreferences? userPrefs;
 
   const SummaryHeader({
@@ -18,7 +18,7 @@ class SummaryHeader extends StatelessWidget {
     required this.avgPerMonth,
     required this.mostExp,
     required this.categories,
-    required this.accounts,
+    required this.paymentMethods,
     this.userPrefs,
   });
 

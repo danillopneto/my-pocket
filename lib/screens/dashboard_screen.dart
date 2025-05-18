@@ -3,17 +3,18 @@ import 'package:flutter/material.dart';
 import '../services/firestore_service.dart';
 import '../models/expense.dart';
 import '../models/category.dart';
-import '../models/account.dart';
+import '../models/payment-method.dart';
 import '../widgets/summary_header.dart';
 import '../services/user_preferences_service.dart';
 import 'package:easy_localization/easy_localization.dart';
 import '../widgets/app_loading_indicator.dart';
 import '../utils/firebase_user_utils.dart';
 import '../widgets/scaffold_with_drawer.dart';
-import '../widgets/charts/account_donut_chart.dart';
+import '../widgets/charts/payment_method_donut_chart.dart';
 import '../widgets/charts/category_donut_chart.dart';
 import '../widgets/charts/date_bar_chart.dart';
-import '../widgets/charts/description_bar_chart.dart';
+import '../widgets/charts/generic_bar_chart.dart';
+import '../../services/currency_format_service.dart';
 
 class DashboardScreen extends StatelessWidget {
   final FirestoreService _firestoreService = FirestoreService();
@@ -44,16 +45,17 @@ class DashboardScreen extends StatelessWidget {
                   final categories = List<Category>.from(catSnap.data!)
                     ..sort((a, b) =>
                         a.name.toLowerCase().compareTo(b.name.toLowerCase()));
-                  return StreamBuilder<List<Account>>(
-                    stream: _firestoreService.getAccounts(user.uid),
+                  return StreamBuilder<List<PaymentMethod>>(
+                    stream: _firestoreService.getPaymentMethods(user.uid),
                     builder: (context, accSnap) {
                       if (!accSnap.hasData) {
                         return const AppLoadingIndicator();
                       }
-                      final accounts = List<Account>.from(accSnap.data!)
-                        ..sort((a, b) => a.name
-                            .toLowerCase()
-                            .compareTo(b.name.toLowerCase()));
+                      final paymentMethods =
+                          List<PaymentMethod>.from(accSnap.data!)
+                            ..sort((a, b) => a.name
+                                .toLowerCase()
+                                .compareTo(b.name.toLowerCase()));
                       // --- Summary calculations ---
                       double total = 0;
                       double avgPerMonth = 0;
@@ -68,6 +70,16 @@ class DashboardScreen extends StatelessWidget {
                         mostExp = expenses
                             .reduce((a, b) => a.value > b.value ? a : b);
                       }
+
+                      // Extract all unique descriptions and places
+                      final allDescriptions = expenses
+                          .map((e) => e.description)
+                          .toSet()
+                          .toList()
+                        ..sort();
+                      final allPlaces =
+                          expenses.map((e) => e.place).toSet().toList()..sort();
+
                       return ScaffoldWithDrawer(
                         selected: 'dashboard',
                         titleKey: 'dashboard',
@@ -80,7 +92,7 @@ class DashboardScreen extends StatelessWidget {
                               avgPerMonth: avgPerMonth,
                               mostExp: mostExp,
                               categories: categories,
-                              accounts: accounts,
+                              paymentMethods: paymentMethods,
                               userPrefs: userPrefs,
                             ),
                             const SizedBox(height: 24),
@@ -98,6 +110,9 @@ class DashboardScreen extends StatelessWidget {
                             const SizedBox(height: 8),
 
                             // Donut chart section - side by side
+                            // --- Split donut charts into separate cards ---
+
+                            // Payment Method Donut Chart Card
                             Card(
                               margin: const EdgeInsets.all(16),
                               elevation: 2,
@@ -109,129 +124,65 @@ class DashboardScreen extends StatelessWidget {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    // Distribution section header
                                     Row(
                                       children: [
                                         const Icon(Icons.pie_chart,
                                             color: Color(0xFF3366CC)),
                                         const SizedBox(width: 8),
                                         Text(
-                                          'distribution'.tr(),
+                                          'expenses_by_payment_method'.tr(),
                                           style: Theme.of(context)
                                               .textTheme
                                               .titleMedium
                                               ?.copyWith(
-                                                fontWeight: FontWeight.bold,
-                                              ),
+                                                  fontWeight: FontWeight.bold),
                                         ),
                                       ],
                                     ),
                                     const SizedBox(height: 16),
+                                    // Remove SizedBox(height: 300) and use chart directly
+                                    PaymentMethodDonutChart(
+                                      paymentMethods: paymentMethods,
+                                      expenses: expenses,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
 
-                                    // Two donut charts side by side
-                                    LayoutBuilder(
-                                      builder: (context, constraints) {
-                                        // Use row for wider screens, column for narrower ones
-                                        return constraints.maxWidth > 600
-                                            ? Row(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  // Account donut chart
-                                                  Expanded(
-                                                    child: Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        Text(
-                                                            'expenses_by_account'
-                                                                .tr(),
-                                                            style: Theme.of(
-                                                                    context)
-                                                                .textTheme
-                                                                .titleSmall),
-                                                        const SizedBox(
-                                                            height: 12),
-                                                        SizedBox(
-                                                          height: 300,
-                                                          child:
-                                                              AccountDonutChart(
-                                                            accounts: accounts,
-                                                            expenses: expenses,
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                  // Category donut chart
-                                                  Expanded(
-                                                    child: Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        Text(
-                                                            'expenses_by_category'
-                                                                .tr(),
-                                                            style: Theme.of(
-                                                                    context)
-                                                                .textTheme
-                                                                .titleSmall),
-                                                        const SizedBox(
-                                                            height: 12),
-                                                        SizedBox(
-                                                          height: 300,
-                                                          child:
-                                                              CategoryDonutChart(
-                                                            categories:
-                                                                categories,
-                                                            expenses: expenses,
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ],
-                                              )
-                                            : Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  // Account donut chart
-                                                  Text(
-                                                      'expenses_by_account'
-                                                          .tr(),
-                                                      style: Theme.of(context)
-                                                          .textTheme
-                                                          .titleSmall),
-                                                  const SizedBox(height: 12),
-                                                  SizedBox(
-                                                    height: 280,
-                                                    child: AccountDonutChart(
-                                                      accounts: accounts,
-                                                      expenses: expenses,
-                                                    ),
-                                                  ),
-                                                  const SizedBox(height: 24),
-                                                  // Category donut chart
-                                                  Text(
-                                                      'expenses_by_category'
-                                                          .tr(),
-                                                      style: Theme.of(context)
-                                                          .textTheme
-                                                          .titleSmall),
-                                                  const SizedBox(height: 12),
-                                                  SizedBox(
-                                                    height: 280,
-                                                    child: CategoryDonutChart(
-                                                      categories: categories,
-                                                      expenses: expenses,
-                                                    ),
-                                                  ),
-                                                ],
-                                              );
-                                      },
+                            // Category Donut Chart Card
+                            Card(
+                              margin: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 8),
+                              elevation: 2,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        const Icon(Icons.pie_chart,
+                                            color: Color(0xFF3366CC)),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          'expenses_by_category'.tr(),
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .titleMedium
+                                              ?.copyWith(
+                                                  fontWeight: FontWeight.bold),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 16),
+                                    // Remove SizedBox(height: 300) and use chart directly
+                                    CategoryDonutChart(
+                                      categories: categories,
+                                      expenses: expenses,
                                     ),
                                   ],
                                 ),
@@ -281,17 +232,104 @@ class DashboardScreen extends StatelessWidget {
                                         expenses: expenses,
                                       ),
                                     ),
-                                    const SizedBox(height: 24),
+                                  ],
+                                ),
+                              ),
+                            ),
 
-                                    // Description bar chart
-                                    Text('expenses_by_description'.tr(),
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .titleSmall),
+                            // Description bar chart in its own card/section
+                            Card(
+                              margin: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 8),
+                              elevation: 2,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        const Icon(Icons.list_alt,
+                                            color: Color(0xFF607D8B)),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          'expenses_by_description'.tr(),
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .titleMedium
+                                              ?.copyWith(
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 16),
+                                    // Remove titleKey from GenericBarChart for description chart, since the card already has the title
                                     SizedBox(
-                                      height: 280,
-                                      child: DescriptionBarChart(
+                                      height: 320,
+                                      child: GenericBarChart<String>(
+                                        items: allDescriptions,
                                         expenses: expenses,
+                                        getId: (desc) => desc,
+                                        getName: (desc) => desc,
+                                        formatValue: (v, ctx) =>
+                                            CurrencyFormatService
+                                                .formatCurrency(v, ctx),
+                                        getExpenseKey: (e) => e.description,
+                                        getExpenseValue: (e) => e.value,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+
+                            // Place bar chart in its own card/section
+                            Card(
+                              margin: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 8),
+                              elevation: 2,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        const Icon(Icons.place,
+                                            color: Color(0xFF9C27B0)),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          'expenses_by_place'.tr(),
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .titleMedium
+                                              ?.copyWith(
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 16),
+                                    // Use GenericBarChart for top 10 expenses by place
+                                    SizedBox(
+                                      height: 320,
+                                      child: GenericBarChart<String>(
+                                        items: allPlaces,
+                                        expenses: expenses,
+                                        getId: (place) => place,
+                                        getName: (place) => place,
+                                        formatValue: (v, ctx) =>
+                                            CurrencyFormatService
+                                                .formatCurrency(v, ctx),
+                                        getExpenseKey: (e) => e.place,
+                                        getExpenseValue: (e) => e.value,
                                       ),
                                     ),
                                   ],

@@ -8,7 +8,7 @@ class Expense {
   final int installments;
   final String place;
   final String categoryId;
-  final String accountId;
+  final String paymentMethodId;
 
   Expense({
     this.id,
@@ -19,7 +19,7 @@ class Expense {
     required this.installments,
     required this.place,
     required this.categoryId,
-    required this.accountId,
+    required this.paymentMethodId,
   });
 
   factory Expense.fromMap(Map<String, dynamic> map, {String? id}) {
@@ -43,7 +43,7 @@ class Expense {
       installments: map['installments'] ?? 1,
       place: map['place'] ?? '',
       categoryId: map['categoryId'] ?? '',
-      accountId: map['accountId'] ?? '',
+      paymentMethodId: map['paymentMethodId'] ?? '',
     );
   }
 
@@ -56,7 +56,7 @@ class Expense {
       'installments': installments,
       'place': place,
       'categoryId': categoryId,
-      'accountId': accountId,
+      'paymentMethodId': paymentMethodId,
     };
   }
 }

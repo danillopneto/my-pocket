@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../services/firestore_service.dart';
 import '../models/expense.dart';
 import '../models/category.dart';
-import '../models/account.dart';
+import '../models/payment-method.dart';
 import '../services/user_preferences_service.dart';
 import 'package:easy_localization/easy_localization.dart';
 import '../widgets/drawer_widget.dart';
@@ -34,14 +34,14 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
     firestoreService: FirestoreService(),
     entityType: 'categories',
   );
-  final EntityDataProvider<Account> _accountProvider =
-      EntityDataProvider<Account>(
+  final EntityDataProvider<PaymentMethod> _payment_methodProvider =
+      EntityDataProvider<PaymentMethod>(
     firestoreService: FirestoreService(),
-    entityType: 'accounts',
+    entityType: 'paymentMethods',
   );
   String _filterText = '';
   List<Category> _categories = [];
-  List<Account> _accounts = [];
+  List<PaymentMethod> _payment_methods = [];
   UserPreferences? _userPrefs;
   final List<String> _pendingDeleteIds = [];
 
@@ -54,11 +54,11 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
 
   void _loadEntities() async {
     final cats = await _categoryProvider.fetchEntities();
-    final accs = await _accountProvider.fetchEntities();
+    final accs = await _payment_methodProvider.fetchEntities();
     if (!mounted) return;
     setState(() {
       _categories = cats;
-      _accounts = accs;
+      _payment_methods = accs;
     });
   }
 
@@ -77,7 +77,7 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
         return EditExpenseDialog(
           expense: expense,
           categories: _categories,
-          accounts: _accounts,
+          paymentMethods: _payment_methods,
           isNew: false,
           onSubmit: (edited) async {
             await _expensesService.updateExpense(context, expense, edited);
@@ -163,7 +163,7 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
                   return ExpensesList(
                     expenses: expenses,
                     categories: _categories,
-                    accounts: _accounts,
+                    paymentMethods: _payment_methods,
                     onEdit: _editExpenseDialog,
                     onDelete: _deleteExpense,
                     showTotal: true,

@@ -51,10 +51,10 @@ final List<DrawerNavItem> drawerNavItems = [
         selectedKey: 'categories',
       ),
       DrawerNavItem(
-        route: '/accounts',
-        labelKey: 'accounts',
+        route: '/paymentMethods',
+        labelKey: 'payment_methods',
         icon: Icons.account_balance_wallet,
-        selectedKey: 'accounts',
+        selectedKey: 'paymentMethods',
       ),
       DrawerNavItem(
         route: '/bulk-add-expenses',

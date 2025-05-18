@@ -9,7 +9,7 @@ import 'screens/dashboard_screen.dart';
 import 'screens/expenses_screen.dart';
 import 'screens/expenses_list_screen.dart';
 import 'screens/categories_screen.dart';
-import 'screens/accounts_screen.dart';
+import 'screens/paymentMethods_screen.dart';
 import 'screens/settings_screen.dart';
 import 'firebase_options.dart';
 import 'services/user_preferences_service.dart';
@@ -130,7 +130,7 @@ class _MyAppState extends State<MyApp> {
             '/expenses': (context) => const ExpensesScreen(),
             '/expenses-list': (context) => const ExpensesListScreen(),
             '/categories': (context) => const CategoriesScreen(),
-            '/accounts': (context) => const AccountsScreen(),
+            '/paymentMethods': (context) => const PaymentMethodsScreen(),
             '/settings': (context) => SettingsScreen(
                   onThemeChanged: setThemeMode,
                   onLocaleChanged: setLocale,
