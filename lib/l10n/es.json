@@ -8,7 +8,7 @@
   "expenses_list": "Lista de Gastos",
   "expenses_control": "Control de Gastos",
   "categories": "Categorías",
-  "payment_methods": "Cuentas",
+  "payment_methods": "Métodos de Pago",
   "settings": "Configuración",
   "language": "Idioma",
   "theme": "Tema",
@@ -71,6 +71,12 @@
   "payment_method_deleted": "Método de pago eliminado",
   "are_you_sure_delete_payment_method": "¿Está seguro de que desea eliminar este método de pago?",
   "filter": "Filtrar",
+  "date_start": "Fecha de inicio",
+  "date_end": "Fecha de fin",
+  "all_categories": "Todas las categorías",
   "avg": "Prom",
-  "expenses_by_place": "Gastos por lugar"
+  "expenses_by_place": "Gastos por lugar",
+  "apply": "Aplicar",
+  "reset": "Restablecer",
+  "category_limit_warning": "Puede seleccionar hasta 10 categorías."
 }

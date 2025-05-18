@@ -212,9 +212,24 @@ class _BulkAddExpensesScreenState extends State<BulkAddExpensesScreen> {
                                   final date =
                                       DateFormat('M/d/yyyy').parse(cols[0]);
                                   final description = cols[1];
-                                  final valueStr = cols[2]
-                                      .replaceAll(RegExp(r'[^0-9,\.]'), '')
-                                      .replaceAll(',', '.');
+                                  // Robust currency/decimal parsing
+                                  String valueStr = cols[2]
+                                      .replaceAll(RegExp(r'[^0-9.,-]'), '');
+                                  // Remove all but the last period or comma (decimal separator)
+                                  if (valueStr.contains(',') &&
+                                      valueStr.contains('.')) {
+                                    // If both, assume comma is thousands sep, period is decimal
+                                    valueStr = valueStr.replaceAll(',', '');
+                                  } else if (valueStr.contains(',') &&
+                                      !valueStr.contains('.')) {
+                                    // If only comma, treat as decimal sep (e.g., European format)
+                                    valueStr = valueStr.replaceAll('.', '');
+                                    valueStr = valueStr.replaceAll(',', '.');
+                                  }
+                                  // Remove leading zeros (except for decimals)
+                                  valueStr = valueStr.replaceFirst(
+                                      RegExp(r'^0+(?![.,]|$)'), '');
+                                  // If empty after cleaning, fallback to 0.0
                                   final value =
                                       double.tryParse(valueStr) ?? 0.0;
                                   final place = cols[3];

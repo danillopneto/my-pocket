@@ -11,6 +11,7 @@ class SummaryHeader extends StatelessWidget {
   final List categories;
   final List paymentMethods;
   final UserPreferences? userPrefs;
+  final String avgLabelKey;
 
   const SummaryHeader({
     super.key,
@@ -20,6 +21,7 @@ class SummaryHeader extends StatelessWidget {
     required this.categories,
     required this.paymentMethods,
     this.userPrefs,
+    this.avgLabelKey = 'average_per_month',
   });
 
   @override
@@ -40,7 +42,7 @@ class SummaryHeader extends StatelessWidget {
                     overrideSymbol: symbol, overrideFormat: formatMask),
                 style: Theme.of(context).textTheme.headlineMedium),
             const SizedBox(height: 12),
-            Text('average_per_month'.tr() +
+            Text(avgLabelKey.tr() +
                 CurrencyFormatService.formatCurrency(avgPerMonth, context,
                     overrideSymbol: symbol, overrideFormat: formatMask)),
             const SizedBox(height: 12),

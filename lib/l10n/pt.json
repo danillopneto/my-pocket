@@ -8,7 +8,7 @@
   "expenses_list": "Lista de Despesas",
   "expenses_control": "Controle de Despesas",
   "categories": "Categorias",
-  "payment_methods": "Método de Pagamento",
+  "payment_methods": "Métodos de Pagamento",
   "settings": "Configurações",
   "language": "Idioma",
   "theme": "Tema",
@@ -72,5 +72,11 @@
   "payment_method_deleted": "Método de pagamento excluído",
   "are_you_sure_delete_payment_method": "Tem certeza de que deseja excluir este método de pagamento?",
   "filter": "Filtrar",
-  "expenses_by_place": "Despesas por local"
+  "date_start": "Data de Início",
+  "date_end": "Data de Fim",
+  "all_categories": "Todas as Categorias",
+  "expenses_by_place": "Despesas por local",
+  "apply": "Aplicar",
+  "reset": "Redefinir",
+  "category_limit_warning": "Você pode selecionar até 10 categorias."
 }

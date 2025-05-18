@@ -9,7 +9,7 @@ import 'screens/dashboard_screen.dart';
 import 'screens/expenses_screen.dart';
 import 'screens/expenses_list_screen.dart';
 import 'screens/categories_screen.dart';
-import 'screens/paymentMethods_screen.dart';
+import 'screens/payment_methods_screen.dart';
 import 'screens/settings_screen.dart';
 import 'firebase_options.dart';
 import 'services/user_preferences_service.dart';

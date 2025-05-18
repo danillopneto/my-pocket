@@ -72,5 +72,11 @@
   "payment_method_deleted": "Payment Method deleted",
   "are_you_sure_delete_payment_method": "Are you sure you want to delete this payment method?",
   "filter": "Filter",
-  "avg": "Avg"
+  "date_start": "Start Date",
+  "date_end": "End Date",
+  "all_categories": "All Categories",
+  "avg": "Avg",
+  "apply": "Apply",
+  "reset": "Reset",
+  "category_limit_warning": "You can select up to 10 categories."
 }

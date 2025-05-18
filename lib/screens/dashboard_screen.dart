@@ -15,12 +15,30 @@ import '../widgets/charts/category_donut_chart.dart';
 import '../widgets/charts/date_bar_chart.dart';
 import '../widgets/charts/generic_bar_chart.dart';
 import '../../services/currency_format_service.dart';
+import '../widgets/dashboard_expense_filter.dart';
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends StatefulWidget {
+  DashboardScreen({super.key});
+
+  @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
   final FirestoreService _firestoreService = FirestoreService();
   final UserPreferencesService _prefsService = UserPreferencesService();
 
-  DashboardScreen({super.key});
+  DateTime? _filterStartDate;
+  DateTime? _filterEndDate;
+  List<String> _filterCategoryIds = [];
+
+  @override
+  void initState() {
+    super.initState();
+    final now = DateTime.now();
+    _filterStartDate = DateTime(now.year, now.month, 1);
+    _filterEndDate = now;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,48 +47,60 @@ class DashboardScreen extends StatelessWidget {
         future: _prefsService.getPreferences(user.uid),
         builder: (context, prefsSnap) {
           final userPrefs = prefsSnap.data;
-          return StreamBuilder<List<Expense>>(
-            stream: _firestoreService.getExpenses(user.uid),
-            builder: (context, expenseSnap) {
-              if (!expenseSnap.hasData) {
+          return StreamBuilder<List<Category>>(
+            stream: _firestoreService.getCategories(user.uid),
+            builder: (context, catSnap) {
+              if (!catSnap.hasData) {
                 return const AppLoadingIndicator();
               }
-              final expenses = expenseSnap.data!;
-              return StreamBuilder<List<Category>>(
-                stream: _firestoreService.getCategories(user.uid),
-                builder: (context, catSnap) {
-                  if (!catSnap.hasData) {
+              final categories = List<Category>.from(catSnap.data!)
+                ..sort((a, b) =>
+                    a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+              return StreamBuilder<List<PaymentMethod>>(
+                stream: _firestoreService.getPaymentMethods(user.uid),
+                builder: (context, accSnap) {
+                  if (!accSnap.hasData) {
                     return const AppLoadingIndicator();
                   }
-                  final categories = List<Category>.from(catSnap.data!)
+                  final paymentMethods = List<PaymentMethod>.from(accSnap.data!)
                     ..sort((a, b) =>
                         a.name.toLowerCase().compareTo(b.name.toLowerCase()));
-                  return StreamBuilder<List<PaymentMethod>>(
-                    stream: _firestoreService.getPaymentMethods(user.uid),
-                    builder: (context, accSnap) {
-                      if (!accSnap.hasData) {
+                  return StreamBuilder<List<Expense>>(
+                    stream: _firestoreService.getExpenses(
+                      user.uid,
+                      startDate: _filterStartDate,
+                      endDate: _filterEndDate,
+                      categoryIds: _filterCategoryIds.isNotEmpty
+                          ? _filterCategoryIds
+                          : null,
+                    ),
+                    builder: (context, expenseSnap) {
+                      if (!expenseSnap.hasData) {
                         return const AppLoadingIndicator();
                       }
-                      final paymentMethods =
-                          List<PaymentMethod>.from(accSnap.data!)
-                            ..sort((a, b) => a.name
-                                .toLowerCase()
-                                .compareTo(b.name.toLowerCase()));
+                      final allExpenses = expenseSnap.data!;
+                      final expenses = allExpenses;
                       // --- Summary calculations ---
                       double total = 0;
-                      double avgPerMonth = 0;
+                      double avgPerDay = 0;
                       Expense? mostExp;
                       if (expenses.isNotEmpty) {
                         total = expenses.fold(0, (sum, e) => sum + e.value);
-                        final months = expenses
-                            .map((e) => DateTime(e.date.year, e.date.month))
-                            .toSet()
-                            .length;
-                        avgPerMonth = months > 0 ? total / months : total;
+                        // Calculate days in the selected filter range
+                        if (_filterStartDate != null &&
+                            _filterEndDate != null) {
+                          final start = DateTime(_filterStartDate!.year,
+                              _filterStartDate!.month, _filterStartDate!.day);
+                          final end = DateTime(_filterEndDate!.year,
+                              _filterEndDate!.month, _filterEndDate!.day);
+                          final days = end.difference(start).inDays + 1;
+                          avgPerDay = days > 0 ? total / days : total;
+                        } else {
+                          avgPerDay = total;
+                        }
                         mostExp = expenses
                             .reduce((a, b) => a.value > b.value ? a : b);
                       }
-
                       // Extract all unique descriptions and places
                       final allDescriptions = expenses
                           .map((e) => e.description)
@@ -79,21 +109,35 @@ class DashboardScreen extends StatelessWidget {
                         ..sort();
                       final allPlaces =
                           expenses.map((e) => e.place).toSet().toList()..sort();
-
                       return ScaffoldWithDrawer(
                         selected: 'dashboard',
                         titleKey: 'dashboard',
                         body: ListView(
-                          // Removed redundant padding, now handled by ScaffoldWithDrawer
                           children: [
+                            // Filter card
+                            DashboardExpenseFilter(
+                              categories: categories,
+                              initialStartDate: _filterStartDate,
+                              initialEndDate: _filterEndDate,
+                              initialCategoryIds: _filterCategoryIds,
+                              onApply: (start, end, categoryIds) {
+                                setState(() {
+                                  _filterStartDate = start;
+                                  _filterEndDate = end;
+                                  _filterCategoryIds = categoryIds;
+                                });
+                              },
+                            ),
                             // Summary header
                             SummaryHeader(
                               total: total,
-                              avgPerMonth: avgPerMonth,
+                              avgPerMonth: avgPerDay, // Pass as avgPerDay now
                               mostExp: mostExp,
                               categories: categories,
                               paymentMethods: paymentMethods,
                               userPrefs: userPrefs,
+                              avgLabelKey:
+                                  'daily_average', // Add this prop for label
                             ),
                             const SizedBox(height: 24),
 

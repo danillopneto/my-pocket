@@ -64,13 +64,14 @@ final List<DrawerNavItem> drawerNavItems = [
       ),
     ],
   ),
-  DrawerNavItem(
-    route: '/settings',
-    labelKey: 'settings',
-    icon: Icons.settings,
-    selectedKey: 'settings',
-  ),
 ];
+
+const DrawerNavItem settingsNavItem = DrawerNavItem(
+  route: '/settings',
+  labelKey: 'settings',
+  icon: Icons.settings,
+  selectedKey: 'settings',
+);
 
 class AppDrawer extends StatelessWidget {
   final String selected;
@@ -79,17 +80,43 @@ class AppDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          DrawerHeader(
-            decoration:
-                BoxDecoration(color: Theme.of(context).colorScheme.primary),
-            child: Text('app_title'.tr(),
-                style: const TextStyle(color: Colors.white, fontSize: 24)),
-          ),
-          ...drawerNavItems.map((item) => _buildNavItem(context, item)),
-        ],
+      child: SafeArea(
+        child: Column(
+          children: [
+            Container(
+              color: Theme.of(context).colorScheme.primary,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              height: 64,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Icon(Icons.account_balance_wallet,
+                      color: Colors.white, size: 28),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      'app_title'.tr(),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // Main navigation items
+            ...drawerNavItems.map((item) => _buildNavItem(context, item)),
+            Spacer(),
+            // Divider before settings
+            const Divider(),
+            // Settings at the bottom
+            _buildNavItem(context, settingsNavItem),
+          ],
+        ),
       ),
     );
   }
