@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/expense.dart';
 import '../models/category.dart';
-import '../models/payment-method.dart';
+import '../models/payment_method.dart';
 import '../services/currency_format_service.dart';
 import '../services/date_format_service.dart';
 

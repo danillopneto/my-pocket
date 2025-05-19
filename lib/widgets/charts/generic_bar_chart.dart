@@ -77,10 +77,8 @@ class _GenericBarChartState<T> extends State<GenericBarChart<T>> {
     final chartWidth =
         MediaQuery.of(context).size.width - 32; // 16px padding each side
     final itemsPerRow = chartWidth ~/ legendItemWidth;
-    final legendRows =
-        (allEntries.length / (itemsPerRow > 0 ? itemsPerRow : 1)).ceil();
+    (allEntries.length / (itemsPerRow > 0 ? itemsPerRow : 1)).ceil();
     // Chart height: base + legend rows * per-row height
-    final chartHeight = 220.0 - (legendRows - 1) * 18.0;
 
     return ClipRect(
       child: Column(

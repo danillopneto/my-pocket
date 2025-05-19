@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import '../models/expense.dart';
 import '../models/category.dart';
-import '../models/payment-method.dart';
+import '../models/payment_method.dart';
 import '../services/firestore_service.dart';
 import '../widgets/drawer_widget.dart';
 import '../services/entity_data_provider.dart';

@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:easy_localization/easy_localization.dart';
 import '../models/expense.dart';
 import '../models/category.dart';
-import '../models/payment-method.dart';
+import '../models/payment_method.dart';
 import '../services/date_format_service.dart';
 
 class ExpenseForm extends StatefulWidget {
@@ -32,7 +32,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
   late int _installments;
   late String _place;
   late String _categoryId;
-  late String _payment_methodId;
+  late String _paymentMethodId;
 
   @override
   void initState() {
@@ -44,7 +44,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
     _installments = i?.installments ?? 1;
     _place = i?.place ?? '';
     _categoryId = i?.categoryId ?? '';
-    _payment_methodId = i?.paymentMethodId ?? '';
+    _paymentMethodId = i?.paymentMethodId ?? '';
   }
 
   @override
@@ -56,8 +56,8 @@ class _ExpenseFormState extends State<ExpenseForm> {
       setState(() => _categoryId = widget.categories.first.id ?? '');
     }
     if (widget.paymentMethods.isNotEmpty &&
-        !widget.paymentMethods.any((a) => a.id == _payment_methodId)) {
-      setState(() => _payment_methodId = widget.paymentMethods.first.id ?? '');
+        !widget.paymentMethods.any((a) => a.id == _paymentMethodId)) {
+      setState(() => _paymentMethodId = widget.paymentMethods.first.id ?? '');
     }
   }
 
@@ -154,8 +154,8 @@ class _ExpenseFormState extends State<ExpenseForm> {
               onSaved: (v) => _categoryId = v ?? '',
             ),
             DropdownButtonFormField<String>(
-              value: widget.paymentMethods.any((a) => a.id == _payment_methodId)
-                  ? _payment_methodId
+              value: widget.paymentMethods.any((a) => a.id == _paymentMethodId)
+                  ? _paymentMethodId
                   : null,
               decoration: InputDecoration(labelText: 'paymentMethod'.tr()),
               items: widget.paymentMethods
@@ -164,9 +164,9 @@ class _ExpenseFormState extends State<ExpenseForm> {
                         child: Text(acc.name),
                       ))
                   .toList(),
-              onChanged: (v) => setState(() => _payment_methodId = v ?? ''),
+              onChanged: (v) => setState(() => _paymentMethodId = v ?? ''),
               validator: (v) => v == null || v.isEmpty ? 'required'.tr() : null,
-              onSaved: (v) => _payment_methodId = v ?? '',
+              onSaved: (v) => _paymentMethodId = v ?? '',
             ),
             const SizedBox(height: 16),
             ElevatedButton(
@@ -183,7 +183,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
                       installments: _installments,
                       place: _place,
                       categoryId: _categoryId,
-                      paymentMethodId: _payment_methodId,
+                      paymentMethodId: _paymentMethodId,
                     ),
                   );
                 }

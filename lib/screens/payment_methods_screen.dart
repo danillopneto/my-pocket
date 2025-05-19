@@ -1,7 +1,7 @@
 // PaymentMethods management screen
 import 'package:flutter/material.dart';
 import '../services/firestore_service.dart';
-import '../models/payment-method.dart';
+import '../models/payment_method.dart';
 import 'package:easy_localization/easy_localization.dart';
 import '../widgets/entity_crud_list.dart';
 import '../widgets/confirm_delete_dialog.dart';

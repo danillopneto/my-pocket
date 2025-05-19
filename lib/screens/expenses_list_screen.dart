@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../services/firestore_service.dart';
 import '../models/expense.dart';
 import '../models/category.dart';
-import '../models/payment-method.dart';
+import '../models/payment_method.dart';
 import '../services/user_preferences_service.dart';
 import 'package:easy_localization/easy_localization.dart';
 import '../widgets/drawer_widget.dart';
@@ -34,7 +34,7 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
     firestoreService: FirestoreService(),
     entityType: 'categories',
   );
-  final EntityDataProvider<PaymentMethod> _payment_methodProvider =
+  final EntityDataProvider<PaymentMethod> _paymentMethodProvider =
       EntityDataProvider<PaymentMethod>(
     firestoreService: FirestoreService(),
     entityType: 'paymentMethods',
@@ -54,7 +54,7 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
 
   void _loadEntities() async {
     final cats = await _categoryProvider.fetchEntities();
-    final accs = await _payment_methodProvider.fetchEntities();
+    final accs = await _paymentMethodProvider.fetchEntities();
     if (!mounted) return;
     setState(() {
       _categories = cats;

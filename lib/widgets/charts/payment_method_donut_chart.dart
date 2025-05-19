@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../models/payment-method.dart';
+import '../../models/payment_method.dart';
 import '../../models/expense.dart';
 import '../../services/currency_format_service.dart';
 import 'generic_donut_chart.dart';

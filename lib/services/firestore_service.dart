@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/expense.dart';
 import '../models/category.dart';
-import '../models/payment-method.dart';
+import '../models/payment_method.dart';
 import 'firestore_error_logger.dart';
 
 // Handles CRUD operations for expenses, categories, paymentMethods
