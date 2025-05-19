@@ -5,8 +5,15 @@ import 'package:easy_localization/easy_localization.dart';
 import '../services/auth_service.dart';
 import '../widgets/google_sign_in_web_button.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  bool _signingIn = false;
 
   @override
   Widget build(BuildContext context) {
@@ -23,14 +30,20 @@ class LoginScreen extends StatelessWidget {
                 height: 50,
                 child: GoogleSignInWebButton(
                   onSignIn: () async {
-                    final user =
-                        await AuthService().signInWithGoogle(context: context);
-                    if (user != null && context.mounted) {
-                      Navigator.pushReplacementNamed(context, '/dashboard');
-                    } else if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('${'login'.tr()} failed')),
-                      );
+                    if (_signingIn) return;
+                    setState(() => _signingIn = true);
+                    try {
+                      final user = await AuthService()
+                          .signInWithGoogle(context: context);
+                      if (user != null && context.mounted) {
+                        Navigator.pushReplacementNamed(context, '/dashboard');
+                      } else if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('${'login'.tr()} failed')),
+                        );
+                      }
+                    } finally {
+                      if (mounted) setState(() => _signingIn = false);
                     }
                   },
                 ),

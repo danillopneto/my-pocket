@@ -9,6 +9,10 @@ class GoogleSignInWebButton extends StatelessWidget {
   final void Function()? onSignIn;
   final String buttonId;
   static bool _viewFactoryRegistered = false;
+  // Static map to track if sign-in was triggered per buttonId
+  static final Map<String, bool> _signInTriggeredMap = {};
+  // Static map to keep references to listeners for removal
+  static final Map<String, html.EventListener?> _listenerMap = {};
 
   const GoogleSignInWebButton(
       {super.key, required this.onSignIn, this.buttonId = 'gsi_button'});
@@ -47,10 +51,25 @@ class GoogleSignInWebButton extends StatelessWidget {
             }
           }
 
-          // Always listen for the callback (no static guard)
-          html.window.addEventListener('gsi-callback', (event) {
-            if (onSignIn != null) onSignIn!();
-          });
+          // Remove any previous listener for this buttonId
+          if (_listenerMap[buttonId] != null) {
+            html.window
+                .removeEventListener('gsi-callback', _listenerMap[buttonId]);
+          }
+          // Guard to ensure onSignIn is only called once per buttonId
+          _signInTriggeredMap[buttonId] = false;
+          html.EventListener? listener;
+          listener = (event) {
+            if (_signInTriggeredMap[buttonId] == false) {
+              _signInTriggeredMap[buttonId] = true;
+              if (onSignIn != null) onSignIn!();
+              if (listener != null) {
+                html.window.removeEventListener('gsi-callback', listener);
+              }
+            }
+          };
+          _listenerMap[buttonId] = listener;
+          html.window.addEventListener('gsi-callback', listener);
           // Try to render the button after a short delay to ensure the script is loaded
           Future.delayed(const Duration(milliseconds: 300), renderButton);
           return elem;
