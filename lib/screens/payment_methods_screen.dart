@@ -35,7 +35,7 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
           final paymentMethods = (snapshot.data ?? []);
           return ScaffoldWithDrawer(
             selected: 'paymentMethods',
-            titleKey: 'paymentMethods',
+            titleKey: 'payment_methods',
             body: EntityCrudList<PaymentMethod>(
               entities: paymentMethods,
               labelText: 'payment_method_name',

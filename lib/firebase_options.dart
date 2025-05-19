@@ -42,53 +42,52 @@ class DefaultFirebaseOptions {
   }
 
   static final FirebaseOptions web = FirebaseOptions(
-    apiKey: dotenv.env['FIREBASE_WEB_API_KEY'] ??
-        'AIzaSyBxm6J_UI-mfJOT-LqovLjKGHxVXlFEu78',
-    appId: '1:185739276739:web:935f8239d614f4e05d8d76',
-    messagingSenderId: '185739276739',
-    projectId: 'my-pocket-fb67d',
-    authDomain: 'my-pocket-fb67d.firebaseapp.com',
-    storageBucket: 'my-pocket-fb67d.firebasestorage.app',
-    measurementId: 'G-0CHKTPLHD4',
+    apiKey: dotenv.env['FIREBASE_WEB_API_KEY'] ?? '',
+    appId: '1:170412871106:web:494cbc0e702cd3f6185a5b',
+    messagingSenderId: '170412871106',
+    projectId: 'meubolsohoje',
+    authDomain: 'meubolsohoje.firebaseapp.com',
+    storageBucket: 'meubolsohoje.firebasestorage.app',
+    measurementId: 'G-Q0EQV253BS',
   );
 
   static final FirebaseOptions android = FirebaseOptions(
     apiKey: dotenv.env['FIREBASE_ANDROID_API_KEY'] ?? '',
     appId: '1:185739276739:android:118e8c47070f3d9b5d8d76',
     messagingSenderId: '185739276739',
-    projectId: 'my-pocket-fb67d',
-    storageBucket: 'my-pocket-fb67d.firebasestorage.app',
+    projectId: 'meubolsohoje',
+    storageBucket: 'meubolsohoje.firebasestorage.app',
   );
 
   static final FirebaseOptions ios = FirebaseOptions(
     apiKey: dotenv.env['FIREBASE_IOS_API_KEY'] ?? '',
     appId: '1:185739276739:ios:917285c47ff52d4e5d8d76',
     messagingSenderId: '185739276739',
-    projectId: 'my-pocket-fb67d',
-    storageBucket: 'my-pocket-fb67d.firebasestorage.app',
+    projectId: 'meubolsohoje',
+    storageBucket: 'meubolsohoje.firebasestorage.app',
     iosClientId:
         '185739276739-ekbvrhvunp1gfogo6c6osi9vetl8p2gq.apps.googleusercontent.com',
-    iosBundleId: 'com.example.myPocket',
+    iosBundleId: 'com.example.meuBolsoHoje',
   );
 
   static final FirebaseOptions macos = FirebaseOptions(
     apiKey: dotenv.env['FIREBASE_MACOS_API_KEY'] ?? '',
     appId: '1:185739276739:ios:917285c47ff52d4e5d8d76',
     messagingSenderId: '185739276739',
-    projectId: 'my-pocket-fb67d',
-    storageBucket: 'my-pocket-fb67d.firebasestorage.app',
+    projectId: 'meubolsohoje',
+    storageBucket: 'meubolsohoje.firebasestorage.app',
     iosClientId:
         '185739276739-ekbvrhvunp1gfogo6c6osi9vetl8p2gq.apps.googleusercontent.com',
-    iosBundleId: 'com.example.myPocket',
+    iosBundleId: 'com.example.meuBolsoHoje',
   );
 
   static final FirebaseOptions windows = FirebaseOptions(
     apiKey: dotenv.env['FIREBASE_WINDOWS_API_KEY'] ?? '',
     appId: '1:185739276739:web:2a2f732c5317c8a85d8d76',
     messagingSenderId: '185739276739',
-    projectId: 'my-pocket-fb67d',
-    authDomain: 'my-pocket-fb67d.firebaseapp.com',
-    storageBucket: 'my-pocket-fb67d.firebasestorage.app',
+    projectId: 'meubolsohoje',
+    authDomain: 'meubolsohoje.firebaseapp.com',
+    storageBucket: 'meubolsohoje.firebasestorage.app',
     measurementId: 'G-V13Y6FXSGN',
   );
 }

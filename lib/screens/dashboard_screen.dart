@@ -253,7 +253,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                             color: Color(0xFF4CAF50)),
                                         const SizedBox(width: 8),
                                         Text(
-                                          'trends'.tr(),
+                                          'expenses_by_date'.tr(),
                                           style: Theme.of(context)
                                               .textTheme
                                               .titleMedium
@@ -265,11 +265,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     ),
                                     const SizedBox(height: 16),
 
-                                    // Date bar chart
-                                    Text('expenses_by_date'.tr(),
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .titleSmall),
+                                    // Date bar chart,
                                     SizedBox(
                                       height: 280,
                                       child: DateBarChart(

@@ -23,7 +23,7 @@ class _BulkAddExpensesScreenState extends State<BulkAddExpensesScreen> {
     firestoreService: FirestoreService(),
     entityType: 'categories',
   );
-  final EntityDataProvider<PaymentMethod> _payment_methodProvider =
+  final EntityDataProvider<PaymentMethod> _paymentMethodProvider =
       EntityDataProvider<PaymentMethod>(
     firestoreService: FirestoreService(),
     entityType: 'paymentMethods',
@@ -44,7 +44,7 @@ class _BulkAddExpensesScreenState extends State<BulkAddExpensesScreen> {
 
   Future<void> _fetchEntities() async {
     final cats = await _categoryProvider.fetchEntities();
-    final accs = await _payment_methodProvider.fetchEntities();
+    final accs = await _paymentMethodProvider.fetchEntities();
     if (!mounted) return;
     setState(() {
       _categories = cats;
