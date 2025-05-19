@@ -90,8 +90,11 @@ class AppDrawer extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Icon(Icons.account_balance_wallet,
-                      color: Colors.white, size: 28),
+                  Image.asset(
+                    'assets/images/logo_x32.png',
+                    height: 32,
+                    width: 32,
+                  ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
