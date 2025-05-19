@@ -4,8 +4,9 @@ import '../models/category.dart';
 import '../models/payment_method.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'expense_card.dart';
+import '../services/date_format_service.dart';
 
-class ExpensesList extends StatelessWidget {
+class ExpensesList extends StatefulWidget {
   final List<Expense> expenses;
   final List<Category> categories;
   final List<PaymentMethod> paymentMethods;
@@ -32,10 +33,28 @@ class ExpensesList extends StatelessWidget {
   });
 
   @override
+  State<ExpensesList> createState() => _ExpensesListState();
+}
+
+class _ExpensesListState extends State<ExpensesList> {
+  static const int _itemsPerPage = 10;
+  int _currentPage = 0;
+
+  @override
   Widget build(BuildContext context) {
-    final total =
-        totalOverride ?? expenses.fold<double>(0, (sum, e) => sum + e.value);
-    final grouped = _groupedExpensesByDay(expenses);
+    final total = widget.totalOverride ??
+        widget.expenses.fold<double>(0, (sum, e) => sum + e.value);
+    final allExpenses = List<Expense>.from(widget.expenses)
+      ..sort((a, b) => b.date.compareTo(a.date));
+    final totalPages = (allExpenses.length / _itemsPerPage).ceil();
+    final startIdx = _currentPage * _itemsPerPage;
+    final endIdx = (_currentPage + 1) * _itemsPerPage;
+    final pageExpenses = allExpenses.sublist(
+      startIdx,
+      endIdx > allExpenses.length ? allExpenses.length : endIdx,
+    );
+    final grouped = _groupedExpensesByDay(pageExpenses);
+
     return Column(
       children: [
         Expanded(
@@ -51,19 +70,19 @@ class ExpensesList extends StatelessWidget {
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 8.0),
                           child: Text(
-                            // Use yMMMMd for consistency
-                            MaterialLocalizations.of(context)
-                                .formatFullDate(group['date']),
+                            DateFormatService.formatDate(
+                                group['date'], context),
                             style: const TextStyle(
                                 fontWeight: FontWeight.bold, fontSize: 16),
                           ),
                         ),
                         ...group['expenses'].map<Widget>((e) {
-                          final category = categories.firstWhere(
+                          final category = widget.categories.firstWhere(
                             (c) => c.id == e.categoryId,
                             orElse: () => Category(id: '', name: 'Unknown'),
                           );
-                          final paymentMethod = paymentMethods.firstWhere(
+                          final paymentMethod =
+                              widget.paymentMethods.firstWhere(
                             (a) => a.id == e.paymentMethodId,
                             orElse: () =>
                                 PaymentMethod(id: '', name: 'Unknown'),
@@ -72,9 +91,12 @@ class ExpensesList extends StatelessWidget {
                             expense: e,
                             category: category,
                             paymentMethod: paymentMethod,
-                            onEdit: onEdit != null ? () => onEdit!(e) : () {},
-                            onDelete:
-                                onDelete != null ? () => onDelete!(e) : () {},
+                            onEdit: widget.onEdit != null
+                                ? () => widget.onEdit!(e)
+                                : () {},
+                            onDelete: widget.onDelete != null
+                                ? () => widget.onDelete!(e)
+                                : () {},
                           );
                         }).toList(),
                       ],
@@ -82,7 +104,32 @@ class ExpensesList extends StatelessWidget {
                   },
                 ),
         ),
-        if (showTotal)
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            TextButton(
+              onPressed: _currentPage > 0
+                  ? () => setState(() => _currentPage--)
+                  : null,
+              child: Text('previous'.tr()),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Text(
+                // Localize 'Page' and use string interpolation for page info
+                '${'page'.tr()} ${_currentPage + 1} / $totalPages',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            TextButton(
+              onPressed: _currentPage < totalPages - 1
+                  ? () => setState(() => _currentPage++)
+                  : null,
+              child: Text('next'.tr()),
+            ),
+          ],
+        ),
+        if (widget.showTotal)
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Text(

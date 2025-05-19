@@ -16,6 +16,7 @@ import '../widgets/snackbar_helper.dart';
 import '../widgets/app_loading_indicator.dart';
 import '../utils/firebase_user_utils.dart';
 import '../widgets/scaffold_with_drawer.dart';
+import '../widgets/dashboard_expense_filter.dart';
 
 class ExpensesListScreen extends StatefulWidget {
   const ExpensesListScreen({super.key});
@@ -39,7 +40,9 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
     firestoreService: FirestoreService(),
     entityType: 'paymentMethods',
   );
-  String _filterText = '';
+  DateTime? _filterStartDate;
+  DateTime? _filterEndDate;
+  List<String> _filterCategoryIds = [];
   List<Category> _categories = [];
   List<PaymentMethod> _paymentMethods = [];
   UserPreferences? _userPrefs;
@@ -50,6 +53,9 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
     super.initState();
     _loadEntities();
     _loadUserPrefs();
+    final now = DateTime.now();
+    _filterStartDate = DateTime(now.year, now.month, 1);
+    _filterEndDate = now;
   }
 
   void _loadEntities() async {
@@ -122,21 +128,28 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
         titleKey: 'expenses_list',
         body: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: TextField(
-                decoration: InputDecoration(
-                  labelText: 'filter'.tr(),
-                  prefixIcon: const Icon(Icons.search),
-                ),
-                onChanged: (value) {
-                  setState(() => _filterText = value);
-                },
-              ),
+            DashboardExpenseFilter(
+              categories: _categories,
+              initialStartDate: _filterStartDate,
+              initialEndDate: _filterEndDate,
+              initialCategoryIds: _filterCategoryIds,
+              onApply: (start, end, categoryIds) {
+                setState(() {
+                  _filterStartDate = start;
+                  _filterEndDate = end;
+                  _filterCategoryIds = categoryIds;
+                });
+              },
             ),
             Expanded(
               child: StreamBuilder<List<Expense>>(
-                stream: _firestoreService.getExpenses(user.uid),
+                stream: _firestoreService.getExpenses(
+                  user.uid,
+                  startDate: _filterStartDate,
+                  endDate: _filterEndDate,
+                  categoryIds:
+                      _filterCategoryIds.isNotEmpty ? _filterCategoryIds : null,
+                ),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const AppLoadingIndicator();
@@ -149,17 +162,6 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
                   expenses = expenses
                       .where((e) => !_pendingDeleteIds.contains(e.id))
                       .toList();
-                  if (_filterText.isNotEmpty) {
-                    expenses = expenses
-                        .where((e) =>
-                            e.description
-                                .toLowerCase()
-                                .contains(_filterText.toLowerCase()) ||
-                            e.place
-                                .toLowerCase()
-                                .contains(_filterText.toLowerCase()))
-                        .toList();
-                  }
                   return ExpensesList(
                     expenses: expenses,
                     categories: _categories,

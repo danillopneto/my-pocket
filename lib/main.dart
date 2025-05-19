@@ -90,7 +90,7 @@ class _MyAppState extends State<MyApp> {
     return BrowserTabTitleUpdater(
       child: Builder(
         builder: (context) => MaterialApp(
-          title: 'app_title'.tr(),
+          title: 'Meu Bolso',
           theme: ThemeData(
             colorScheme: ColorScheme.fromSeed(
               seedColor: Colors.deepPurple,
@@ -152,7 +152,7 @@ class BrowserTabTitleUpdater extends StatelessWidget {
   Widget build(BuildContext context) {
     // Listen to locale changes and update the browser tab title
     context.locale;
-    html.document.title = 'app_title'.tr();
+    html.document.title = 'Meu Bolso';
     return child;
   }
 }
@@ -164,7 +164,7 @@ class MyHomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     // Replace this with your navigation or main screen
     return Scaffold(
-      appBar: AppBar(title: Text('app_title'.tr())),
+      appBar: AppBar(title: Text('Meu Bolso')),
       body: Center(child: Text('welcome'.tr())),
     );
   }

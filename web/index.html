@@ -15,20 +15,22 @@
     the `--base-href` argument provided to `flutter build`.
   -->
   <base href="$FLUTTER_BASE_HREF">
-
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="description" content="A new Flutter project.">
-  <meta name="google-signin-client_id" content="170412871106-aaha0vv16gga8p6menh5jron0alo5blk.apps.googleusercontent.com">
+  <meta name="google-signin-client_id" content="170412871106-aaha0vv16gga8p6menh5jron0alo5blk.apps.googleusercontent.com">  <!-- Security headers for auth popups -->
+  <meta http-equiv="Cross-Origin-Opener-Policy" content="same-origin-allow-popups">
+  <meta http-equiv="Cross-Origin-Embedder-Policy" content="unsafe-none">
+  <!-- Preload Google Sign-In script -->
+  <link rel="preload" href="https://accounts.google.com/gsi/client" as="script">
 
   <!-- iOS meta tags & icons -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="my_pocket">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
-
   <!-- Favicon -->
-  <link rel="icon" type="image/png" href="assets/images/logo.png"/>
+  <link rel="icon" type="image/png" href="assets/logo.png"/>
 
   <title>my_pocket</title>
   <link rel="manifest" href="manifest.json">
