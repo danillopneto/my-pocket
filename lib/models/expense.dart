@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 // Expense model
 class Expense {
   final String? id;
@@ -25,10 +27,7 @@ class Expense {
   factory Expense.fromMap(Map<String, dynamic> map, {String? id}) {
     DateTime parseDate(dynamic value) {
       if (value is DateTime) return value;
-      if (value != null && value.runtimeType.toString() == 'Timestamp') {
-        // Firestore Timestamp support
-        return (value as dynamic).toDate();
-      }
+      if (value is Timestamp) return value.toDate();
       return DateTime.tryParse(value?.toString() ?? '') ?? DateTime.now();
     }
 
@@ -49,8 +48,8 @@ class Expense {
 
   Map<String, dynamic> toMap() {
     return {
-      'date': date.toIso8601String(),
-      'createdAt': createdAt.toIso8601String(),
+      'date': Timestamp.fromDate(date),
+      'createdAt': Timestamp.fromDate(createdAt),
       'description': description,
       'value': value,
       'installments': installments,

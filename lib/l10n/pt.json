@@ -95,7 +95,7 @@
   "first_name": "Primeiro Nome",
   "last_name": "Sobrenome",
   "previous": "Anterior",
-  "next": "Siguiente",
+  "next": "Seguinte",
   "page": "Página",
   "invalid_email_format": "Formato de e-mail inválido",
   "password_min_length": "A senha deve ter pelo menos 6 caracteres"
