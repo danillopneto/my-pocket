@@ -29,7 +29,7 @@ class GoogleSignInWebButton extends StatelessWidget {
           if (html.document.getElementById('gsi-client') == null) {
             final script = html.ScriptElement()
               ..id = 'gsi-client'
-              ..src = 'https://paymentMethods.google.com/gsi/client'
+              ..src = 'https://accounts.google.com/gsi/client'
               ..async = true;
             html.document.body?.append(script);
           }
@@ -39,10 +39,10 @@ class GoogleSignInWebButton extends StatelessWidget {
                 ?.getAttribute('content');
             if (clientId != null && js.context.hasProperty('google')) {
               js.context.callMethod('eval', [
-                '''google.paymentMethods.id.initialize({client_id: "$clientId", callback: (response) => window.dispatchEvent(new CustomEvent('gsi-callback', {detail: response}))});'''
+                '''google.accounts.id.initialize({client_id: "$clientId", callback: (response) => window.dispatchEvent(new CustomEvent('gsi-callback', {detail: response}))});'''
               ]);
               js.context.callMethod('eval', [
-                '''google.paymentMethods.id.renderButton(document.getElementById('$buttonId'), {theme: 'filled_blue', size: 'large', type: 'standard', text: 'signin_with'});'''
+                '''google.accounts.id.renderButton(document.getElementById('$buttonId'), {theme: 'filled_blue', size: 'large', type: 'standard', text: 'signin_with'});'''
               ]);
             }
           }

@@ -42,7 +42,8 @@ class DefaultFirebaseOptions {
   }
 
   static final FirebaseOptions web = FirebaseOptions(
-    apiKey: dotenv.env['FIREBASE_WEB_API_KEY'] ?? '',
+    apiKey: dotenv.env['FIREBASE_WEB_API_KEY'] ??
+        'AIzaSyBxm6J_UI-mfJOT-LqovLjKGHxVXlFEu78',
     appId: '1:185739276739:web:935f8239d614f4e05d8d76',
     messagingSenderId: '185739276739',
     projectId: 'my-pocket-fb67d',

@@ -104,8 +104,8 @@ class ExpensesList extends StatelessWidget {
     for (final exp in sorted) {
       final expDate = DateTime(exp.date.year, exp.date.month, exp.date.day);
       if (currentDate == null || expDate != currentDate) {
-        if (currentGroup.isNotEmpty) {
-          groups.add({'date': currentDate!, 'expenses': currentGroup});
+        if (currentGroup.isNotEmpty && currentDate != null) {
+          groups.add({'date': currentDate, 'expenses': currentGroup});
         }
         currentDate = expDate;
         currentGroup = [exp];
@@ -113,8 +113,8 @@ class ExpensesList extends StatelessWidget {
         currentGroup.add(exp);
       }
     }
-    if (currentGroup.isNotEmpty) {
-      groups.add({'date': currentDate!, 'expenses': currentGroup});
+    if (currentGroup.isNotEmpty && currentDate != null) {
+      groups.add({'date': currentDate, 'expenses': currentGroup});
     }
     return groups;
   }

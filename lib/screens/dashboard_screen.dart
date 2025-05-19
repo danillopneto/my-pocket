@@ -18,7 +18,7 @@ import '../../services/currency_format_service.dart';
 import '../widgets/dashboard_expense_filter.dart';
 
 class DashboardScreen extends StatefulWidget {
-  DashboardScreen({super.key});
+  const DashboardScreen({super.key});
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();

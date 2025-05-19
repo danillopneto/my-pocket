@@ -41,7 +41,7 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
   );
   String _filterText = '';
   List<Category> _categories = [];
-  List<PaymentMethod> _payment_methods = [];
+  List<PaymentMethod> _paymentMethods = [];
   UserPreferences? _userPrefs;
   final List<String> _pendingDeleteIds = [];
 
@@ -58,7 +58,7 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
     if (!mounted) return;
     setState(() {
       _categories = cats;
-      _payment_methods = accs;
+      _paymentMethods = accs;
     });
   }
 
@@ -77,7 +77,7 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
         return EditExpenseDialog(
           expense: expense,
           categories: _categories,
-          paymentMethods: _payment_methods,
+          paymentMethods: _paymentMethods,
           isNew: false,
           onSubmit: (edited) async {
             await _expensesService.updateExpense(context, expense, edited);
@@ -163,7 +163,7 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
                   return ExpensesList(
                     expenses: expenses,
                     categories: _categories,
-                    paymentMethods: _payment_methods,
+                    paymentMethods: _paymentMethods,
                     onEdit: _editExpenseDialog,
                     onDelete: _deleteExpense,
                     showTotal: true,

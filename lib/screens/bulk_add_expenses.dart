@@ -32,7 +32,7 @@ class _BulkAddExpensesScreenState extends State<BulkAddExpensesScreen> {
   bool parsing = false;
   List<List<String>> previewRows = [];
   List<Category> _categories = [];
-  List<PaymentMethod> _payment_methods = [];
+  List<PaymentMethod> _paymentMethods = [];
   bool _loading = true;
 
   @override
@@ -48,7 +48,7 @@ class _BulkAddExpensesScreenState extends State<BulkAddExpensesScreen> {
     if (!mounted) return;
     setState(() {
       _categories = cats;
-      _payment_methods = accs;
+      _paymentMethods = accs;
       _loading = false;
     });
   }
@@ -78,7 +78,7 @@ class _BulkAddExpensesScreenState extends State<BulkAddExpensesScreen> {
         // Validate category and paymentMethod
         final categoryValid = _categories
             .any((c) => c.name.toLowerCase() == cols[4].toLowerCase());
-        final paymentMethodValid = _payment_methods
+        final paymentMethodValid = _paymentMethods
             .any((a) => a.name.toLowerCase() == cols[5].toLowerCase());
         // Mark invalids visually
         final displayCols = List<String>.from(cols.take(6));
@@ -240,7 +240,7 @@ class _BulkAddExpensesScreenState extends State<BulkAddExpensesScreen> {
                                           c.name.toLowerCase() ==
                                           categoryName.toLowerCase());
                                   final paymentMethod =
-                                      _payment_methods.firstWhereOrNull((a) =>
+                                      _paymentMethods.firstWhereOrNull((a) =>
                                           a.name.toLowerCase() ==
                                           paymentMethodName.toLowerCase());
                                   if (category == null ||
