@@ -31,6 +31,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   DateTime? _filterStartDate;
   DateTime? _filterEndDate;
   List<String> _filterCategoryIds = [];
+  // Track which chart is visible: true for payment method, false for category
+  bool _showPaymentMethodChart = true;
+  // Track which bar chart is visible: 0 = date, 1 = description, 2 = place
+  int _activeBarChartIndex = 0;
 
   @override
   void initState() {
@@ -130,15 +134,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             ),
                             // Summary header
                             SummaryHeader(
-                              total: total,
-                              avgPerMonth: avgPerDay, // Pass as avgPerDay now
-                              mostExp: mostExp,
-                              categories: categories,
-                              paymentMethods: paymentMethods,
-                              userPrefs: userPrefs,
-                              avgLabelKey:
-                                  'daily_average', // Add this prop for label
-                            ),
+                                total: total,
+                                avgPerMonth: avgPerDay, // Pass as avgPerDay now
+                                mostExp: mostExp,
+                                categories: categories,
+                                paymentMethods: paymentMethods,
+                                userPrefs: userPrefs),
                             const SizedBox(height: 24),
 
                             // Dashboard title
@@ -151,12 +152,106 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     Theme.of(context).textTheme.headlineSmall,
                               ),
                             ),
-                            const SizedBox(height: 8),
+                            const SizedBox(
+                                height: 8), // Donut chart section with toggle
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 16.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  // Custom segmented control to toggle between charts
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color:
+                                          Theme.of(context).colorScheme.surface,
+                                      borderRadius: BorderRadius.circular(25),
+                                      border: Border.all(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .outline
+                                            .withOpacity(0.5),
+                                      ),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        // Payment Method tab
+                                        GestureDetector(
+                                          onTap: () {
+                                            setState(() {
+                                              _showPaymentMethodChart = true;
+                                            });
+                                          },
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 16, vertical: 8),
+                                            decoration: BoxDecoration(
+                                              color: _showPaymentMethodChart
+                                                  ? Theme.of(context)
+                                                      .colorScheme
+                                                      .primary
+                                                  : Colors.transparent,
+                                              borderRadius:
+                                                  BorderRadius.circular(25),
+                                            ),
+                                            child: Text(
+                                              'payment_methods'.tr(),
+                                              style: TextStyle(
+                                                color: _showPaymentMethodChart
+                                                    ? Theme.of(context)
+                                                        .colorScheme
+                                                        .onPrimary
+                                                    : Theme.of(context)
+                                                        .colorScheme
+                                                        .onSurface,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        // Category tab
+                                        GestureDetector(
+                                          onTap: () {
+                                            setState(() {
+                                              _showPaymentMethodChart = false;
+                                            });
+                                          },
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 16, vertical: 8),
+                                            decoration: BoxDecoration(
+                                              color: !_showPaymentMethodChart
+                                                  ? Theme.of(context)
+                                                      .colorScheme
+                                                      .primary
+                                                  : Colors.transparent,
+                                              borderRadius:
+                                                  BorderRadius.circular(25),
+                                            ),
+                                            child: Text(
+                                              'categories'.tr(),
+                                              style: TextStyle(
+                                                color: !_showPaymentMethodChart
+                                                    ? Theme.of(context)
+                                                        .colorScheme
+                                                        .onPrimary
+                                                    : Theme.of(context)
+                                                        .colorScheme
+                                                        .onSurface,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
 
-                            // Donut chart section - side by side
-                            // --- Split donut charts into separate cards ---
-
-                            // Payment Method Donut Chart Card
+                            // Single Chart Card (switches between the charts)
                             Card(
                               margin: const EdgeInsets.all(16),
                               elevation: 2,
@@ -174,7 +269,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                             color: Color(0xFF3366CC)),
                                         const SizedBox(width: 8),
                                         Text(
-                                          'expenses_by_payment_method'.tr(),
+                                          _showPaymentMethodChart
+                                              ? 'expenses_by_payment_method'
+                                                  .tr()
+                                              : 'expenses_by_category'.tr(),
                                           style: Theme.of(context)
                                               .textTheme
                                               .titleMedium
@@ -184,59 +282,154 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       ],
                                     ),
                                     const SizedBox(height: 16),
-                                    // Remove SizedBox(height: 300) and use chart directly
-                                    PaymentMethodDonutChart(
-                                      paymentMethods: paymentMethods,
-                                      expenses: expenses,
-                                    ),
+                                    // Conditionally show the appropriate chart
+                                    _showPaymentMethodChart
+                                        ? PaymentMethodDonutChart(
+                                            paymentMethods: paymentMethods,
+                                            expenses: expenses,
+                                          )
+                                        : CategoryDonutChart(
+                                            categories: categories,
+                                            expenses: expenses,
+                                          ),
                                   ],
                                 ),
                               ),
-                            ),
-
-                            // Category Donut Chart Card
-                            Card(
-                              margin: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 8),
-                              elevation: 2,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
+                            ), // Bar chart section - with toggle
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 16.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  // Custom segmented control to toggle between bar charts
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color:
+                                          Theme.of(context).colorScheme.surface,
+                                      borderRadius: BorderRadius.circular(25),
+                                      border: Border.all(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .outline
+                                            .withOpacity(0.5),
+                                      ),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        const Icon(Icons.pie_chart,
-                                            color: Color(0xFF3366CC)),
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          'expenses_by_category'.tr(),
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .titleMedium
-                                              ?.copyWith(
-                                                  fontWeight: FontWeight.bold),
+                                        // Date tab
+                                        GestureDetector(
+                                          onTap: () {
+                                            setState(() {
+                                              _activeBarChartIndex = 0;
+                                            });
+                                          },
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 16, vertical: 8),
+                                            decoration: BoxDecoration(
+                                              color: _activeBarChartIndex == 0
+                                                  ? Theme.of(context)
+                                                      .colorScheme
+                                                      .primary
+                                                  : Colors.transparent,
+                                              borderRadius:
+                                                  BorderRadius.circular(25),
+                                            ),
+                                            child: Text(
+                                              'date'.tr(),
+                                              style: TextStyle(
+                                                color: _activeBarChartIndex == 0
+                                                    ? Theme.of(context)
+                                                        .colorScheme
+                                                        .onPrimary
+                                                    : Theme.of(context)
+                                                        .colorScheme
+                                                        .onSurface,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        // Description tab
+                                        GestureDetector(
+                                          onTap: () {
+                                            setState(() {
+                                              _activeBarChartIndex = 1;
+                                            });
+                                          },
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 16, vertical: 8),
+                                            decoration: BoxDecoration(
+                                              color: _activeBarChartIndex == 1
+                                                  ? Theme.of(context)
+                                                      .colorScheme
+                                                      .primary
+                                                  : Colors.transparent,
+                                              borderRadius:
+                                                  BorderRadius.circular(25),
+                                            ),
+                                            child: Text(
+                                              'description'.tr(),
+                                              style: TextStyle(
+                                                color: _activeBarChartIndex == 1
+                                                    ? Theme.of(context)
+                                                        .colorScheme
+                                                        .onPrimary
+                                                    : Theme.of(context)
+                                                        .colorScheme
+                                                        .onSurface,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        // Place tab
+                                        GestureDetector(
+                                          onTap: () {
+                                            setState(() {
+                                              _activeBarChartIndex = 2;
+                                            });
+                                          },
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 16, vertical: 8),
+                                            decoration: BoxDecoration(
+                                              color: _activeBarChartIndex == 2
+                                                  ? Theme.of(context)
+                                                      .colorScheme
+                                                      .primary
+                                                  : Colors.transparent,
+                                              borderRadius:
+                                                  BorderRadius.circular(25),
+                                            ),
+                                            child: Text(
+                                              'place'.tr(),
+                                              style: TextStyle(
+                                                color: _activeBarChartIndex == 2
+                                                    ? Theme.of(context)
+                                                        .colorScheme
+                                                        .onPrimary
+                                                    : Theme.of(context)
+                                                        .colorScheme
+                                                        .onSurface,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ),
                                         ),
                                       ],
                                     ),
-                                    const SizedBox(height: 16),
-                                    // Remove SizedBox(height: 300) and use chart directly
-                                    CategoryDonutChart(
-                                      categories: categories,
-                                      expenses: expenses,
-                                    ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
                             ),
 
-                            // Bar chart section
+                            // Single Bar Chart Card (switches between the charts)
                             Card(
-                              margin: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 8),
+                              margin: const EdgeInsets.all(16),
                               elevation: 2,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
@@ -246,14 +439,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    // Trends header
+                                    // Dynamic chart header based on selection
                                     Row(
                                       children: [
-                                        const Icon(Icons.bar_chart,
-                                            color: Color(0xFF4CAF50)),
+                                        Icon(
+                                          _activeBarChartIndex == 0
+                                              ? Icons.bar_chart
+                                              : (_activeBarChartIndex == 1
+                                                  ? Icons.list_alt
+                                                  : Icons.place),
+                                          color: _activeBarChartIndex == 0
+                                              ? const Color(0xFF4CAF50)
+                                              : (_activeBarChartIndex == 1
+                                                  ? const Color(0xFF607D8B)
+                                                  : const Color(0xFF9C27B0)),
+                                        ),
                                         const SizedBox(width: 8),
                                         Text(
-                                          'expenses_by_date'.tr(),
+                                          _activeBarChartIndex == 0
+                                              ? 'expenses_by_date'.tr()
+                                              : (_activeBarChartIndex == 1
+                                                  ? 'expenses_by_description'
+                                                      .tr()
+                                                  : 'expenses_by_place'.tr()),
                                           style: Theme.of(context)
                                               .textTheme
                                               .titleMedium
@@ -265,113 +473,44 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     ),
                                     const SizedBox(height: 16),
 
-                                    // Date bar chart,
-                                    SizedBox(
-                                      height: 280,
-                                      child: DateBarChart(
-                                        expenses: expenses,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-
-                            // Description bar chart in its own card/section
-                            Card(
-                              margin: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 8),
-                              elevation: 2,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        const Icon(Icons.list_alt,
-                                            color: Color(0xFF607D8B)),
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          'expenses_by_description'.tr(),
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .titleMedium
-                                              ?.copyWith(
-                                                fontWeight: FontWeight.bold,
-                                              ),
+                                    // Conditionally show the selected chart
+                                    if (_activeBarChartIndex == 0)
+                                      SizedBox(
+                                        height: 280,
+                                        child: DateBarChart(
+                                          expenses: expenses,
                                         ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 16),
-                                    // Remove titleKey from GenericBarChart for description chart, since the card already has the title
-                                    SizedBox(
-                                      height: 320,
-                                      child: GenericBarChart<String>(
-                                        items: allDescriptions,
-                                        expenses: expenses,
-                                        getId: (desc) => desc,
-                                        getName: (desc) => desc,
-                                        formatValue: (v, ctx) =>
-                                            CurrencyFormatService
-                                                .formatCurrency(v, ctx),
-                                        getExpenseKey: (e) => e.description,
-                                        getExpenseValue: (e) => e.value,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-
-                            // Place bar chart in its own card/section
-                            Card(
-                              margin: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 8),
-                              elevation: 2,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        const Icon(Icons.place,
-                                            color: Color(0xFF9C27B0)),
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          'expenses_by_place'.tr(),
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .titleMedium
-                                              ?.copyWith(
-                                                fontWeight: FontWeight.bold,
-                                              ),
+                                      )
+                                    else if (_activeBarChartIndex == 1)
+                                      SizedBox(
+                                        height: 320,
+                                        child: GenericBarChart<String>(
+                                          items: allDescriptions,
+                                          expenses: expenses,
+                                          getId: (desc) => desc,
+                                          getName: (desc) => desc,
+                                          formatValue: (v, ctx) =>
+                                              CurrencyFormatService
+                                                  .formatCurrency(v, ctx),
+                                          getExpenseKey: (e) => e.description,
+                                          getExpenseValue: (e) => e.value,
                                         ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 16),
-                                    // Use GenericBarChart for top 10 expenses by place
-                                    SizedBox(
-                                      height: 320,
-                                      child: GenericBarChart<String>(
-                                        items: allPlaces,
-                                        expenses: expenses,
-                                        getId: (place) => place,
-                                        getName: (place) => place,
-                                        formatValue: (v, ctx) =>
-                                            CurrencyFormatService
-                                                .formatCurrency(v, ctx),
-                                        getExpenseKey: (e) => e.place,
-                                        getExpenseValue: (e) => e.value,
+                                      )
+                                    else
+                                      SizedBox(
+                                        height: 320,
+                                        child: GenericBarChart<String>(
+                                          items: allPlaces,
+                                          expenses: expenses,
+                                          getId: (place) => place,
+                                          getName: (place) => place,
+                                          formatValue: (v, ctx) =>
+                                              CurrencyFormatService
+                                                  .formatCurrency(v, ctx),
+                                          getExpenseKey: (e) => e.place,
+                                          getExpenseValue: (e) => e.value,
+                                        ),
                                       ),
-                                    ),
                                   ],
                                 ),
                               ),

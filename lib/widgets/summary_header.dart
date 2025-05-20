@@ -11,18 +11,15 @@ class SummaryHeader extends StatelessWidget {
   final List categories;
   final List paymentMethods;
   final UserPreferences? userPrefs;
-  final String avgLabelKey;
 
-  const SummaryHeader({
-    super.key,
-    required this.total,
-    required this.avgPerMonth,
-    required this.mostExp,
-    required this.categories,
-    required this.paymentMethods,
-    this.userPrefs,
-    this.avgLabelKey = 'average_per_month',
-  });
+  const SummaryHeader(
+      {super.key,
+      required this.total,
+      required this.avgPerMonth,
+      required this.mostExp,
+      required this.categories,
+      required this.paymentMethods,
+      this.userPrefs});
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +39,7 @@ class SummaryHeader extends StatelessWidget {
                     overrideSymbol: symbol, overrideFormat: formatMask),
                 style: Theme.of(context).textTheme.headlineMedium),
             const SizedBox(height: 12),
-            Text(avgLabelKey.tr() +
+            Text('daily_average'.tr() +
                 CurrencyFormatService.formatCurrency(avgPerMonth, context,
                     overrideSymbol: symbol, overrideFormat: formatMask)),
             const SizedBox(height: 12),
@@ -50,13 +47,8 @@ class SummaryHeader extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('most_expensive'.tr()),
                   Text(
-                    mostExp.description +
-                        ' - ' +
-                        CurrencyFormatService.formatCurrency(
-                            mostExp.value, context,
-                            overrideSymbol: symbol, overrideFormat: formatMask),
+                    '${'most_expensive'.tr() + mostExp.description} - ${CurrencyFormatService.formatCurrency(mostExp.value, context, overrideSymbol: symbol, overrideFormat: formatMask)}',
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ],
