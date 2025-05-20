@@ -1,6 +1,5 @@
 // Login screen
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:easy_localization/easy_localization.dart';
 import '../services/auth_service.dart';
 
@@ -13,10 +12,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   bool _signingIn = false;
-  bool _isLoading = true;
-  bool _buttonVisible = false;
   bool _isSignUp = false;
-  bool _showEmailPasswordForm = false;
 
   // Controllers for email/password form
   final _emailController = TextEditingController();
@@ -29,10 +25,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
-    // Start a timer to check if the button is rendered
-    if (kIsWeb) {
-      Future.delayed(const Duration(seconds: 1), _checkButtonVisibility);
-    }
+    // No need to check button visibility anymore
   }
 
   @override
@@ -43,18 +36,6 @@ class _LoginScreenState extends State<LoginScreen> {
     _firstNameController.dispose();
     _lastNameController.dispose();
     super.dispose();
-  }
-
-  // Check if the button is visible, add fallback if needed
-  void _checkButtonVisibility() {
-    setState(() => _isLoading = false);
-
-    // Give it a bit more time and check if the button appeared
-    Future.delayed(const Duration(seconds: 3), () {
-      if (mounted && !_buttonVisible) {
-        setState(() => _buttonVisible = true);
-      }
-    });
   }
 
   // Handle email/password sign-in
@@ -145,6 +126,14 @@ class _LoginScreenState extends State<LoginScreen> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          // Add logo before sign-in fields
+          Padding(
+            padding: const EdgeInsets.only(bottom: 32.0),
+            child: Image.asset(
+              'assets/images/logo.png',
+              height: 80,
+            ),
+          ),
           if (_isSignUp) ...[
             TextFormField(
               controller: _firstNameController,
@@ -186,8 +175,8 @@ class _LoginScreenState extends State<LoginScreen> {
               if (value == null || value.isEmpty) {
                 return '${'email'.tr()} ${'required'.tr()}';
               }
-              if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}\$')
-                  .hasMatch(value)) {
+              // Fix: Use correct regex for email validation
+              if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(value)) {
                 return 'invalid_email_format'.tr();
               }
               return null;
@@ -265,90 +254,18 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (kIsWeb && !_showEmailPasswordForm) {
-      // On web, render only email/password login (Google removed)
-      return Scaffold(
-        appBar: AppBar(title: Text('login'.tr())),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (_isLoading) const CircularProgressIndicator(),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  setState(() => _showEmailPasswordForm = true);
-                },
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(240, 50),
-                ),
-                child: Text('login_with_email'.tr()),
-              ),
-            ],
+    // Always show email/password login form directly
+    return Scaffold(
+      appBar: AppBar(title: Text('login'.tr())),
+      body: Center(
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 400),
+          padding: const EdgeInsets.all(24),
+          child: SingleChildScrollView(
+            child: _buildEmailPasswordForm(),
           ),
         ),
-      );
-    } else if (kIsWeb && _showEmailPasswordForm) {
-      // Show email/password form on web
-      return Scaffold(
-        appBar: AppBar(
-          title: Text('login'.tr()),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () {
-              setState(() => _showEmailPasswordForm = false);
-            },
-          ),
-        ),
-        body: Center(
-          child: Container(
-            constraints: const BoxConstraints(maxWidth: 400),
-            padding: const EdgeInsets.all(24),
-            child: SingleChildScrollView(
-              child: _buildEmailPasswordForm(),
-            ),
-          ),
-        ),
-      );
-    } else {
-      // Mobile/desktop: show only email/password login (Google removed)
-      return Scaffold(
-        appBar: AppBar(title: Text('login'.tr())),
-        body: Center(
-          child: Container(
-            constraints: const BoxConstraints(maxWidth: 400),
-            padding: const EdgeInsets.all(24),
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (!_showEmailPasswordForm) ...[
-                    ElevatedButton(
-                      onPressed: () {
-                        setState(() => _showEmailPasswordForm = true);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: const Size(double.infinity, 50),
-                      ),
-                      child: Text('login_with_email'.tr()),
-                    ),
-                  ] else
-                    _buildEmailPasswordForm(),
-                  if (_showEmailPasswordForm) ...[
-                    const SizedBox(height: 16),
-                    TextButton(
-                      onPressed: () {
-                        setState(() => _showEmailPasswordForm = false);
-                      },
-                      child: Text('back'.tr()),
-                    ),
-                  ]
-                ],
-              ),
-            ),
-          ),
-        ),
-      );
-    }
+      ),
+    );
   }
 }
