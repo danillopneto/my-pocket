@@ -2,7 +2,7 @@
 
 1. **Localization & Text**
    - Always use language files in `lib/l10n/` (e.g., `en.json`, `es.json`, `pt.json`) for all user-facing labels, messages, and text. Never hardcode display text in widgets, screens, or services.
-   - When adding new text, update all relevant language files and use the localization mechanism to retrieve strings.
+   - When adding new text, update all 3 relevant language files (e.g., `en.json`, `es.json`, `pt.json`) and use the localization mechanism to retrieve strings.
 
 2. **Currency & Decimal Handling**
    - Always use `currency_format_service.dart` (or similar) for formatting, parsing, and displaying currency or decimal values. Do not manually format currency or decimals in UI or business logic.

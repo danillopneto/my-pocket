@@ -4,6 +4,7 @@ import 'package:easy_localization/easy_localization.dart';
 import '../services/user_preferences_service.dart';
 import '../widgets/drawer_widget.dart';
 import '../widgets/app_loading_indicator.dart';
+import '../widgets/ai_provider_selector.dart';
 import '../utils/firebase_user_utils.dart';
 import '../widgets/scaffold_with_drawer.dart';
 
@@ -176,6 +177,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     leading: const Icon(Icons.format_list_numbered),
                   ),
+                  const SizedBox(height: 16),
+                  const AiProviderSelector(),
                   const SizedBox(height: 24),
                   ElevatedButton.icon(
                     icon: const Icon(Icons.logout),

@@ -14,8 +14,11 @@ import '../widgets/charts/payment_method_donut_chart.dart';
 import '../widgets/charts/category_donut_chart.dart';
 import '../widgets/charts/date_bar_chart.dart';
 import '../widgets/charts/generic_bar_chart.dart';
-import '../../services/currency_format_service.dart';
+import '../widgets/recent_transactions_card.dart';
+import '../services/currency_format_service.dart';
 import '../widgets/dashboard_expense_filter.dart';
+import '../services/expenses_service.dart';
+import '../widgets/edit_expense_dialog.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -249,52 +252,79 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   ),
                                 ],
                               ),
-                            ),
-
-                            // Single Chart Card (switches between the charts)
-                            Card(
-                              margin: const EdgeInsets.all(16),
-                              elevation: 2,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        const Icon(Icons.pie_chart,
-                                            color: Color(0xFF3366CC)),
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          _showPaymentMethodChart
-                                              ? 'expenses_by_payment_method'
-                                                  .tr()
-                                              : 'expenses_by_category'.tr(),
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .titleMedium
-                                              ?.copyWith(
-                                                  fontWeight: FontWeight.bold),
-                                        ),
-                                      ],
+                            ), // Side by side layout for donut chart and recent transactions
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Left side - Donut Chart (60% width)
+                                Expanded(
+                                  flex: 6,
+                                  child: Card(
+                                    margin: const EdgeInsets.all(16),
+                                    elevation: 2,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
                                     ),
-                                    const SizedBox(height: 16),
-                                    // Conditionally show the appropriate chart
-                                    _showPaymentMethodChart
-                                        ? PaymentMethodDonutChart(
-                                            paymentMethods: paymentMethods,
-                                            expenses: expenses,
-                                          )
-                                        : CategoryDonutChart(
-                                            categories: categories,
-                                            expenses: expenses,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(16.0),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              const Icon(Icons.pie_chart,
+                                                  color: Color(0xFF3366CC)),
+                                              const SizedBox(width: 8),
+                                              Text(
+                                                _showPaymentMethodChart
+                                                    ? 'expenses_by_payment_method'
+                                                        .tr()
+                                                    : 'expenses_by_category'
+                                                        .tr(),
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .titleMedium
+                                                    ?.copyWith(
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                              ),
+                                            ],
                                           ),
-                                  ],
+                                          const SizedBox(height: 16),
+                                          // Conditionally show the appropriate chart
+                                          _showPaymentMethodChart
+                                              ? PaymentMethodDonutChart(
+                                                  paymentMethods:
+                                                      paymentMethods,
+                                                  expenses: expenses,
+                                                )
+                                              : CategoryDonutChart(
+                                                  categories: categories,
+                                                  expenses: expenses,
+                                                ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                              ),
+
+                                // Right side - Recent Transactions (40% width)
+                                Expanded(
+                                  flex: 4,
+                                  child: SizedBox(
+                                    height:
+                                        400, // Fixed height for the container
+                                    child: RecentTransactionsCard(
+                                      expenses: expenses,
+                                      categories: categories,
+                                      paymentMethods: paymentMethods,
+                                      maxItems:
+                                          5, // Show top 5 most recent transactions
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ), // Bar chart section - with toggle
                             Padding(
                               padding:
@@ -516,6 +546,43 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               ),
                             ),
                           ],
+                        ),
+                        // add FAB for adding expenses
+                        floatingActionButton: FloatingActionButton(
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) => EditExpenseDialog(
+                                expense: Expense(
+                                  id: null,
+                                  date: DateTime.now(),
+                                  createdAt: DateTime.now(),
+                                  description: '',
+                                  value: 0,
+                                  installments: 1,
+                                  place: '',
+                                  categoryId: categories.isNotEmpty
+                                      ? categories.first.id ?? ''
+                                      : '',
+                                  paymentMethodId: paymentMethods.isNotEmpty
+                                      ? paymentMethods.first.id ?? ''
+                                      : '',
+                                ),
+                                categories: categories,
+                                paymentMethods: paymentMethods,
+                                isNew: true,
+                                onSubmit: (expense) async {
+                                  await ExpensesService(
+                                          firestoreService: _firestoreService)
+                                      .updateExpense(context, expense, expense);
+                                  if (!context.mounted) return;
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                            );
+                          },
+                          tooltip: 'add_expense'.tr(),
+                          child: const Icon(Icons.add),
                         ),
                       );
                     },
