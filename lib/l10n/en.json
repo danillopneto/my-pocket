@@ -119,5 +119,8 @@
   "ai_capability_multimodal": "Multimodal",
   "ai_capability_vision": "High-Quality Vision",
   "upload_receipt": "Upload Receipt",
-  "receipt_upload_error": "There was an error uploading the receipt."
+  "receipt_upload_error": "There was an error uploading the receipt.",
+  "analyze_with_ai": "Analyze with AI",
+  "ai_analysis_title": "AI Expense Analysis",
+  "ai_analysis_error": "AI analysis failed: {0}"
 }

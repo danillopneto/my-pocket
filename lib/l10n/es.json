@@ -119,5 +119,8 @@
   "ai_capability_multimodal": "Multimodal",
   "ai_capability_vision": "Visión de Alta Calidad",
   "upload_receipt": "Subir Recibo",
-  "receipt_upload_error": "Hubo un error al subir el recibo."
+  "receipt_upload_error": "Hubo un error al subir el recibo.",
+  "analyze_with_ai": "Analizar con IA",
+  "ai_analysis_title": "Análisis de Gastos con IA",
+  "ai_analysis_error": "El análisis de IA falló: {0}"
 }

@@ -19,6 +19,8 @@ import '../services/currency_format_service.dart';
 import '../widgets/dashboard_expense_filter.dart';
 import '../services/expenses_service.dart';
 import '../widgets/edit_expense_dialog.dart';
+import '../services/analyze_expenses_service.dart';
+import '../models/dashboard_summary.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -38,6 +40,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   bool _showPaymentMethodChart = true;
   // Track which bar chart is visible: 0 = date, 1 = description, 2 = place
   int _activeBarChartIndex = 0;
+
+  String? _aiAnalysisResult;
+  bool _aiAnalysisLoading = false;
+  String? _aiAnalysisError;
 
   @override
   void initState() {
@@ -108,6 +114,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         mostExp = expenses
                             .reduce((a, b) => a.value > b.value ? a : b);
                       }
+                      final summary = DashboardSummary(
+                        total: total,
+                        avgPerMonth: avgPerDay,
+                        mostExp: mostExp,
+                      );
                       // Extract all unique descriptions and places
                       final allDescriptions = expenses
                           .map((e) => e.description)
@@ -132,14 +143,97 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   _filterStartDate = start;
                                   _filterEndDate = end;
                                   _filterCategoryIds = categoryIds;
+                                  _aiAnalysisResult = null;
+                                  _aiAnalysisError = null;
                                 });
                               },
                             ),
+                            // --- Analyze with AI button and result ---
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16.0, vertical: 8.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  ElevatedButton.icon(
+                                    icon: const Icon(Icons.auto_awesome),
+                                    label: Text('analyze_with_ai'.tr()),
+                                    onPressed: _aiAnalysisLoading
+                                        ? null
+                                        : () async {
+                                            setState(() {
+                                              _aiAnalysisLoading = true;
+                                              _aiAnalysisResult = null;
+                                              _aiAnalysisError = null;
+                                            });
+                                            try {
+                                              final service =
+                                                  AnalyzeExpensesService();
+                                              final result =
+                                                  await service.analyzeExpenses(
+                                                expenses,
+                                                categories: categories,
+                                                paymentMethods: paymentMethods,
+                                                summary: summary,
+                                              );
+                                              setState(() {
+                                                _aiAnalysisResult = result;
+                                                _aiAnalysisLoading = false;
+                                              });
+                                            } catch (e) {
+                                              setState(() {
+                                                _aiAnalysisError =
+                                                    'ai_analysis_error'.tr(
+                                                        args: [e.toString()]);
+                                                _aiAnalysisLoading = false;
+                                              });
+                                            }
+                                          },
+                                  ),
+                                  if (_aiAnalysisLoading)
+                                    const Padding(
+                                      padding: EdgeInsets.only(top: 12.0),
+                                      child: AppLoadingIndicator(),
+                                    ),
+                                  if (_aiAnalysisError != null)
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 12.0),
+                                      child: Text(
+                                        _aiAnalysisError!,
+                                        style: TextStyle(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .error),
+                                      ),
+                                    ),
+                                  if (_aiAnalysisResult != null &&
+                                      !_aiAnalysisLoading)
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 12.0),
+                                      child: Card(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .surfaceVariant,
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(16.0),
+                                          child: Text(
+                                            _aiAnalysisResult!,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodyLarge,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
                             // Summary header
                             SummaryHeader(
-                                total: total,
-                                avgPerMonth: avgPerDay, // Pass as avgPerDay now
-                                mostExp: mostExp,
+                                total: summary.total,
+                                avgPerMonth: summary
+                                    .avgPerMonth, // Pass as avgPerDay now
+                                mostExp: summary.mostExp,
                                 categories: categories,
                                 paymentMethods: paymentMethods,
                                 userPrefs: userPrefs),
@@ -252,79 +346,159 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   ),
                                 ],
                               ),
-                            ), // Side by side layout for donut chart and recent transactions
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // Left side - Donut Chart (60% width)
-                                Expanded(
-                                  flex: 6,
-                                  child: Card(
-                                    margin: const EdgeInsets.all(16),
-                                    elevation: 2,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(16.0),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
+                            ), // Responsive layout for donut chart and recent transactions
+                            LayoutBuilder(
+                              builder: (context, constraints) {
+                                // Use mobile layout for screens smaller than 600px width
+                                final isMobile = constraints.maxWidth < 600;
+
+                                if (isMobile) {
+                                  // Mobile layout: stack vertically
+                                  return Column(
+                                    children: [
+                                      // Donut Chart (full width on mobile)
+                                      Card(
+                                        margin: const EdgeInsets.all(16),
+                                        elevation: 2,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(16.0),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: [
-                                              const Icon(Icons.pie_chart,
-                                                  color: Color(0xFF3366CC)),
-                                              const SizedBox(width: 8),
-                                              Text(
-                                                _showPaymentMethodChart
-                                                    ? 'expenses_by_payment_method'
-                                                        .tr()
-                                                    : 'expenses_by_category'
-                                                        .tr(),
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .titleMedium
-                                                    ?.copyWith(
-                                                        fontWeight:
-                                                            FontWeight.bold),
+                                              Row(
+                                                children: [
+                                                  const Icon(Icons.pie_chart,
+                                                      color: Color(0xFF3366CC)),
+                                                  const SizedBox(width: 8),
+                                                  Text(
+                                                    _showPaymentMethodChart
+                                                        ? 'expenses_by_payment_method'
+                                                            .tr()
+                                                        : 'expenses_by_category'
+                                                            .tr(),
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .titleMedium
+                                                        ?.copyWith(
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold),
+                                                  ),
+                                                ],
                                               ),
+                                              const SizedBox(height: 16),
+                                              // Conditionally show the appropriate chart
+                                              _showPaymentMethodChart
+                                                  ? PaymentMethodDonutChart(
+                                                      paymentMethods:
+                                                          paymentMethods,
+                                                      expenses: expenses,
+                                                    )
+                                                  : CategoryDonutChart(
+                                                      categories: categories,
+                                                      expenses: expenses,
+                                                    ),
                                             ],
                                           ),
-                                          const SizedBox(height: 16),
-                                          // Conditionally show the appropriate chart
-                                          _showPaymentMethodChart
-                                              ? PaymentMethodDonutChart(
-                                                  paymentMethods:
-                                                      paymentMethods,
-                                                  expenses: expenses,
-                                                )
-                                              : CategoryDonutChart(
-                                                  categories: categories,
-                                                  expenses: expenses,
-                                                ),
-                                        ],
+                                        ),
                                       ),
-                                    ),
-                                  ),
-                                ),
 
-                                // Right side - Recent Transactions (40% width)
-                                Expanded(
-                                  flex: 4,
-                                  child: SizedBox(
-                                    height:
-                                        400, // Fixed height for the container
-                                    child: RecentTransactionsCard(
-                                      expenses: expenses,
-                                      categories: categories,
-                                      paymentMethods: paymentMethods,
-                                      maxItems:
-                                          5, // Show top 5 most recent transactions
-                                    ),
-                                  ),
-                                ),
-                              ],
+                                      // Recent Transactions (full width below chart on mobile)
+                                      RecentTransactionsCard(
+                                        expenses: expenses,
+                                        categories: categories,
+                                        paymentMethods: paymentMethods,
+                                        maxItems:
+                                            5, // Show top 5 most recent transactions
+                                      ),
+                                    ],
+                                  );
+                                } else {
+                                  // Desktop layout: side by side
+                                  return Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      // Left side - Donut Chart (60% width)
+                                      Expanded(
+                                        flex: 6,
+                                        child: Card(
+                                          margin: const EdgeInsets.all(16),
+                                          elevation: 2,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                          ),
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(16.0),
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Row(
+                                                  children: [
+                                                    const Icon(Icons.pie_chart,
+                                                        color:
+                                                            Color(0xFF3366CC)),
+                                                    const SizedBox(width: 8),
+                                                    Text(
+                                                      _showPaymentMethodChart
+                                                          ? 'expenses_by_payment_method'
+                                                              .tr()
+                                                          : 'expenses_by_category'
+                                                              .tr(),
+                                                      style: Theme.of(context)
+                                                          .textTheme
+                                                          .titleMedium
+                                                          ?.copyWith(
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold),
+                                                    ),
+                                                  ],
+                                                ),
+                                                const SizedBox(height: 16),
+                                                // Conditionally show the appropriate chart
+                                                _showPaymentMethodChart
+                                                    ? PaymentMethodDonutChart(
+                                                        paymentMethods:
+                                                            paymentMethods,
+                                                        expenses: expenses,
+                                                      )
+                                                    : CategoryDonutChart(
+                                                        categories: categories,
+                                                        expenses: expenses,
+                                                      ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+
+                                      // Right side - Recent Transactions (40% width)
+                                      Expanded(
+                                        flex: 4,
+                                        child: SizedBox(
+                                          height:
+                                              400, // Fixed height for the container
+                                          child: RecentTransactionsCard(
+                                            expenses: expenses,
+                                            categories: categories,
+                                            paymentMethods: paymentMethods,
+                                            maxItems:
+                                                5, // Show top 5 most recent transactions
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                }
+                              },
                             ), // Bar chart section - with toggle
                             Padding(
                               padding:

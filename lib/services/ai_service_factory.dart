@@ -12,9 +12,7 @@ class AiServiceFactory {
 
   /// Get the current AI service instance
   static AiService getCurrentService() {
-    if (_currentService == null) {
-      _currentService = createService(_currentProvider);
-    }
+    _currentService ??= createService(_currentProvider);
     return _currentService!;
   }
 
