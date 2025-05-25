@@ -36,7 +36,7 @@ class ScaffoldWithDrawer extends StatelessWidget {
       ),
       drawer: AppDrawer(selected: selected),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(10.0),
         child: body,
       ),
       floatingActionButton: floatingActionButton,

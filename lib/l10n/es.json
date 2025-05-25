@@ -109,7 +109,7 @@
   "ai_provider_gemini": "Google Gemini",
   "ai_provider_selection": "Selección de Proveedor de IA",
   "ai_provider_description": "Elige qué servicio de IA usar para el análisis de gastos y otras funciones de IA.",
-  "ai_provider_openai_description": "GPT-4 de OpenAI con capacidades de visión avanzadas y análisis de alta calidad.",
+  "ai_provider_openai_description": "GPT de OpenAI con capacidades de visión avanzadas y análisis de alta calidad.",
   "ai_provider_gemini_description": "IA Gemini de Google con capacidades multimodales y procesamiento rápido.",
   "ai_provider_switched": "Proveedor de IA cambiado a {0}",
   "ai_provider_switch_error": "Error al cambiar el proveedor de IA. Por favor, inténtalo de nuevo.",

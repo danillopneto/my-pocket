@@ -77,7 +77,6 @@ class _DashboardExpenseFilterState extends State<DashboardExpenseFilter> {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.all(16),
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
@@ -133,14 +132,20 @@ class _DashboardExpenseFilterState extends State<DashboardExpenseFilter> {
                   .toList(),
               initialValue: _categoryIds,
               title: Text('category'.tr()),
-              buttonText: Text(_categoryIds.isEmpty
-                  ? 'all_categories'.tr()
-                  : widget.categories
-                      .where((c) => _categoryIds.contains(c.id))
-                      .map((c) => c.name)
-                      .join(', ')),
+              buttonText: Text(
+                _categoryIds.isEmpty
+                    ? 'all_categories'.tr()
+                    : widget.categories
+                        .where((c) => _categoryIds.contains(c.id))
+                        .map((c) => c.name)
+                        .join(', '),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
               searchable: true,
               listType: MultiSelectListType.CHIP,
+              dialogWidth: MediaQuery.of(context).size.width * 0.8,
+              dialogHeight: MediaQuery.of(context).size.height * 0.7,
               onConfirm: (values) {
                 if (values.length > 10) {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -158,6 +163,15 @@ class _DashboardExpenseFilterState extends State<DashboardExpenseFilter> {
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.grey.shade400),
                 borderRadius: BorderRadius.circular(8),
+              ),
+              itemsTextStyle: const TextStyle(
+                fontSize: 14,
+                overflow: TextOverflow.ellipsis,
+              ),
+              selectedItemsTextStyle: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
             const SizedBox(height: 16),

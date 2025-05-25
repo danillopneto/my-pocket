@@ -3,12 +3,12 @@ import 'expense.dart';
 
 class DashboardSummary {
   final double total;
-  final double avgPerMonth;
+  final double avgPerDay;
   final Expense? mostExp;
 
   DashboardSummary({
     required this.total,
-    required this.avgPerMonth,
+    required this.avgPerDay,
     required this.mostExp,
   });
 }

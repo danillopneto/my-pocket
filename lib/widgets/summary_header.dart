@@ -26,7 +26,6 @@ class SummaryHeader extends StatelessWidget {
     final symbol = userPrefs?.currencySymbol;
     final formatMask = userPrefs?.currencyFormat;
     return Card(
-      margin: const EdgeInsets.all(16),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(

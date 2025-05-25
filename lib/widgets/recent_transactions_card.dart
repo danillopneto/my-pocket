@@ -32,6 +32,7 @@ class RecentTransactionsCard extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Header with title and View More button
@@ -61,89 +62,108 @@ class RecentTransactionsCard extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             // Scrollable list of recent items
-            Expanded(
-              child: recent.isEmpty
-                  ? Center(
-                      child: Text('no_expenses_to_display'.tr()),
-                    )
-                  : ListView.separated(
-                      itemCount: recent.length,
-                      separatorBuilder: (_, __) => const Divider(height: 16),
-                      itemBuilder: (context, idx) {
-                        final e = recent[idx];
-                        final category = categories.firstWhere(
-                          (c) => c.id == e.categoryId,
-                          orElse: () => Category(id: '', name: 'Unknown'),
-                        );
-                        final paymentMethod = paymentMethods.firstWhere(
-                          (a) => a.id == e.paymentMethodId,
-                          orElse: () => PaymentMethod(id: '', name: 'Unknown'),
-                        );
-                        return Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+            Flexible(
+              child: Container(
+                constraints: const BoxConstraints(maxHeight: 300),
+                child: recent.isEmpty
+                    ? Center(
+                        child: Text('no_expenses_to_display'.tr()),
+                      )
+                    : ListView.separated(
+                        shrinkWrap: true,
+                        itemCount: recent.length,
+                        separatorBuilder: (_, __) => const Divider(height: 16),
+                        itemBuilder: (context, idx) {
+                          final e = recent[idx];
+                          final category = categories.firstWhere(
+                            (c) => c.id == e.categoryId,
+                            orElse: () => Category(id: '', name: 'Unknown'),
+                          );
+                          final paymentMethod = paymentMethods.firstWhere(
+                            (a) => a.id == e.paymentMethodId,
+                            orElse: () =>
+                                PaymentMethod(id: '', name: 'Unknown'),
+                          );
+                          return Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      e.description,
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Row(
+                                      children: [
+                                        Icon(Icons.category,
+                                            size: 14, color: Colors.grey[600]),
+                                        const SizedBox(width: 2),
+                                        Flexible(
+                                          child: Text(category.name,
+                                              style:
+                                                  const TextStyle(fontSize: 13),
+                                              overflow: TextOverflow.ellipsis),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Icon(Icons.credit_card,
+                                            size: 14, color: Colors.grey[600]),
+                                        const SizedBox(width: 2),
+                                        Flexible(
+                                          child: Text(paymentMethod.name,
+                                              style:
+                                                  const TextStyle(fontSize: 13),
+                                              overflow: TextOverflow.ellipsis),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Row(
+                                      children: [
+                                        Icon(Icons.place,
+                                            size: 14, color: Colors.grey[600]),
+                                        const SizedBox(width: 2),
+                                        Flexible(
+                                          child: Text(e.place,
+                                              style:
+                                                  const TextStyle(fontSize: 13),
+                                              overflow: TextOverflow.ellipsis),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
                                   Text(
-                                    e.description,
+                                    CurrencyFormatService.formatCurrency(
+                                        e.value, context),
                                     style: const TextStyle(
+                                        color: Colors.red,
                                         fontWeight: FontWeight.bold,
-                                        fontSize: 16),
+                                        fontSize: 15),
                                   ),
                                   const SizedBox(height: 2),
-                                  Row(
-                                    children: [
-                                      Icon(Icons.category,
-                                          size: 14, color: Colors.grey[600]),
-                                      const SizedBox(width: 2),
-                                      Text(category.name,
-                                          style: const TextStyle(fontSize: 13)),
-                                      const SizedBox(width: 8),
-                                      Icon(Icons.credit_card,
-                                          size: 14, color: Colors.grey[600]),
-                                      const SizedBox(width: 2),
-                                      Text(paymentMethod.name,
-                                          style: const TextStyle(fontSize: 13)),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Row(
-                                    children: [
-                                      Icon(Icons.place,
-                                          size: 14, color: Colors.grey[600]),
-                                      const SizedBox(width: 2),
-                                      Text(e.place,
-                                          style: const TextStyle(fontSize: 13)),
-                                    ],
+                                  Text(
+                                    DateFormatService.formatDate(
+                                        e.date, context),
+                                    style: const TextStyle(
+                                        fontSize: 12, color: Colors.grey),
                                   ),
                                 ],
                               ),
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Text(
-                                  CurrencyFormatService.formatCurrency(
-                                      e.value, context),
-                                  style: const TextStyle(
-                                      color: Colors.red,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 15),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  DateFormatService.formatDate(e.date, context),
-                                  style: const TextStyle(
-                                      fontSize: 12, color: Colors.grey),
-                                ),
-                              ],
-                            ),
-                          ],
-                        );
-                      },
-                    ),
+                            ],
+                          );
+                        },
+                      ),
+              ),
             ),
           ],
         ),

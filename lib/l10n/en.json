@@ -109,7 +109,7 @@
   "ai_provider_gemini": "Google Gemini",
   "ai_provider_selection": "AI Provider Selection",
   "ai_provider_description": "Choose which AI service to use for expense analysis and other AI features.",
-  "ai_provider_openai_description": "OpenAI's GPT-4 with advanced vision capabilities and high-quality analysis.",
+  "ai_provider_openai_description": "OpenAI's GPT with advanced vision capabilities and high-quality analysis.",
   "ai_provider_gemini_description": "Google's Gemini AI with multimodal capabilities and fast processing.",
   "ai_provider_switched": "AI provider switched to {0}",
   "ai_provider_switch_error": "Error switching AI provider. Please try again.",

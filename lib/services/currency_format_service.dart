@@ -42,6 +42,15 @@ class CurrencyFormatService {
     return symbol + format.format(value);
   }
 
+  // Context-independent currency formatting for services
+  static String formatCurrencyWithPreferences(num value,
+      {required String currencySymbol, required String currencyFormat}) {
+    String pattern = _maskToPattern(currencyFormat);
+    final format =
+        NumberFormat(pattern, 'en_US'); // Use default locale for services
+    return currencySymbol + format.format(value);
+  }
+
   static String _maskToPattern(String mask) {
     // Convert mask like '0.000,00' to NumberFormat pattern '#,##0.00'
     // Accepts both comma and dot as decimal/group separators

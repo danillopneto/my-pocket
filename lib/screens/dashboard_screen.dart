@@ -116,7 +116,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       }
                       final summary = DashboardSummary(
                         total: total,
-                        avgPerMonth: avgPerDay,
+                        avgPerDay: avgPerDay,
                         mostExp: mostExp,
                       );
                       // Extract all unique descriptions and places
@@ -148,204 +148,192 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 });
                               },
                             ),
+                            const SizedBox(height: 24),
                             // --- Analyze with AI button and result ---
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16.0, vertical: 8.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  ElevatedButton.icon(
-                                    icon: const Icon(Icons.auto_awesome),
-                                    label: Text('analyze_with_ai'.tr()),
-                                    onPressed: _aiAnalysisLoading
-                                        ? null
-                                        : () async {
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                ElevatedButton.icon(
+                                  icon: const Icon(Icons.auto_awesome),
+                                  label: Text('analyze_with_ai'.tr()),
+                                  onPressed: _aiAnalysisLoading
+                                      ? null
+                                      : () async {
+                                          setState(() {
+                                            _aiAnalysisLoading = true;
+                                            _aiAnalysisResult = null;
+                                            _aiAnalysisError = null;
+                                          });
+                                          try {
+                                            final service =
+                                                AnalyzeExpensesService();
+                                            final result =
+                                                await service.analyzeExpenses(
+                                              expenses,
+                                              categories: categories,
+                                              paymentMethods: paymentMethods,
+                                              summary: summary,
+                                            );
                                             setState(() {
-                                              _aiAnalysisLoading = true;
-                                              _aiAnalysisResult = null;
-                                              _aiAnalysisError = null;
+                                              _aiAnalysisResult = result;
+                                              _aiAnalysisLoading = false;
                                             });
-                                            try {
-                                              final service =
-                                                  AnalyzeExpensesService();
-                                              final result =
-                                                  await service.analyzeExpenses(
-                                                expenses,
-                                                categories: categories,
-                                                paymentMethods: paymentMethods,
-                                                summary: summary,
-                                              );
-                                              setState(() {
-                                                _aiAnalysisResult = result;
-                                                _aiAnalysisLoading = false;
-                                              });
-                                            } catch (e) {
-                                              setState(() {
-                                                _aiAnalysisError =
-                                                    'ai_analysis_error'.tr(
-                                                        args: [e.toString()]);
-                                                _aiAnalysisLoading = false;
-                                              });
-                                            }
-                                          },
+                                          } catch (e) {
+                                            setState(() {
+                                              _aiAnalysisError =
+                                                  'ai_analysis_error'
+                                                      .tr(args: [e.toString()]);
+                                              _aiAnalysisLoading = false;
+                                            });
+                                          }
+                                        },
+                                ),
+                                if (_aiAnalysisLoading)
+                                  const Padding(
+                                    padding: EdgeInsets.only(top: 12.0),
+                                    child: AppLoadingIndicator(),
                                   ),
-                                  if (_aiAnalysisLoading)
-                                    const Padding(
-                                      padding: EdgeInsets.only(top: 12.0),
-                                      child: AppLoadingIndicator(),
+                                if (_aiAnalysisError != null)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 12.0),
+                                    child: Text(
+                                      _aiAnalysisError!,
+                                      style: TextStyle(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .error),
                                     ),
-                                  if (_aiAnalysisError != null)
-                                    Padding(
-                                      padding: const EdgeInsets.only(top: 12.0),
-                                      child: Text(
-                                        _aiAnalysisError!,
-                                        style: TextStyle(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .error),
-                                      ),
-                                    ),
-                                  if (_aiAnalysisResult != null &&
-                                      !_aiAnalysisLoading)
-                                    Padding(
-                                      padding: const EdgeInsets.only(top: 12.0),
-                                      child: Card(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .surfaceVariant,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(16.0),
-                                          child: Text(
-                                            _aiAnalysisResult!,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodyLarge,
-                                          ),
+                                  ),
+                                if (_aiAnalysisResult != null &&
+                                    !_aiAnalysisLoading)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 12.0),
+                                    child: Card(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .surfaceContainerHighest,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(16.0),
+                                        child: Text(
+                                          _aiAnalysisResult!,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyLarge,
                                         ),
                                       ),
                                     ),
-                                ],
-                              ),
+                                  ),
+                              ],
                             ),
+                            const SizedBox(height: 24),
                             // Summary header
                             SummaryHeader(
                                 total: summary.total,
-                                avgPerMonth: summary
-                                    .avgPerMonth, // Pass as avgPerDay now
+                                avgPerMonth:
+                                    summary.avgPerDay, // Pass as avgPerDay now
                                 mostExp: summary.mostExp,
                                 categories: categories,
                                 paymentMethods: paymentMethods,
                                 userPrefs: userPrefs),
                             const SizedBox(height: 24),
-
                             // Dashboard title
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 16.0),
-                              child: Text(
-                                'dashboard_charts'.tr(),
-                                style:
-                                    Theme.of(context).textTheme.headlineSmall,
-                              ),
+                            Text(
+                              'dashboard_charts'.tr(),
+                              style: Theme.of(context).textTheme.headlineSmall,
                             ),
                             const SizedBox(
                                 height: 8), // Donut chart section with toggle
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 16.0),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  // Custom segmented control to toggle between charts
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      color:
-                                          Theme.of(context).colorScheme.surface,
-                                      borderRadius: BorderRadius.circular(25),
-                                      border: Border.all(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .outline
-                                            .withOpacity(0.5),
-                                      ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                // Custom segmented control to toggle between charts
+                                Container(
+                                  decoration: BoxDecoration(
+                                    color:
+                                        Theme.of(context).colorScheme.surface,
+                                    borderRadius: BorderRadius.circular(25),
+                                    border: Border.all(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .outline
+                                          .withOpacity(0.5),
                                     ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        // Payment Method tab
-                                        GestureDetector(
-                                          onTap: () {
-                                            setState(() {
-                                              _showPaymentMethodChart = true;
-                                            });
-                                          },
-                                          child: Container(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 16, vertical: 8),
-                                            decoration: BoxDecoration(
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      // Payment Method tab
+                                      GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            _showPaymentMethodChart = true;
+                                          });
+                                        },
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 16, vertical: 8),
+                                          decoration: BoxDecoration(
+                                            color: _showPaymentMethodChart
+                                                ? Theme.of(context)
+                                                    .colorScheme
+                                                    .primary
+                                                : Colors.transparent,
+                                            borderRadius:
+                                                BorderRadius.circular(25),
+                                          ),
+                                          child: Text(
+                                            'payment_methods'.tr(),
+                                            style: TextStyle(
                                               color: _showPaymentMethodChart
                                                   ? Theme.of(context)
                                                       .colorScheme
-                                                      .primary
-                                                  : Colors.transparent,
-                                              borderRadius:
-                                                  BorderRadius.circular(25),
-                                            ),
-                                            child: Text(
-                                              'payment_methods'.tr(),
-                                              style: TextStyle(
-                                                color: _showPaymentMethodChart
-                                                    ? Theme.of(context)
-                                                        .colorScheme
-                                                        .onPrimary
-                                                    : Theme.of(context)
-                                                        .colorScheme
-                                                        .onSurface,
-                                                fontWeight: FontWeight.w500,
-                                              ),
+                                                      .onPrimary
+                                                  : Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurface,
+                                              fontWeight: FontWeight.w500,
                                             ),
                                           ),
                                         ),
-                                        // Category tab
-                                        GestureDetector(
-                                          onTap: () {
-                                            setState(() {
-                                              _showPaymentMethodChart = false;
-                                            });
-                                          },
-                                          child: Container(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 16, vertical: 8),
-                                            decoration: BoxDecoration(
+                                      ),
+                                      // Category tab
+                                      GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            _showPaymentMethodChart = false;
+                                          });
+                                        },
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 16, vertical: 8),
+                                          decoration: BoxDecoration(
+                                            color: !_showPaymentMethodChart
+                                                ? Theme.of(context)
+                                                    .colorScheme
+                                                    .primary
+                                                : Colors.transparent,
+                                            borderRadius:
+                                                BorderRadius.circular(25),
+                                          ),
+                                          child: Text(
+                                            'categories'.tr(),
+                                            style: TextStyle(
                                               color: !_showPaymentMethodChart
                                                   ? Theme.of(context)
                                                       .colorScheme
-                                                      .primary
-                                                  : Colors.transparent,
-                                              borderRadius:
-                                                  BorderRadius.circular(25),
-                                            ),
-                                            child: Text(
-                                              'categories'.tr(),
-                                              style: TextStyle(
-                                                color: !_showPaymentMethodChart
-                                                    ? Theme.of(context)
-                                                        .colorScheme
-                                                        .onPrimary
-                                                    : Theme.of(context)
-                                                        .colorScheme
-                                                        .onSurface,
-                                                fontWeight: FontWeight.w500,
-                                              ),
+                                                      .onPrimary
+                                                  : Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurface,
+                                              fontWeight: FontWeight.w500,
                                             ),
                                           ),
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ), // Responsive layout for donut chart and recent transactions
                             LayoutBuilder(
                               builder: (context, constraints) {
@@ -358,7 +346,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     children: [
                                       // Donut Chart (full width on mobile)
                                       Card(
-                                        margin: const EdgeInsets.all(16),
                                         elevation: 2,
                                         shape: RoundedRectangleBorder(
                                           borderRadius:
@@ -499,141 +486,138 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   );
                                 }
                               },
-                            ), // Bar chart section - with toggle
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 16.0),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  // Custom segmented control to toggle between bar charts
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      color:
-                                          Theme.of(context).colorScheme.surface,
-                                      borderRadius: BorderRadius.circular(25),
-                                      border: Border.all(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .outline
-                                            .withOpacity(0.5),
-                                      ),
+                            ),
+                            const SizedBox(height: 24),
+                            // Bar chart section - with toggle
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                // Custom segmented control to toggle between bar charts
+                                Container(
+                                  decoration: BoxDecoration(
+                                    color:
+                                        Theme.of(context).colorScheme.surface,
+                                    borderRadius: BorderRadius.circular(25),
+                                    border: Border.all(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .outline
+                                          .withOpacity(0.5),
                                     ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        // Date tab
-                                        GestureDetector(
-                                          onTap: () {
-                                            setState(() {
-                                              _activeBarChartIndex = 0;
-                                            });
-                                          },
-                                          child: Container(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 16, vertical: 8),
-                                            decoration: BoxDecoration(
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      // Date tab
+                                      GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            _activeBarChartIndex = 0;
+                                          });
+                                        },
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 16, vertical: 8),
+                                          decoration: BoxDecoration(
+                                            color: _activeBarChartIndex == 0
+                                                ? Theme.of(context)
+                                                    .colorScheme
+                                                    .primary
+                                                : Colors.transparent,
+                                            borderRadius:
+                                                BorderRadius.circular(25),
+                                          ),
+                                          child: Text(
+                                            'date'.tr(),
+                                            style: TextStyle(
                                               color: _activeBarChartIndex == 0
                                                   ? Theme.of(context)
                                                       .colorScheme
-                                                      .primary
-                                                  : Colors.transparent,
-                                              borderRadius:
-                                                  BorderRadius.circular(25),
-                                            ),
-                                            child: Text(
-                                              'date'.tr(),
-                                              style: TextStyle(
-                                                color: _activeBarChartIndex == 0
-                                                    ? Theme.of(context)
-                                                        .colorScheme
-                                                        .onPrimary
-                                                    : Theme.of(context)
-                                                        .colorScheme
-                                                        .onSurface,
-                                                fontWeight: FontWeight.w500,
-                                              ),
+                                                      .onPrimary
+                                                  : Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurface,
+                                              fontWeight: FontWeight.w500,
                                             ),
                                           ),
                                         ),
-                                        // Description tab
-                                        GestureDetector(
-                                          onTap: () {
-                                            setState(() {
-                                              _activeBarChartIndex = 1;
-                                            });
-                                          },
-                                          child: Container(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 16, vertical: 8),
-                                            decoration: BoxDecoration(
+                                      ),
+                                      // Description tab
+                                      GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            _activeBarChartIndex = 1;
+                                          });
+                                        },
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 16, vertical: 8),
+                                          decoration: BoxDecoration(
+                                            color: _activeBarChartIndex == 1
+                                                ? Theme.of(context)
+                                                    .colorScheme
+                                                    .primary
+                                                : Colors.transparent,
+                                            borderRadius:
+                                                BorderRadius.circular(25),
+                                          ),
+                                          child: Text(
+                                            'description'.tr(),
+                                            style: TextStyle(
                                               color: _activeBarChartIndex == 1
                                                   ? Theme.of(context)
                                                       .colorScheme
-                                                      .primary
-                                                  : Colors.transparent,
-                                              borderRadius:
-                                                  BorderRadius.circular(25),
-                                            ),
-                                            child: Text(
-                                              'description'.tr(),
-                                              style: TextStyle(
-                                                color: _activeBarChartIndex == 1
-                                                    ? Theme.of(context)
-                                                        .colorScheme
-                                                        .onPrimary
-                                                    : Theme.of(context)
-                                                        .colorScheme
-                                                        .onSurface,
-                                                fontWeight: FontWeight.w500,
-                                              ),
+                                                      .onPrimary
+                                                  : Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurface,
+                                              fontWeight: FontWeight.w500,
                                             ),
                                           ),
                                         ),
-                                        // Place tab
-                                        GestureDetector(
-                                          onTap: () {
-                                            setState(() {
-                                              _activeBarChartIndex = 2;
-                                            });
-                                          },
-                                          child: Container(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 16, vertical: 8),
-                                            decoration: BoxDecoration(
+                                      ),
+                                      // Place tab
+                                      GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            _activeBarChartIndex = 2;
+                                          });
+                                        },
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 16, vertical: 8),
+                                          decoration: BoxDecoration(
+                                            color: _activeBarChartIndex == 2
+                                                ? Theme.of(context)
+                                                    .colorScheme
+                                                    .primary
+                                                : Colors.transparent,
+                                            borderRadius:
+                                                BorderRadius.circular(25),
+                                          ),
+                                          child: Text(
+                                            'place'.tr(),
+                                            style: TextStyle(
                                               color: _activeBarChartIndex == 2
                                                   ? Theme.of(context)
                                                       .colorScheme
-                                                      .primary
-                                                  : Colors.transparent,
-                                              borderRadius:
-                                                  BorderRadius.circular(25),
-                                            ),
-                                            child: Text(
-                                              'place'.tr(),
-                                              style: TextStyle(
-                                                color: _activeBarChartIndex == 2
-                                                    ? Theme.of(context)
-                                                        .colorScheme
-                                                        .onPrimary
-                                                    : Theme.of(context)
-                                                        .colorScheme
-                                                        .onSurface,
-                                                fontWeight: FontWeight.w500,
-                                              ),
+                                                      .onPrimary
+                                                  : Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurface,
+                                              fontWeight: FontWeight.w500,
                                             ),
                                           ),
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
-
+                            const SizedBox(height: 24),
                             // Single Bar Chart Card (switches between the charts)
                             Card(
-                              margin: const EdgeInsets.all(16),
                               elevation: 2,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
