@@ -128,10 +128,10 @@ class _GenericDonutChartState<T> extends State<GenericDonutChart<T>> {
           value: value,
           title: '',
           radius: isSelected ? 65 : 55,
-          titleStyle: const TextStyle(
+          titleStyle: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: Theme.of(context).colorScheme.surface,
             shadows: [Shadow(color: Colors.black26, blurRadius: 2)],
           ),
           badgeWidget: isSelected
@@ -259,7 +259,7 @@ class _BadgeWithLabel extends StatelessWidget {
       width: 80,
       height: 36,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(6),
         boxShadow: const [
           BoxShadow(

@@ -58,18 +58,19 @@ class _GenericBarChartState<T> extends State<GenericBarChart<T>> {
         ? allEntries.map((e) => e.value).reduce((a, b) => a > b ? a : b)
         : 0.0;
 
-    // Excel-like vibrant colors for bars
+    // Theme-aware vibrant colors for bars
+    final colorScheme = Theme.of(context).colorScheme;
     final barColors = [
-      const Color(0xFFF44336), // Red
-      const Color(0xFF9C27B0), // Purple
-      const Color(0xFF2196F3), // Blue
-      const Color(0xFF4CAF50), // Green
-      const Color(0xFFFF9800), // Orange
-      const Color(0xFFE91E63), // Pink
-      const Color(0xFF3F51B5), // Indigo
-      const Color(0xFF00BCD4), // Cyan
-      const Color(0xFF795548), // Brown
-      const Color(0xFF607D8B), // Blue Grey
+      colorScheme.primary,
+      colorScheme.secondary,
+      colorScheme.tertiary,
+      colorScheme.error,
+      colorScheme.surfaceVariant,
+      colorScheme.outline,
+      colorScheme.inversePrimary,
+      colorScheme.onPrimary,
+      colorScheme.onSecondary,
+      colorScheme.onTertiary,
     ];
 
     // Calculate legend rows for dynamic height
@@ -212,8 +213,8 @@ class _GenericBarChartState<T> extends State<GenericBarChart<T>> {
               final entry = allEntries[groupIndex];
               return BarTooltipItem(
                 '${keyToName[entry.key] ?? entry.key}\n',
-                const TextStyle(
-                  color: Colors.white,
+                TextStyle(
+                  color: Theme.of(context).colorScheme.surface,
                   fontWeight: FontWeight.bold,
                 ),
                 children: [

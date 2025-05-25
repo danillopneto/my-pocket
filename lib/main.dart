@@ -93,7 +93,7 @@ class _MyAppState extends State<MyApp> {
           title: 'Meu Bolso',
           theme: ThemeData(
             colorScheme: ColorScheme.fromSeed(
-              seedColor: Colors.deepPurple,
+              seedColor: const Color.fromARGB(255, 144, 185, 255),
               brightness: Brightness.light,
             ),
             useMaterial3: true,

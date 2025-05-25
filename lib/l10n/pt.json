@@ -122,5 +122,6 @@
   "receipt_upload_error": "Houve um erro ao carregar o recibo.",
   "analyze_with_ai": "Analisar com IA",
   "ai_analysis_title": "Análise de Gastos com IA",
-  "ai_analysis_error": "A análise de IA falhou: {0}"
+  "ai_analysis_error": "A análise de IA falhou: {0}",
+  "most_frequent_place": "Lugar mais frequente: "
 }

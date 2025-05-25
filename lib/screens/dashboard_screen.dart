@@ -20,7 +20,7 @@ import '../widgets/dashboard_expense_filter.dart';
 import '../services/expenses_service.dart';
 import '../widgets/edit_expense_dialog.dart';
 import '../services/analyze_expenses_service.dart';
-import '../models/dashboard_summary.dart';
+import '../services/summary_service.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -32,12 +32,13 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   final FirestoreService _firestoreService = FirestoreService();
   final UserPreferencesService _prefsService = UserPreferencesService();
+  final SummaryService _summaryService = SummaryService();
 
   DateTime? _filterStartDate;
   DateTime? _filterEndDate;
   List<String> _filterCategoryIds = [];
   // Track which chart is visible: true for payment method, false for category
-  bool _showPaymentMethodChart = true;
+  bool _showPaymentMethodChart = false;
   // Track which bar chart is visible: 0 = date, 1 = description, 2 = place
   int _activeBarChartIndex = 0;
 
@@ -94,30 +95,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       final allExpenses = expenseSnap.data!;
                       final expenses = allExpenses;
                       // --- Summary calculations ---
-                      double total = 0;
-                      double avgPerDay = 0;
-                      Expense? mostExp;
-                      if (expenses.isNotEmpty) {
-                        total = expenses.fold(0, (sum, e) => sum + e.value);
-                        // Calculate days in the selected filter range
-                        if (_filterStartDate != null &&
-                            _filterEndDate != null) {
-                          final start = DateTime(_filterStartDate!.year,
-                              _filterStartDate!.month, _filterStartDate!.day);
-                          final end = DateTime(_filterEndDate!.year,
-                              _filterEndDate!.month, _filterEndDate!.day);
-                          final days = end.difference(start).inDays + 1;
-                          avgPerDay = days > 0 ? total / days : total;
-                        } else {
-                          avgPerDay = total;
-                        }
-                        mostExp = expenses
-                            .reduce((a, b) => a.value > b.value ? a : b);
-                      }
-                      final summary = DashboardSummary(
-                        total: total,
-                        avgPerDay: avgPerDay,
-                        mostExp: mostExp,
+                      final summary = _summaryService.calculateSummary(
+                        expenses,
+                        startDate: _filterStartDate,
+                        endDate: _filterEndDate,
                       );
                       // Extract all unique descriptions and places
                       final allDescriptions = expenses
@@ -228,21 +209,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             const SizedBox(height: 24),
                             // Summary header
                             SummaryHeader(
-                                total: summary.total,
-                                avgPerMonth:
-                                    summary.avgPerDay, // Pass as avgPerDay now
-                                mostExp: summary.mostExp,
-                                categories: categories,
-                                paymentMethods: paymentMethods,
-                                userPrefs: userPrefs),
-                            const SizedBox(height: 24),
-                            // Dashboard title
-                            Text(
-                              'dashboard_charts'.tr(),
-                              style: Theme.of(context).textTheme.headlineSmall,
+                              summary: summary,
+                              userPrefs: userPrefs,
                             ),
-                            const SizedBox(
-                                height: 8), // Donut chart section with toggle
+                            const SizedBox(height: 24),
+                            // --- Donut chart section segmented control ---
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -262,40 +233,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      // Payment Method tab
-                                      GestureDetector(
-                                        onTap: () {
-                                          setState(() {
-                                            _showPaymentMethodChart = true;
-                                          });
-                                        },
-                                        child: Container(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 16, vertical: 8),
-                                          decoration: BoxDecoration(
-                                            color: _showPaymentMethodChart
-                                                ? Theme.of(context)
-                                                    .colorScheme
-                                                    .primary
-                                                : Colors.transparent,
-                                            borderRadius:
-                                                BorderRadius.circular(25),
-                                          ),
-                                          child: Text(
-                                            'payment_methods'.tr(),
-                                            style: TextStyle(
-                                              color: _showPaymentMethodChart
-                                                  ? Theme.of(context)
-                                                      .colorScheme
-                                                      .onPrimary
-                                                  : Theme.of(context)
-                                                      .colorScheme
-                                                      .onSurface,
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
                                       // Category tab
                                       GestureDetector(
                                         onTap: () {
@@ -330,11 +267,46 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                           ),
                                         ),
                                       ),
+                                      // Payment Method tab
+                                      GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            _showPaymentMethodChart = true;
+                                          });
+                                        },
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 16, vertical: 8),
+                                          decoration: BoxDecoration(
+                                            color: _showPaymentMethodChart
+                                                ? Theme.of(context)
+                                                    .colorScheme
+                                                    .primary
+                                                : Colors.transparent,
+                                            borderRadius:
+                                                BorderRadius.circular(25),
+                                          ),
+                                          child: Text(
+                                            'payment_methods'.tr(),
+                                            style: TextStyle(
+                                              color: _showPaymentMethodChart
+                                                  ? Theme.of(context)
+                                                      .colorScheme
+                                                      .onPrimary
+                                                  : Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurface,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 ),
                               ],
                             ), // Responsive layout for donut chart and recent transactions
+                            const SizedBox(height: 24),
                             LayoutBuilder(
                               builder: (context, constraints) {
                                 // Use mobile layout for screens smaller than 600px width
@@ -466,7 +438,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                           ),
                                         ),
                                       ),
-
                                       // Right side - Recent Transactions (40% width)
                                       Expanded(
                                         flex: 4,
