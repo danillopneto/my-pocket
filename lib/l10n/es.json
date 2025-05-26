@@ -121,7 +121,8 @@
   "upload_receipt": "Subir Recibo",
   "receipt_upload_error": "Hubo un error al subir el recibo.",
   "analyze_with_ai": "Analizar con IA",
-  "ai_analysis_title": "Análisis de Gastos con IA",
-  "ai_analysis_error": "El análisis de IA falló: {0}",
-  "most_frequent_place": "Lugar más frecuente: "
+  "ai_analysis_title": "Análisis de Gastos con IA",  "ai_analysis_error": "El análisis de IA falló: {0}",
+  "most_frequent_place": "Lugar más frecuente: ",
+  "show_filters": "Mostrar Filtros",
+  "hide_filters": "Ocultar Filtros"
 }

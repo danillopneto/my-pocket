@@ -30,6 +30,7 @@ class _DashboardExpenseFilterState extends State<DashboardExpenseFilter> {
   DateTime? _startDate;
   DateTime? _endDate;
   List<String> _categoryIds = [];
+  bool _isExpanded = false; // Default to collapsed state
 
   @override
   void initState() {
@@ -79,120 +80,157 @@ class _DashboardExpenseFilterState extends State<DashboardExpenseFilter> {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('filter'.tr(),
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium
-                    ?.copyWith(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: InkWell(
-                    onTap: () => _pickDate(isStart: true),
-                    child: InputDecorator(
-                      decoration: InputDecoration(
-                        labelText: 'date_start'.tr(),
-                        border: const OutlineInputBorder(),
-                        suffixIcon: const Icon(Icons.calendar_today, size: 20),
-                      ),
-                      child: Text(_startDate != null
-                          ? DateFormatService.formatDate(_startDate!, context)
-                          : '-'),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header with title and expand/collapse button
+          InkWell(
+            onTap: () {
+              setState(() {
+                _isExpanded = !_isExpanded;
+              });
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                children: [
+                  Icon(Icons.filter_list,
+                      color: Theme.of(context).colorScheme.primary),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'filter'.tr(),
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.copyWith(fontWeight: FontWeight.bold),
                     ),
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: InkWell(
-                    onTap: () => _pickDate(isStart: false),
-                    child: InputDecorator(
-                      decoration: InputDecoration(
-                        labelText: 'date_end'.tr(),
-                        border: const OutlineInputBorder(),
-                        suffixIcon: const Icon(Icons.calendar_today, size: 20),
+                  Icon(
+                    _isExpanded ? Icons.expand_less : Icons.expand_more,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          // Collapsible content
+          if (_isExpanded)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: InkWell(
+                          onTap: () => _pickDate(isStart: true),
+                          child: InputDecorator(
+                            decoration: InputDecoration(
+                              labelText: 'date_start'.tr(),
+                              border: const OutlineInputBorder(),
+                              suffixIcon:
+                                  const Icon(Icons.calendar_today, size: 20),
+                            ),
+                            child: Text(_startDate != null
+                                ? DateFormatService.formatDate(
+                                    _startDate!, context)
+                                : '-'),
+                          ),
+                        ),
                       ),
-                      child: Text(_endDate != null
-                          ? DateFormatService.formatDate(_endDate!, context)
-                          : '-'),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: InkWell(
+                          onTap: () => _pickDate(isStart: false),
+                          child: InputDecorator(
+                            decoration: InputDecoration(
+                              labelText: 'date_end'.tr(),
+                              border: const OutlineInputBorder(),
+                              suffixIcon:
+                                  const Icon(Icons.calendar_today, size: 20),
+                            ),
+                            child: Text(_endDate != null
+                                ? DateFormatService.formatDate(
+                                    _endDate!, context)
+                                : '-'),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  MultiSelectDialogField<String>(
+                    items: widget.categories
+                        .map((cat) => MultiSelectItem(cat.id!, cat.name))
+                        .toList(),
+                    initialValue: _categoryIds,
+                    title: Text('category'.tr()),
+                    buttonText: Text(
+                      _categoryIds.isEmpty
+                          ? 'all_categories'.tr()
+                          : widget.categories
+                              .where((c) => _categoryIds.contains(c.id))
+                              .map((c) => c.name)
+                              .join(', '),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
+                    searchable: true,
+                    listType: MultiSelectListType.CHIP,
+                    dialogWidth: MediaQuery.of(context).size.width * 0.8,
+                    dialogHeight: MediaQuery.of(context).size.height * 0.7,
+                    onConfirm: (values) {
+                      if (values.length > 10) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('category_limit_warning'.tr()),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                        return;
+                      }
+                      setState(() => _categoryIds = values);
+                      // No immediate apply
+                    },
+                    chipDisplay: MultiSelectChipDisplay.none(),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey.shade400),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    itemsTextStyle: const TextStyle(
+                      fontSize: 14,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    selectedItemsTextStyle: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            MultiSelectDialogField<String>(
-              items: widget.categories
-                  .map((cat) => MultiSelectItem(cat.id!, cat.name))
-                  .toList(),
-              initialValue: _categoryIds,
-              title: Text('category'.tr()),
-              buttonText: Text(
-                _categoryIds.isEmpty
-                    ? 'all_categories'.tr()
-                    : widget.categories
-                        .where((c) => _categoryIds.contains(c.id))
-                        .map((c) => c.name)
-                        .join(', '),
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-              ),
-              searchable: true,
-              listType: MultiSelectListType.CHIP,
-              dialogWidth: MediaQuery.of(context).size.width * 0.8,
-              dialogHeight: MediaQuery.of(context).size.height * 0.7,
-              onConfirm: (values) {
-                if (values.length > 10) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('category_limit_warning'.tr()),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
-                  return;
-                }
-                setState(() => _categoryIds = values);
-                // No immediate apply
-              },
-              chipDisplay: MultiSelectChipDisplay.none(),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey.shade400),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              itemsTextStyle: const TextStyle(
-                fontSize: 14,
-                overflow: TextOverflow.ellipsis,
-              ),
-              selectedItemsTextStyle: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                overflow: TextOverflow.ellipsis,
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: _resetFilters,
+                        child: Text('reset'.tr()),
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        onPressed: () {
+                          widget.onApply(_startDate, _endDate, _categoryIds);
+                        },
+                        child: Text('apply'.tr()),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  onPressed: _resetFilters,
-                  child: Text('reset'.tr()),
-                ),
-                const SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed: () {
-                    widget.onApply(_startDate, _endDate, _categoryIds);
-                  },
-                  child: Text('apply'.tr()),
-                ),
-              ],
-            ),
-          ],
-        ),
+        ],
       ),
     );
   }

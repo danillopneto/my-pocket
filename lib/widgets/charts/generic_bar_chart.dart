@@ -65,7 +65,7 @@ class _GenericBarChartState<T> extends State<GenericBarChart<T>> {
       colorScheme.secondary,
       colorScheme.tertiary,
       colorScheme.error,
-      colorScheme.surfaceVariant,
+      colorScheme.surfaceContainerHighest,
       colorScheme.outline,
       colorScheme.inversePrimary,
       colorScheme.onPrimary,

@@ -134,41 +134,41 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
-                                ElevatedButton.icon(
-                                  icon: const Icon(Icons.auto_awesome),
-                                  label: Text('analyze_with_ai'.tr()),
-                                  onPressed: _aiAnalysisLoading
-                                      ? null
-                                      : () async {
-                                          setState(() {
-                                            _aiAnalysisLoading = true;
-                                            _aiAnalysisResult = null;
-                                            _aiAnalysisError = null;
-                                          });
-                                          try {
-                                            final service =
-                                                AnalyzeExpensesService();
-                                            final result =
-                                                await service.analyzeExpenses(
-                                              expenses,
-                                              categories: categories,
-                                              paymentMethods: paymentMethods,
-                                              summary: summary,
-                                            );
-                                            setState(() {
-                                              _aiAnalysisResult = result;
-                                              _aiAnalysisLoading = false;
-                                            });
-                                          } catch (e) {
-                                            setState(() {
-                                              _aiAnalysisError =
-                                                  'ai_analysis_error'
-                                                      .tr(args: [e.toString()]);
-                                              _aiAnalysisLoading = false;
-                                            });
-                                          }
-                                        },
-                                ),
+                                // Only show the button if there's no result yet and not loading
+                                if (_aiAnalysisResult == null &&
+                                    !_aiAnalysisLoading)
+                                  ElevatedButton.icon(
+                                    icon: const Icon(Icons.auto_awesome),
+                                    label: Text('analyze_with_ai'.tr()),
+                                    onPressed: () async {
+                                      setState(() {
+                                        _aiAnalysisLoading = true;
+                                        _aiAnalysisResult = null;
+                                        _aiAnalysisError = null;
+                                      });
+                                      try {
+                                        final service =
+                                            AnalyzeExpensesService();
+                                        final result =
+                                            await service.analyzeExpenses(
+                                          expenses,
+                                          categories: categories,
+                                          paymentMethods: paymentMethods,
+                                          summary: summary,
+                                        );
+                                        setState(() {
+                                          _aiAnalysisResult = result;
+                                          _aiAnalysisLoading = false;
+                                        });
+                                      } catch (e) {
+                                        setState(() {
+                                          _aiAnalysisError = 'ai_analysis_error'
+                                              .tr(args: [e.toString()]);
+                                          _aiAnalysisLoading = false;
+                                        });
+                                      }
+                                    },
+                                  ),
                                 if (_aiAnalysisLoading)
                                   const Padding(
                                     padding: EdgeInsets.only(top: 12.0),

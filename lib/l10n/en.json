@@ -121,7 +121,8 @@
   "upload_receipt": "Upload Receipt",
   "receipt_upload_error": "There was an error uploading the receipt.",
   "analyze_with_ai": "Analyze with AI",
-  "ai_analysis_title": "AI Expense Analysis",
-  "ai_analysis_error": "AI analysis failed: {0}",
-  "most_frequent_place": "Most frequent place: "
+  "ai_analysis_title": "AI Expense Analysis",  "ai_analysis_error": "AI analysis failed: {0}",
+  "most_frequent_place": "Most frequent place: ",
+  "show_filters": "Show Filters",
+  "hide_filters": "Hide Filters"
 }
