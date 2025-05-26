@@ -92,21 +92,29 @@ class _MyAppState extends State<MyApp> {
         builder: (context) => MaterialApp(
           title: 'Meu Bolso',
           theme: ThemeData(
-            colorScheme: ColorScheme.fromSeed(
-              seedColor: const Color.fromARGB(255, 144, 185, 255),
+              colorScheme: ColorScheme.fromSeed(
+                  seedColor: Colors.blueAccent,
+                  brightness: Brightness.light,
+                  surface: Colors.grey[50]),
+              useMaterial3: true,
               brightness: Brightness.light,
-            ),
-            useMaterial3: true,
-            brightness: Brightness.light,
-          ),
+              cardTheme: const CardTheme(
+                color: Colors.white,
+              ),
+              buttonTheme: const ButtonThemeData(
+                buttonColor: Colors.white,
+                textTheme: ButtonTextTheme.primary,
+              ),
+              elevatedButtonTheme: ElevatedButtonThemeData(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
+              ),
+              scaffoldBackgroundColor:
+                  const Color.fromARGB(255, 241, 243, 249)),
           darkTheme: ThemeData(
-            colorScheme: ColorScheme.fromSeed(
-              seedColor: Colors.deepPurple,
-              brightness: Brightness.dark,
-            ),
-            useMaterial3: true,
-            brightness: Brightness.dark,
-          ),
+              colorScheme: ColorScheme.fromSeed(
+                  seedColor: Colors.deepPurple, brightness: Brightness.dark),
+              useMaterial3: true,
+              brightness: Brightness.dark),
           themeMode: _themeMode,
           locale: context.locale,
           supportedLocales: context.supportedLocales,
