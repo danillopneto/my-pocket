@@ -151,10 +151,12 @@ class _DateBarChartState extends State<DateBarChart> {
                                                     top: 8.0),
                                                 child: Text(
                                                   label,
-                                                  style: const TextStyle(
+                                                  style: TextStyle(
                                                     fontSize: 10,
                                                     fontWeight: FontWeight.bold,
-                                                    color: Colors.black54,
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .onSurfaceVariant,
                                                   ),
                                                 ),
                                               );
@@ -171,10 +173,12 @@ class _DateBarChartState extends State<DateBarChart> {
                                                   top: 8.0),
                                               child: Text(
                                                 value.toInt().toString(),
-                                                style: const TextStyle(
+                                                style: TextStyle(
                                                   fontSize: 10,
                                                   fontWeight: FontWeight.bold,
-                                                  color: Colors.black54,
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurfaceVariant,
                                                 ),
                                               ),
                                             );
@@ -342,10 +346,12 @@ class _DateBarChartState extends State<DateBarChart> {
                                                 const EdgeInsets.only(top: 8.0),
                                             child: Text(
                                               label,
-                                              style: const TextStyle(
+                                              style: TextStyle(
                                                 fontSize: 10,
                                                 fontWeight: FontWeight.bold,
-                                                color: Colors.black54,
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .onSurfaceVariant,
                                               ),
                                             ),
                                           );
@@ -362,10 +368,12 @@ class _DateBarChartState extends State<DateBarChart> {
                                               const EdgeInsets.only(top: 8.0),
                                           child: Text(
                                             value.toInt().toString(),
-                                            style: const TextStyle(
+                                            style: TextStyle(
                                               fontSize: 10,
                                               fontWeight: FontWeight.bold,
-                                              color: Colors.black54,
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .onSurfaceVariant,
                                             ),
                                           ),
                                         );

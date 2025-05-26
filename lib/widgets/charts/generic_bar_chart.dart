@@ -58,19 +58,18 @@ class _GenericBarChartState<T> extends State<GenericBarChart<T>> {
         ? allEntries.map((e) => e.value).reduce((a, b) => a > b ? a : b)
         : 0.0;
 
-    // Theme-aware vibrant colors for bars
-    final colorScheme = Theme.of(context).colorScheme;
+    // Vibrant colors that work well in both light and dark modes
     final barColors = [
-      colorScheme.primary,
-      colorScheme.secondary,
-      colorScheme.tertiary,
-      colorScheme.error,
-      colorScheme.surfaceContainerHighest,
-      colorScheme.outline,
-      colorScheme.inversePrimary,
-      colorScheme.onPrimary,
-      colorScheme.onSecondary,
-      colorScheme.onTertiary,
+      const Color(0xFFF44336), // Red
+      const Color(0xFF9C27B0), // Purple
+      const Color(0xFF2196F3), // Blue
+      const Color(0xFF4CAF50), // Green
+      const Color(0xFFFF9800), // Orange
+      const Color(0xFFE91E63), // Pink
+      const Color(0xFF3F51B5), // Indigo
+      const Color(0xFF00BCD4), // Cyan
+      const Color(0xFF795548), // Brown
+      const Color(0xFF607D8B), // Blue Grey
     ];
 
     // Calculate legend rows for dynamic height
@@ -208,20 +207,20 @@ class _GenericBarChartState<T> extends State<GenericBarChart<T>> {
         minY: 0,
         barTouchData: BarTouchData(
           touchTooltipData: BarTouchTooltipData(
-            tooltipBgColor: Colors.grey.shade800,
+            tooltipBgColor: Theme.of(context).colorScheme.inverseSurface,
             getTooltipItem: (group, groupIndex, rod, rodIndex) {
               final entry = allEntries[groupIndex];
               return BarTooltipItem(
                 '${keyToName[entry.key] ?? entry.key}\n',
                 TextStyle(
-                  color: Theme.of(context).colorScheme.surface,
+                  color: Theme.of(context).colorScheme.onInverseSurface,
                   fontWeight: FontWeight.bold,
                 ),
                 children: [
                   TextSpan(
                     text: widget.formatValue(entry.value, context),
                     style: TextStyle(
-                      color: Colors.yellow.shade400,
+                      color: Theme.of(context).colorScheme.primary,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -265,8 +264,9 @@ class _GenericBarChartState<T> extends State<GenericBarChart<T>> {
                         fontWeight: idx == touchedIndex
                             ? FontWeight.bold
                             : FontWeight.normal,
-                        color:
-                            idx == touchedIndex ? Colors.black : Colors.black54,
+                        color: idx == touchedIndex
+                            ? Theme.of(context).colorScheme.primary
+                            : Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ),
@@ -283,10 +283,10 @@ class _GenericBarChartState<T> extends State<GenericBarChart<T>> {
                   padding: const EdgeInsets.only(top: 8.0),
                   child: Text(
                     value.toInt().toString(),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black54,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                 );
@@ -306,7 +306,7 @@ class _GenericBarChartState<T> extends State<GenericBarChart<T>> {
           },
           getDrawingHorizontalLine: (value) {
             return FlLine(
-              color: const Color(0xffe7e8ec),
+              color: Theme.of(context).colorScheme.outlineVariant,
               strokeWidth: 1,
               dashArray: [5, 5],
             );
@@ -315,8 +315,10 @@ class _GenericBarChartState<T> extends State<GenericBarChart<T>> {
         borderData: FlBorderData(
           show: true,
           border: Border(
-            bottom: BorderSide(color: Colors.grey.shade300, width: 1),
-            left: BorderSide(color: Colors.grey.shade300, width: 1),
+            bottom: BorderSide(
+                color: Theme.of(context).colorScheme.outline, width: 1),
+            left: BorderSide(
+                color: Theme.of(context).colorScheme.outline, width: 1),
           ),
         ),
         barGroups: [
@@ -327,7 +329,7 @@ class _GenericBarChartState<T> extends State<GenericBarChart<T>> {
                 BarChartRodData(
                   toY: allEntries[i].value,
                   color: i == touchedIndex
-                      ? Colors.amber
+                      ? const Color(0xFFFFD700) // Gold highlight
                       : barColors[i % barColors.length],
                   width: 16,
                   borderRadius: const BorderRadius.only(
@@ -337,7 +339,7 @@ class _GenericBarChartState<T> extends State<GenericBarChart<T>> {
                   backDrawRodData: BackgroundBarChartRodData(
                     show: true,
                     toY: maxY * 1.1,
-                    color: const Color(0xFFEEEEEE),
+                    color: Theme.of(context).colorScheme.surfaceContainerLow,
                   ),
                 ),
               ],
