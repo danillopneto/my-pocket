@@ -8,7 +8,6 @@ class ExpensesService {
   final FirestoreService firestoreService;
 
   ExpensesService({required this.firestoreService});
-
   Future<void> updateExpense(
       BuildContext context, Expense oldExpense, Expense edited) async {
     await withCurrentUserAsync((user) async {
@@ -22,8 +21,17 @@ class ExpensesService {
         place: edited.place,
         categoryId: edited.categoryId,
         paymentMethodId: edited.paymentMethodId,
+        receiptImageUrl: edited.receiptImageUrl,
       );
-      await firestoreService.updateExpense(user.uid, updated);
+
+      // Check if this is a new expense (id is null) or existing expense
+      if (oldExpense.id == null) {
+        // New expense - use addExpense
+        await firestoreService.addExpense(user.uid, updated);
+      } else {
+        // Existing expense - use updateExpense
+        await firestoreService.updateExpense(user.uid, updated);
+      }
     });
   }
 

@@ -124,5 +124,21 @@
   "ai_analysis_title": "Análisis de Gastos con IA",  "ai_analysis_error": "El análisis de IA falló: {0}",
   "most_frequent_place": "Lugar más frecuente: ",
   "show_filters": "Mostrar Filtros",
-  "hide_filters": "Ocultar Filtros"
+  "hide_filters": "Ocultar Filtros",
+  "items": "Artículos",
+  "item_name": "Nombre del Artículo",
+  "quantity": "Cantidad",
+  "unit_price": "Precio Unitario",
+  "total_price": "Precio Total",  "receipt_items": "Artículos del Recibo",
+  "items_subtotal": "Subtotal de Artículos",
+  "receipt_total": "Total del Recibo",
+  "search": "Buscar",
+  "search_items": "Buscar artículos...",
+  "search_by_item_name": "Buscar por nombre de artículo",
+  "clear_search": "Limpiar búsqueda",
+  "last_purchased": "Última compra",
+  "no_results_found": "No se encontraron resultados para tu búsqueda",  "search_expenses": "Buscar gastos",
+  "search_items_description_place": "Buscar artículos, descripción o lugar...",
+  "search_results": "Resultados de la búsqueda",
+  "when_last_bought": "¿Cuándo compré {0} por última vez?"
 }

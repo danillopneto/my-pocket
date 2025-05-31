@@ -80,6 +80,124 @@ class FirestoreService {
     );
   }
 
+  // Search expenses by item names
+  Stream<List<Expense>> searchExpensesByItemName(
+    String userId,
+    String itemName, {
+    DateTime? startDate,
+    DateTime? endDate,
+    int? limit,
+  }) {
+    // Convert search term to lowercase for case-insensitive search
+    final searchTerm = itemName.toLowerCase().trim();
+
+    var query = _db
+        .collection('users')
+        .doc(userId)
+        .collection('expenses')
+        .where('itemNames', arrayContains: searchTerm)
+        .orderBy('date', descending: true)
+        .withConverter<Expense>(
+          fromFirestore: (snap, _) =>
+              Expense.fromMap(snap.data()!, id: snap.id),
+          toFirestore: (exp, _) => exp.toMap(),
+        );
+
+    if (limit != null) {
+      query = query.limit(limit);
+    }
+
+    return logFirestoreStreamErrors(
+      query.snapshots().map(
+          (snapshot) => snapshot.docs.map((doc) => doc.data()).where((expense) {
+                // Additional filtering by date if needed (since we can't combine array-contains with date range easily)
+                if (startDate != null && expense.date.isBefore(startDate)) {
+                  return false;
+                }
+                if (endDate != null && expense.date.isAfter(endDate)) {
+                  return false;
+                }
+                return true;
+              }).toList()),
+      context: 'searchExpensesByItemName',
+    );
+  }
+
+  // Search expenses by multiple item names (OR logic)
+  Stream<List<Expense>> searchExpensesByItemNames(
+    String userId,
+    List<String> itemNames, {
+    int? limit,
+  }) {
+    if (itemNames.isEmpty) {
+      return Stream.value([]);
+    }
+
+    // Convert search terms to lowercase
+    final searchTerms = itemNames
+        .map((name) => name.toLowerCase().trim())
+        .where((name) => name.isNotEmpty)
+        .take(10) // Firestore limit for array-contains-any
+        .toList();
+
+    if (searchTerms.isEmpty) {
+      return Stream.value([]);
+    }
+
+    var query = _db
+        .collection('users')
+        .doc(userId)
+        .collection('expenses')
+        .where('itemNames', arrayContainsAny: searchTerms)
+        .orderBy('date', descending: true)
+        .withConverter<Expense>(
+          fromFirestore: (snap, _) =>
+              Expense.fromMap(snap.data()!, id: snap.id),
+          toFirestore: (exp, _) => exp.toMap(),
+        );
+
+    if (limit != null) {
+      query = query.limit(limit);
+    }
+
+    return logFirestoreStreamErrors(
+      query
+          .snapshots()
+          .map((snapshot) => snapshot.docs.map((doc) => doc.data()).toList()),
+      context: 'searchExpensesByItemNames',
+    );
+  }
+
+  // Get most recent expense containing a specific item
+  Future<Expense?> getLastExpenseWithItem(
+      String userId, String itemName) async {
+    final searchTerm = itemName.toLowerCase().trim();
+
+    try {
+      final snapshot = await _db
+          .collection('users')
+          .doc(userId)
+          .collection('expenses')
+          .where('itemNames', arrayContains: searchTerm)
+          .orderBy('date', descending: true)
+          .limit(1)
+          .withConverter<Expense>(
+            fromFirestore: (snap, _) =>
+                Expense.fromMap(snap.data()!, id: snap.id),
+            toFirestore: (exp, _) => exp.toMap(),
+          )
+          .get();
+
+      if (snapshot.docs.isNotEmpty) {
+        return snapshot.docs.first.data();
+      }
+      return null;
+    } catch (e) {
+      print('Error getting last expense with item: $e');
+      return null;
+    }
+  }
+
   // Categories
   Future<void> addCategory(String userId, Category category) async {
     await addForUser(userId, 'categories', category.toMap());
@@ -160,5 +278,241 @@ class FirestoreService {
       String userId, String sub) async {
     final snap = await _userSubcollection(userId, sub).get();
     return snap.docs.map((doc) => {...doc.data(), 'id': doc.id}).toList();
+  }
+
+  // Search expenses by description (partial match)
+  Stream<List<Expense>> searchExpensesByDescription(
+    String userId,
+    String searchTerm, {
+    DateTime? startDate,
+    DateTime? endDate,
+    int? limit,
+  }) {
+    if (searchTerm.trim().isEmpty) {
+      return Stream.value([]);
+    }
+
+    var query = _db
+        .collection('users')
+        .doc(userId)
+        .collection('expenses')
+        .orderBy('date', descending: true)
+        .withConverter<Expense>(
+          fromFirestore: (snap, _) =>
+              Expense.fromMap(snap.data()!, id: snap.id),
+          toFirestore: (exp, _) => exp.toMap(),
+        );
+
+    if (limit != null) {
+      query = query.limit(limit * 10); // Get more results to filter locally
+    }
+
+    return logFirestoreStreamErrors(
+      query.snapshots().map((snapshot) {
+        final searchTermLower = searchTerm.toLowerCase().trim();
+        return snapshot.docs
+            .map((doc) => doc.data())
+            .where((expense) {
+              // Filter by date range
+              if (startDate != null && expense.date.isBefore(startDate)) {
+                return false;
+              }
+              if (endDate != null && expense.date.isAfter(endDate)) {
+                return false;
+              }
+
+              // Filter by description or place containing search term
+              final description = expense.description.toLowerCase();
+              final place = expense.place.toLowerCase();
+
+              return description.contains(searchTermLower) ||
+                  place.contains(searchTermLower);
+            })
+            .take(limit ?? 50) // Apply final limit
+            .toList();
+      }),
+      context: 'searchExpensesByDescription',
+    );
+  }
+
+  // Combined search: items, description, and place
+  Stream<List<Expense>> searchExpensesAll(
+    String userId,
+    String searchTerm, {
+    DateTime? startDate,
+    DateTime? endDate,
+    int? limit,
+  }) {
+    if (searchTerm.trim().isEmpty) {
+      return Stream.value([]);
+    }
+
+    // First try item search
+    final itemSearchStream = searchExpensesByItemName(
+      userId,
+      searchTerm,
+      startDate: startDate,
+      endDate: endDate,
+      limit: limit,
+    );
+
+    // Then combine with description search
+    final descSearchStream = searchExpensesByDescription(
+      userId,
+      searchTerm,
+      startDate: startDate,
+      endDate: endDate,
+      limit: limit,
+    );
+
+    // Combine both streams and remove duplicates
+    return logFirestoreStreamErrors(
+      itemSearchStream.asyncMap((itemResults) async {
+        final descResults = await descSearchStream.first;
+        final Map<String, Expense> uniqueExpenses = {};
+
+        // Add item search results
+        for (final expense in itemResults) {
+          if (expense.id != null) {
+            uniqueExpenses[expense.id!] = expense;
+          }
+        }
+
+        // Add description search results (avoiding duplicates)
+        for (final expense in descResults) {
+          if (expense.id != null && !uniqueExpenses.containsKey(expense.id!)) {
+            uniqueExpenses[expense.id!] = expense;
+          }
+        }
+
+        // Sort by date descending and apply limit
+        final results = uniqueExpenses.values.toList()
+          ..sort((a, b) => b.date.compareTo(a.date));
+
+        return limit != null ? results.take(limit).toList() : results;
+      }),
+      context: 'searchExpensesAll',
+    );
+  }
+
+  // Get suggestions for item names based on existing data
+  Future<List<String>> getItemNameSuggestions(
+      String userId, String prefix) async {
+    if (prefix.trim().isEmpty) return [];
+
+    final prefixLower = prefix.toLowerCase().trim();
+
+    try {
+      // Get recent expenses that might contain this prefix
+      final snapshot = await _db
+          .collection('users')
+          .doc(userId)
+          .collection('expenses')
+          .orderBy('date', descending: true)
+          .limit(100)
+          .get();
+
+      final Set<String> suggestions = {};
+
+      for (final doc in snapshot.docs) {
+        final data = doc.data();
+        final itemNames = data['itemNames'] as List<dynamic>?;
+
+        if (itemNames != null) {
+          for (final itemName in itemNames) {
+            final name = itemName.toString().toLowerCase();
+            if (name.contains(prefixLower)) {
+              suggestions.add(itemName.toString());
+            }
+          }
+        }
+      }
+
+      return suggestions.take(10).toList()..sort();
+    } catch (e) {
+      print('Error getting item suggestions: $e');
+      return [];
+    }
+  }
+
+  // Migration method to populate itemNames for existing expenses
+  Future<void> migrateExpenseItemNames(String userId) async {
+    try {
+      print('Starting itemNames migration for user: $userId');
+
+      // Get all expenses that don't have itemNames populated
+      final snapshot = await _db
+          .collection('users')
+          .doc(userId)
+          .collection('expenses')
+          .get();
+
+      int migratedCount = 0;
+      final batch = _db.batch();
+      for (final doc in snapshot.docs) {
+        final data = doc.data();
+        final itemNames = data['itemNames']
+            as List<dynamic>?; // Only migrate if itemNames is null or empty
+        if (itemNames == null || itemNames.isEmpty) {
+          try {
+            // Parse the expense to generate itemNames from description
+            final expense = Expense.fromMap(data, id: doc.id);
+            // Generate itemNames from description as fallback
+            final generatedItemNames = [expense.description];
+
+            // Always update if we have generated names (even if just description)
+            if (generatedItemNames.isNotEmpty) {
+              batch.update(doc.reference, {
+                'itemNames': generatedItemNames,
+              });
+              migratedCount++;
+            }
+          } catch (e) {
+            print('Error migrating expense ${doc.id}: $e');
+          }
+        }
+      }
+
+      if (migratedCount > 0) {
+        await batch.commit();
+        print('Successfully migrated $migratedCount expenses with itemNames');
+      } else {
+        print('No expenses needed migration');
+      }
+    } catch (e) {
+      print('Error during itemNames migration: $e');
+      rethrow;
+    }
+  }
+
+  // Check if migration is needed for a user
+  Future<bool> isMigrationNeeded(String userId) async {
+    try {
+      // Check if there are expenses without itemNames
+      final snapshot = await _db
+          .collection('users')
+          .doc(userId)
+          .collection('expenses')
+          .limit(10)
+          .get();
+      for (final doc in snapshot.docs) {
+        final data = doc.data();
+        final itemNames = data['itemNames'] as List<dynamic>?;
+        final items = data['items'];
+        final description = data['description'] as String?;
+
+        // If expense has items or description but no itemNames, migration is needed
+        if ((items != null ||
+                (description != null && description.trim().isNotEmpty)) &&
+            (itemNames == null || itemNames.isEmpty)) {
+          return true;
+        }
+      }
+
+      return false;
+    } catch (e) {
+      print('Error checking migration status: $e');
+      return false;
+    }
   }
 }

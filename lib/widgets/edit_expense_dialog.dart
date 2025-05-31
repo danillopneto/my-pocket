@@ -24,6 +24,7 @@ class EditExpenseDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
+      backgroundColor: Theme.of(context).colorScheme.surface,
       title: Text((isNew ? 'add_expense' : 'edit_expense').tr()),
       content: ExpenseForm(
         onSubmit: (edited) {

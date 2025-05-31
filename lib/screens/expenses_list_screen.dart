@@ -48,6 +48,10 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
   UserPreferences? _userPrefs;
   final List<String> _pendingDeleteIds = [];
 
+  // Search functionality
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+  bool _isSearching = false;
   @override
   void initState() {
     super.initState();
@@ -56,6 +60,31 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
     final now = DateTime.now();
     _filterStartDate = DateTime(now.year, now.month, 1);
     _filterEndDate = now;
+
+    // Add search listener
+    _searchController.addListener(_onSearchChanged);
+  }
+
+  @override
+  void dispose() {
+    _searchController.removeListener(_onSearchChanged);
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _onSearchChanged() {
+    setState(() {
+      _searchQuery = _searchController.text;
+      _isSearching = _searchQuery.trim().isNotEmpty;
+    });
+  }
+
+  void _clearSearch() {
+    _searchController.clear();
+    setState(() {
+      _searchQuery = '';
+      _isSearching = false;
+    });
   }
 
   void _loadEntities() async {
@@ -128,40 +157,82 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
         titleKey: 'expenses_list',
         body: Column(
           children: [
-            DashboardExpenseFilter(
-              categories: _categories,
-              initialStartDate: _filterStartDate,
-              initialEndDate: _filterEndDate,
-              initialCategoryIds: _filterCategoryIds,
-              onApply: (start, end, categoryIds) {
-                setState(() {
-                  _filterStartDate = start;
-                  _filterEndDate = end;
-                  _filterCategoryIds = categoryIds;
-                });
-              },
+            // Search field
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: TextField(
+                controller: _searchController,
+                decoration: InputDecoration(
+                  hintText: 'search_items'.tr(),
+                  prefixIcon: const Icon(Icons.search),
+                  suffixIcon: _isSearching
+                      ? IconButton(
+                          icon: const Icon(Icons.clear),
+                          onPressed: _clearSearch,
+                        )
+                      : null,
+                  border: const OutlineInputBorder(),
+                ),
+              ),
             ),
+            // Filter card (show only when not searching)
+            if (!_isSearching)
+              DashboardExpenseFilter(
+                categories: _categories,
+                initialStartDate: _filterStartDate,
+                initialEndDate: _filterEndDate,
+                initialCategoryIds: _filterCategoryIds,
+                onApply: (start, end, categoryIds) {
+                  setState(() {
+                    _filterStartDate = start;
+                    _filterEndDate = end;
+                    _filterCategoryIds = categoryIds;
+                  });
+                },
+              ),
             Expanded(
               child: StreamBuilder<List<Expense>>(
-                stream: _firestoreService.getExpenses(
-                  user.uid,
-                  startDate: _filterStartDate,
-                  endDate: _filterEndDate,
-                  categoryIds:
-                      _filterCategoryIds.isNotEmpty ? _filterCategoryIds : null,
-                ),
+                stream: _isSearching
+                    ? _firestoreService.searchExpensesAll(
+                        user.uid,
+                        _searchQuery,
+                        startDate: _filterStartDate,
+                        endDate: _filterEndDate,
+                        limit: 100,
+                      )
+                    : _firestoreService.getExpenses(
+                        user.uid,
+                        startDate: _filterStartDate,
+                        endDate: _filterEndDate,
+                        categoryIds: _filterCategoryIds.isNotEmpty
+                            ? _filterCategoryIds
+                            : null,
+                      ),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const AppLoadingIndicator();
                   }
-                  if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return Center(child: Text('no_expenses_found'.tr()));
+                  if (!snapshot.hasData) {
+                    return Center(
+                      child: Text(_isSearching
+                          ? 'no_results_found'.tr()
+                          : 'no_expenses_found'.tr()),
+                    );
                   }
                   var expenses = snapshot.data!;
                   // Filter out pending deletes
                   expenses = expenses
                       .where((e) => !_pendingDeleteIds.contains(e.id))
                       .toList();
+
+                  if (expenses.isEmpty) {
+                    return Center(
+                      child: Text(_isSearching
+                          ? 'no_results_found'.tr()
+                          : 'no_expenses_found'.tr()),
+                    );
+                  }
+
                   return ExpensesList(
                     expenses: expenses,
                     categories: _categories,

@@ -8,8 +8,11 @@ import 'package:flutter/foundation.dart' hide Category;
 import '../models/expense.dart';
 import '../models/category.dart';
 import '../models/payment_method.dart';
+import '../models/expense_item.dart';
 import '../services/date_format_service.dart';
+import '../services/currency_format_service.dart';
 import '../services/extract_expenses_data_service.dart';
+import '../services/receipt_upload_service.dart';
 
 class ExpenseForm extends StatefulWidget {
   final void Function(Expense expense) onSubmit;
@@ -43,14 +46,17 @@ class _ExpenseFormState extends State<ExpenseForm> {
   late String _place;
   late String _categoryId;
   late String _paymentMethodId;
+  String? _receiptImageUrl; // Store the uploaded receipt URL
   Uint8List? _previewBytes;
+  String? _selectedFileName; // Store the original filename
+  List<ExpenseItem> _extractedItems = [];
   final ExtractExpensesDataService _extractService =
       ExtractExpensesDataService();
-
   Future<void> _pickFileAndAnalyze() async {
     setState(() {
       _aiError = null;
       _aiLoading = true;
+      _extractedItems = []; // Clear previous items
     });
     FilePickerResult? result;
     try {
@@ -59,6 +65,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
       setState(() {
         _aiError = 'receipt_upload_error'.tr();
         _aiLoading = false;
+        _extractedItems = [];
       });
       return;
     }
@@ -66,20 +73,26 @@ class _ExpenseFormState extends State<ExpenseForm> {
       setState(() {
         _aiError = 'receipt_upload_error'.tr();
         _aiLoading = false;
+        _extractedItems = [];
       });
       return;
-    }
-    // Set preview image bytes for UI
+    } // Get file bytes for preview and store for later upload
     final bytes = kIsWeb
-        ? result.files.single.bytes
+        ? result.files.single.bytes!
         : await File(result.files.single.path!).readAsBytes();
+    final fileName = result.files.single.name;
+
+    // Set preview image bytes and filename for UI
     setState(() {
       _previewBytes = bytes;
+      _selectedFileName = fileName;
     });
+
     try {
+      // Extract data from the image using AI (no upload yet)
       final extracted = kIsWeb
           ? await _extractService.extractFromBytes(
-              bytes: result.files.single.bytes!,
+              bytes: bytes,
               categories: widget.categories,
             )
           : await _extractService.extractFromFile(
@@ -92,6 +105,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
         _valueController.text = extracted.value.toString();
         _placeController.text = extracted.place;
         _date = extracted.date;
+        _extractedItems = extracted.items;
         _categoryId = widget.categories
                 .firstWhere((c) => c.name == extracted.category,
                     orElse: () => widget.categories.first)
@@ -101,6 +115,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
     } catch (e) {
       setState(() {
         _aiError = '$e\n${'gemini_error'.tr()}';
+        _extractedItems = []; // Clear items on error
       });
     }
     setState(() {
@@ -123,6 +138,13 @@ class _ExpenseFormState extends State<ExpenseForm> {
     _installments = i?.installments ?? 1;
     _categoryId = i?.categoryId ?? '';
     _paymentMethodId = i?.paymentMethodId ?? '';
+    _receiptImageUrl =
+        i?.receiptImageUrl; // Initialize with existing receipt URL
+    _extractedItems =
+        []; // Initialize empty since items are no longer stored in expense model
+
+    // If editing an existing expense with a receipt, we don't need to store bytes
+    // since the image is already uploaded and we have the URL
   }
 
   @override
@@ -188,10 +210,102 @@ class _ExpenseFormState extends State<ExpenseForm> {
                 child: Image.memory(_previewBytes!,
                     height: 200, fit: BoxFit.contain),
               ),
+            if (_extractedItems.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 16),
+                child: Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'receipt_items'.tr(),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        ...(_extractedItems.map((item) => Padding(
+                              padding: const EdgeInsets.only(bottom: 4),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    flex: 3,
+                                    child: Text(item.name),
+                                  ),
+                                  Expanded(
+                                    flex: 2,
+                                    child: Text(
+                                      CurrencyFormatService.formatCurrency(
+                                        item.value,
+                                        context,
+                                      ),
+                                      textAlign: TextAlign.right,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ))),
+                        const Divider(),
+                        Row(
+                          children: [
+                            const Expanded(flex: 3, child: Text('')),
+                            Expanded(
+                              flex: 2,
+                              child: Text(
+                                'items_subtotal'.tr(),
+                                textAlign: TextAlign.right,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            const Expanded(flex: 3, child: Text('')),
+                            Expanded(
+                              flex: 2,
+                              child: Text(
+                                CurrencyFormatService.formatCurrency(
+                                  _extractedItems.fold(
+                                      0.0, (sum, item) => sum + item.value),
+                                  context,
+                                ),
+                                textAlign: TextAlign.right,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          '${'receipt_total'.tr()}: ${CurrencyFormatService.formatCurrency(double.tryParse(_valueController.text.replaceAll(',', '.')) ?? 0.0, context)}',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                            color: Colors.green,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             TextFormField(
               controller: _descriptionController,
               decoration: InputDecoration(labelText: 'description'.tr()),
               validator: (v) => v == null || v.isEmpty ? 'required'.tr() : null,
+              onSaved: (v) => _description = v ?? '',
             ),
             TextFormField(
               controller: _valueController,
@@ -206,6 +320,8 @@ class _ExpenseFormState extends State<ExpenseForm> {
                   v == null || double.tryParse(v.replaceAll(',', '.')) == null
                       ? 'enter_valid_number'.tr()
                       : null,
+              onSaved: (v) => _value =
+                  double.tryParse(v?.replaceAll(',', '.') ?? '') ?? 0.0,
             ),
             TextFormField(
               initialValue: _installments.toString(),
@@ -220,6 +336,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
               controller: _placeController,
               decoration: InputDecoration(labelText: 'place'.tr()),
               validator: (v) => v == null || v.isEmpty ? 'required'.tr() : null,
+              onSaved: (v) => _place = v ?? '',
             ),
             // Date picker field with icon on the right
             Row(
@@ -285,24 +402,49 @@ class _ExpenseFormState extends State<ExpenseForm> {
             ),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 if (_formKey.currentState?.validate() ?? false) {
-                  final desc = _descriptionController.text;
-                  final val = double.tryParse(
-                          _valueController.text.replaceAll(',', '.')) ??
-                      0.0;
-                  final plc = _placeController.text;
+                  _formKey.currentState
+                      ?.save(); // Save form state to trigger onSaved callbacks
+
+                  String? finalReceiptImageUrl = _receiptImageUrl;
+
+                  // Upload the receipt image if we have new image data
+                  if (_previewBytes != null && _selectedFileName != null) {
+                    try {
+                      finalReceiptImageUrl =
+                          await ReceiptUploadService.uploadReceiptImage(
+                        imageBytes: _previewBytes!,
+                        originalFileName: _selectedFileName!,
+                      );
+                    } catch (e) {
+                      // Show error but don't prevent saving the expense
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('receipt_upload_error'.tr()),
+                            backgroundColor:
+                                Theme.of(context).colorScheme.error,
+                          ),
+                        );
+                      }
+                      // Use existing URL or null if upload failed
+                      finalReceiptImageUrl = _receiptImageUrl;
+                    }
+                  }
+
                   widget.onSubmit(
                     Expense(
                       id: widget.initial?.id,
                       date: _date,
                       createdAt: widget.initial?.createdAt ?? DateTime.now(),
-                      description: desc,
-                      value: val,
+                      description: _description,
+                      value: _value,
                       installments: _installments,
-                      place: plc,
+                      place: _place,
                       categoryId: _categoryId,
                       paymentMethodId: _paymentMethodId,
+                      receiptImageUrl: finalReceiptImageUrl,
                     ),
                   );
                 }

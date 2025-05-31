@@ -236,7 +236,13 @@ class _GenericBarChartState<T> extends State<GenericBarChart<T>> {
                 touchedIndex = -1;
                 return;
               }
-              touchedIndex = barTouchResponse.spot!.touchedBarGroupIndex;
+              final groupIndex = barTouchResponse.spot!.touchedBarGroupIndex;
+              // Add bounds checking to prevent index out of range
+              if (groupIndex >= 0 && groupIndex < allEntries.length) {
+                touchedIndex = groupIndex;
+              } else {
+                touchedIndex = -1;
+              }
             });
           },
         ),
@@ -323,28 +329,29 @@ class _GenericBarChartState<T> extends State<GenericBarChart<T>> {
         ),
         barGroups: [
           for (int i = 0; i < allEntries.length; i++)
-            BarChartGroupData(
-              x: i,
-              barRods: [
-                BarChartRodData(
-                  toY: allEntries[i].value,
-                  color: i == touchedIndex
-                      ? const Color(0xFFFFD700) // Gold highlight
-                      : barColors[i % barColors.length],
-                  width: 16,
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(4),
-                    topRight: Radius.circular(4),
+            if (i >= 0 && i < allEntries.length) // Extra safety check
+              BarChartGroupData(
+                x: i,
+                barRods: [
+                  BarChartRodData(
+                    toY: allEntries[i].value,
+                    color: i == touchedIndex
+                        ? const Color(0xFFFFD700) // Gold highlight
+                        : barColors[i % barColors.length],
+                    width: 16,
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(4),
+                      topRight: Radius.circular(4),
+                    ),
+                    backDrawRodData: BackgroundBarChartRodData(
+                      show: true,
+                      toY: maxY * 1.1,
+                      color: Theme.of(context).colorScheme.surfaceContainerLow,
+                    ),
                   ),
-                  backDrawRodData: BackgroundBarChartRodData(
-                    show: true,
-                    toY: maxY * 1.1,
-                    color: Theme.of(context).colorScheme.surfaceContainerLow,
-                  ),
-                ),
-              ],
-              showingTooltipIndicators: i == touchedIndex ? [0] : [],
-            ),
+                ],
+                showingTooltipIndicators: i == touchedIndex ? [0] : [],
+              ),
         ],
       ),
     );

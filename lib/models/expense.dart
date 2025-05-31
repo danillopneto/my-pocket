@@ -11,7 +11,7 @@ class Expense {
   final String place;
   final String categoryId;
   final String paymentMethodId;
-
+  final String? receiptImageUrl; // URL of the uploaded receipt image
   Expense({
     this.id,
     required this.date,
@@ -22,6 +22,7 @@ class Expense {
     required this.place,
     required this.categoryId,
     required this.paymentMethodId,
+    this.receiptImageUrl,
   });
 
   factory Expense.fromMap(Map<String, dynamic> map, {String? id}) {
@@ -43,6 +44,7 @@ class Expense {
       place: map['place'] ?? '',
       categoryId: map['categoryId'] ?? '',
       paymentMethodId: map['paymentMethodId'] ?? '',
+      receiptImageUrl: map['receiptImageUrl'],
     );
   }
 
@@ -56,6 +58,7 @@ class Expense {
       'place': place,
       'categoryId': categoryId,
       'paymentMethodId': paymentMethodId,
+      'receiptImageUrl': receiptImageUrl,
     };
   }
 }

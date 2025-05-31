@@ -124,5 +124,22 @@
   "ai_analysis_title": "AI Expense Analysis",  "ai_analysis_error": "AI analysis failed: {0}",
   "most_frequent_place": "Most frequent place: ",
   "show_filters": "Show Filters",
-  "hide_filters": "Hide Filters"
+  "hide_filters": "Hide Filters",
+  "items": "Items",
+  "item_name": "Item Name",
+  "quantity": "Quantity",
+  "unit_price": "Unit Price",
+  "total_price": "Total Price",  "receipt_items": "Receipt Items",
+  "items_subtotal": "Items Subtotal",
+  "receipt_total": "Receipt Total",
+  "search": "Search",
+  "search_items": "Search items...",
+  "search_by_item_name": "Search by item name",
+  "clear_search": "Clear search",
+  "last_purchased": "Last purchased",
+  "no_results_found": "No results found for your search",  "search_expenses": "Search expenses",
+  "search_items_description_place": "Search items, description, or place...",
+  "search_results": "Search Results",
+  "when_last_bought": "When did I last buy {0}?",
+  "close": "Close"
 }

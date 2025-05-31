@@ -167,11 +167,18 @@ class _GenericDonutChartState<T> extends State<GenericDonutChart<T>> {
                           if (!event.isInterestedForInteractions ||
                               pieTouchResponse == null ||
                               pieTouchResponse.touchedSection == null) {
-                            touchedIndex = -1;
+                            touchedIndex = null;
                             return;
                           }
-                          touchedIndex = pieTouchResponse
+                          final sectionIndex = pieTouchResponse
                               .touchedSection!.touchedSectionIndex;
+                          // Add bounds checking to prevent index out of range
+                          if (sectionIndex >= 0 &&
+                              sectionIndex < sections.length) {
+                            touchedIndex = sectionIndex;
+                          } else {
+                            touchedIndex = null;
+                          }
                         });
                       },
                     ),
@@ -216,11 +223,18 @@ class _GenericDonutChartState<T> extends State<GenericDonutChart<T>> {
                             if (!event.isInterestedForInteractions ||
                                 pieTouchResponse == null ||
                                 pieTouchResponse.touchedSection == null) {
-                              touchedIndex = -1;
+                              touchedIndex = null;
                               return;
                             }
-                            touchedIndex = pieTouchResponse
+                            final sectionIndex = pieTouchResponse
                                 .touchedSection!.touchedSectionIndex;
+                            // Add bounds checking to prevent index out of range
+                            if (sectionIndex >= 0 &&
+                                sectionIndex < sections.length) {
+                              touchedIndex = sectionIndex;
+                            } else {
+                              touchedIndex = null;
+                            }
                           });
                         },
                       ),

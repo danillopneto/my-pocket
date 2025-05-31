@@ -124,8 +124,15 @@ class _DateBarChartState extends State<DateBarChart> {
                                             touchedIndex = -1;
                                             return;
                                           }
-                                          touchedIndex = barTouchResponse
+                                          final groupIndex = barTouchResponse
                                               .spot!.touchedBarGroupIndex;
+                                          // Add bounds checking to prevent index out of range
+                                          if (groupIndex >= 0 &&
+                                              groupIndex < sortedDates.length) {
+                                            touchedIndex = groupIndex;
+                                          } else {
+                                            touchedIndex = -1;
+                                          }
                                         });
                                       },
                                     ),
@@ -251,29 +258,35 @@ class _DateBarChartState extends State<DateBarChart> {
                                       for (int i = 0;
                                           i < sortedDates.length;
                                           i++)
-                                        BarChartGroupData(
-                                          x: i,
-                                          barRods: [
-                                            BarChartRodData(
-                                              toY: dateTotals[sortedDates[i]]!,
-                                              color: i == touchedIndex
-                                                  ? Colors.amber
-                                                  : const Color(0xFF2196F3),
-                                              width: 16,
-                                              borderRadius:
-                                                  const BorderRadius.only(
-                                                topLeft: Radius.circular(4),
-                                                topRight: Radius.circular(4),
+                                        if (i >= 0 &&
+                                            i <
+                                                sortedDates
+                                                    .length) // Extra safety check
+                                          BarChartGroupData(
+                                            x: i,
+                                            barRods: [
+                                              BarChartRodData(
+                                                toY:
+                                                    dateTotals[sortedDates[i]]!,
+                                                color: i == touchedIndex
+                                                    ? Colors.amber
+                                                    : const Color(0xFF2196F3),
+                                                width: 16,
+                                                borderRadius:
+                                                    const BorderRadius.only(
+                                                  topLeft: Radius.circular(4),
+                                                  topRight: Radius.circular(4),
+                                                ),
+                                                backDrawRodData:
+                                                    BackgroundBarChartRodData(
+                                                  show: true,
+                                                  toY: maxY * 1.1,
+                                                  color:
+                                                      const Color(0xFFEEEEEE),
+                                                ),
                                               ),
-                                              backDrawRodData:
-                                                  BackgroundBarChartRodData(
-                                                show: true,
-                                                toY: maxY * 1.1,
-                                                color: const Color(0xFFEEEEEE),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
+                                            ],
+                                          ),
                                     ],
                                   ),
                                 ),
@@ -319,8 +332,15 @@ class _DateBarChartState extends State<DateBarChart> {
                                         touchedIndex = -1;
                                         return;
                                       }
-                                      touchedIndex = barTouchResponse
+                                      final groupIndex = barTouchResponse
                                           .spot!.touchedBarGroupIndex;
+                                      // Add bounds checking to prevent index out of range
+                                      if (groupIndex >= 0 &&
+                                          groupIndex < sortedDates.length) {
+                                        touchedIndex = groupIndex;
+                                      } else {
+                                        touchedIndex = -1;
+                                      }
                                     });
                                   },
                                 ),
@@ -440,28 +460,33 @@ class _DateBarChartState extends State<DateBarChart> {
                                 ),
                                 barGroups: [
                                   for (int i = 0; i < sortedDates.length; i++)
-                                    BarChartGroupData(
-                                      x: i,
-                                      barRods: [
-                                        BarChartRodData(
-                                          toY: dateTotals[sortedDates[i]]!,
-                                          color: i == touchedIndex
-                                              ? Colors.amber
-                                              : const Color(0xFF2196F3),
-                                          width: 16,
-                                          borderRadius: const BorderRadius.only(
-                                            topLeft: Radius.circular(4),
-                                            topRight: Radius.circular(4),
+                                    if (i >= 0 &&
+                                        i <
+                                            sortedDates
+                                                .length) // Extra safety check
+                                      BarChartGroupData(
+                                        x: i,
+                                        barRods: [
+                                          BarChartRodData(
+                                            toY: dateTotals[sortedDates[i]]!,
+                                            color: i == touchedIndex
+                                                ? Colors.amber
+                                                : const Color(0xFF2196F3),
+                                            width: 16,
+                                            borderRadius:
+                                                const BorderRadius.only(
+                                              topLeft: Radius.circular(4),
+                                              topRight: Radius.circular(4),
+                                            ),
+                                            backDrawRodData:
+                                                BackgroundBarChartRodData(
+                                              show: true,
+                                              toY: maxY * 1.1,
+                                              color: const Color(0xFFEEEEEE),
+                                            ),
                                           ),
-                                          backDrawRodData:
-                                              BackgroundBarChartRodData(
-                                            show: true,
-                                            toY: maxY * 1.1,
-                                            color: const Color(0xFFEEEEEE),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+                                        ],
+                                      ),
                                 ],
                               ),
                             ),
