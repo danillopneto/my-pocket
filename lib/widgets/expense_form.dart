@@ -125,6 +125,131 @@ class _ExpenseFormState extends State<ExpenseForm> {
     });
   }
 
+  void _showImageZoomDialog(BuildContext context, Uint8List imageBytes) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.black,
+          child: Stack(
+            children: [
+              Center(
+                child: InteractiveViewer(
+                  panEnabled: true,
+                  boundaryMargin: const EdgeInsets.all(20),
+                  minScale: 0.5,
+                  maxScale: 4.0,
+                  child: Image.memory(
+                    imageBytes,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
+              Positioned(
+                top: 20,
+                right: 20,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.black54,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: IconButton(
+                    icon: const Icon(
+                      Icons.close,
+                      color: Colors.white,
+                      size: 24,
+                    ),
+                    onPressed: () => Navigator.of(context).pop(),
+                    tooltip: 'close'.tr(),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showNetworkImageZoomDialog(BuildContext context, String imageUrl) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.black,
+          child: Stack(
+            children: [
+              Center(
+                child: InteractiveViewer(
+                  panEnabled: true,
+                  boundaryMargin: const EdgeInsets.all(20),
+                  minScale: 0.5,
+                  maxScale: 4.0,
+                  child: Image.network(
+                    imageUrl,
+                    fit: BoxFit.contain,
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return Center(
+                        child: CircularProgressIndicator(
+                          value: loadingProgress.expectedTotalBytes != null
+                              ? loadingProgress.cumulativeBytesLoaded /
+                                  loadingProgress.expectedTotalBytes!
+                              : null,
+                        ),
+                      );
+                    },
+                    errorBuilder: (context, error, stackTrace) {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.error_outline,
+                              size: 64,
+                              color: Colors.red,
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'file_error'.tr(),
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+              Positioned(
+                top: 20,
+                right: 20,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.black54,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: IconButton(
+                    icon: const Icon(
+                      Icons.close,
+                      color: Colors.white,
+                      size: 24,
+                    ),
+                    onPressed: () => Navigator.of(context).pop(),
+                    tooltip: 'close'.tr(),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -205,16 +330,64 @@ class _ExpenseFormState extends State<ExpenseForm> {
             if (_previewBytes != null)
               Padding(
                 padding: const EdgeInsets.only(top: 8),
-                child: Image.memory(_previewBytes!,
-                    height: 200, fit: BoxFit.contain),
+                child: Stack(
+                  children: [
+                    Image.memory(_previewBytes!,
+                        height: 200, fit: BoxFit.contain),
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.black54,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: IconButton(
+                          icon: const Icon(
+                            Icons.zoom_in,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                          onPressed: () =>
+                              _showImageZoomDialog(context, _previewBytes!),
+                          tooltip: 'zoom_image'.tr(),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             if (_previewBytes == null &&
                 _existingReceiptImageUrl != null &&
                 _existingReceiptImageUrl!.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 8),
-                child: Image.network(_existingReceiptImageUrl!,
-                    height: 200, fit: BoxFit.contain),
+                child: Stack(
+                  children: [
+                    Image.network(_existingReceiptImageUrl!,
+                        height: 200, fit: BoxFit.contain),
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.black54,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: IconButton(
+                          icon: const Icon(
+                            Icons.zoom_in,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                          onPressed: () => _showNetworkImageZoomDialog(
+                              context, _existingReceiptImageUrl!),
+                          tooltip: 'zoom_image'.tr(),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             if (_extractedItems.isNotEmpty)
               Padding(
