@@ -4,6 +4,8 @@ import '../models/category.dart';
 import '../models/payment_method.dart';
 import '../services/currency_format_service.dart';
 import '../services/date_format_service.dart';
+import '../widgets/file_viewer_dialog.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class ExpenseCard extends StatelessWidget {
   final Expense expense;
@@ -92,6 +94,14 @@ class ExpenseCard extends StatelessWidget {
           direction: Axis.vertical,
           spacing: 4,
           children: [
+            // File viewer icon - only show if expense has a file attached
+            if (expense.receiptImageUrl != null &&
+                expense.receiptImageUrl!.isNotEmpty)
+              IconButton(
+                icon: const Icon(Icons.visibility, color: Colors.green),
+                onPressed: () => _showFileViewer(context),
+                tooltip: 'view_file'.tr(),
+              ),
             IconButton(
               icon: const Icon(Icons.edit, color: Colors.blue),
               onPressed: onEdit,
@@ -104,5 +114,18 @@ class ExpenseCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _showFileViewer(BuildContext context) {
+    if (expense.receiptImageUrl != null &&
+        expense.receiptImageUrl!.isNotEmpty) {
+      showDialog(
+        context: context,
+        builder: (context) => FileViewerDialog(
+          fileUrl: expense.receiptImageUrl!,
+          fileName: expense.description,
+        ),
+      );
+    }
   }
 }

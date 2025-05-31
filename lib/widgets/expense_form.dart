@@ -52,11 +52,13 @@ class _ExpenseFormState extends State<ExpenseForm> {
   List<ExpenseItem> _extractedItems = [];
   final ExtractExpensesDataService _extractService =
       ExtractExpensesDataService();
+  String? _existingReceiptImageUrl;
   Future<void> _pickFileAndAnalyze() async {
     setState(() {
       _aiError = null;
       _aiLoading = true;
-      _extractedItems = []; // Clear previous items
+      _extractedItems = [];
+      _existingReceiptImageUrl = null; // Hide old preview if new file picked
     });
     FilePickerResult? result;
     try {
@@ -138,13 +140,9 @@ class _ExpenseFormState extends State<ExpenseForm> {
     _installments = i?.installments ?? 1;
     _categoryId = i?.categoryId ?? '';
     _paymentMethodId = i?.paymentMethodId ?? '';
-    _receiptImageUrl =
-        i?.receiptImageUrl; // Initialize with existing receipt URL
-    _extractedItems =
-        []; // Initialize empty since items are no longer stored in expense model
-
-    // If editing an existing expense with a receipt, we don't need to store bytes
-    // since the image is already uploaded and we have the URL
+    _receiptImageUrl = i?.receiptImageUrl;
+    _existingReceiptImageUrl = i?.receiptImageUrl;
+    _extractedItems = [];
   }
 
   @override
@@ -208,6 +206,14 @@ class _ExpenseFormState extends State<ExpenseForm> {
               Padding(
                 padding: const EdgeInsets.only(top: 8),
                 child: Image.memory(_previewBytes!,
+                    height: 200, fit: BoxFit.contain),
+              ),
+            if (_previewBytes == null &&
+                _existingReceiptImageUrl != null &&
+                _existingReceiptImageUrl!.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Image.network(_existingReceiptImageUrl!,
                     height: 200, fit: BoxFit.contain),
               ),
             if (_extractedItems.isNotEmpty)

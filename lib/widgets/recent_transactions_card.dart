@@ -6,13 +6,13 @@ import 'package:easy_localization/easy_localization.dart';
 import '../services/currency_format_service.dart';
 import '../services/date_format_service.dart';
 import '../screens/expenses_list_screen.dart';
+import 'file_viewer_dialog.dart';
 
 class RecentTransactionsCard extends StatelessWidget {
   final List<Expense> expenses;
   final List<Category> categories;
   final List<PaymentMethod> paymentMethods;
   final int maxItems;
-
   const RecentTransactionsCard({
     super.key,
     required this.expenses,
@@ -20,6 +20,19 @@ class RecentTransactionsCard extends StatelessWidget {
     required this.paymentMethods,
     this.maxItems = 5,
   });
+
+  void _showFileViewer(BuildContext context, Expense expense) {
+    if (expense.receiptImageUrl != null &&
+        expense.receiptImageUrl!.isNotEmpty) {
+      showDialog(
+        context: context,
+        builder: (context) => FileViewerDialog(
+          fileUrl: expense.receiptImageUrl!,
+          fileName: expense.description,
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -142,13 +155,39 @@ class RecentTransactionsCard extends StatelessWidget {
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
-                                  Text(
-                                    CurrencyFormatService.formatCurrency(
-                                        e.value, context),
-                                    style: const TextStyle(
-                                        color: Colors.red,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 15),
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      // File viewer icon for expenses with receipts
+                                      if (e.receiptImageUrl != null &&
+                                          e.receiptImageUrl!.isNotEmpty)
+                                        Padding(
+                                          padding:
+                                              const EdgeInsets.only(right: 8.0),
+                                          child: IconButton(
+                                            icon: const Icon(Icons.visibility,
+                                                size: 20),
+                                            color:
+                                                Theme.of(context).primaryColor,
+                                            tooltip: 'view_file'.tr(),
+                                            onPressed: () =>
+                                                _showFileViewer(context, e),
+                                            padding: EdgeInsets.zero,
+                                            constraints: const BoxConstraints(
+                                              minWidth: 20,
+                                              minHeight: 20,
+                                            ),
+                                          ),
+                                        ),
+                                      Text(
+                                        CurrencyFormatService.formatCurrency(
+                                            e.value, context),
+                                        style: const TextStyle(
+                                            color: Colors.red,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 15),
+                                      ),
+                                    ],
                                   ),
                                   const SizedBox(height: 2),
                                   Text(

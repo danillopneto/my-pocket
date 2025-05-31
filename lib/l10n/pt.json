@@ -137,8 +137,14 @@
   "search_by_item_name": "Buscar por nome do item",
   "clear_search": "Limpar busca",
   "last_purchased": "Última compra",
-  "no_results_found": "Nenhum resultado encontrado para sua busca",  "search_expenses": "Buscar gastos",
-  "search_items_description_place": "Buscar itens, descrição ou local...",
+  "no_results_found": "Nenhum resultado encontrado para sua busca",  "search_expenses": "Buscar gastos",  "search_items_description_place": "Buscar itens, descrição ou local...",
   "search_results": "Resultados da busca",
-  "when_last_bought": "Quando comprei {0} pela última vez?"
+  "when_last_bought": "Quando comprei {0} pela última vez?",
+  "view_file": "Ver Arquivo",
+  "view_receipt": "Ver Recibo",
+  "file_viewer": "Visualizador de Arquivos",
+  "receipt_image": "Imagem do Recibo",
+  "no_file_attached": "Nenhum arquivo anexado",
+  "download_file": "Baixar Arquivo",
+  "file_error": "Erro ao carregar arquivo"
 }

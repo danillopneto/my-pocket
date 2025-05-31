@@ -138,8 +138,14 @@
   "clear_search": "Clear search",
   "last_purchased": "Last purchased",
   "no_results_found": "No results found for your search",  "search_expenses": "Search expenses",
-  "search_items_description_place": "Search items, description, or place...",
-  "search_results": "Search Results",
+  "search_items_description_place": "Search items, description, or place...",  "search_results": "Search Results",
   "when_last_bought": "When did I last buy {0}?",
-  "close": "Close"
+  "close": "Close",
+  "view_file": "View File",
+  "view_receipt": "View Receipt",
+  "file_viewer": "File Viewer",
+  "receipt_image": "Receipt Image",
+  "no_file_attached": "No file attached",
+  "download_file": "Download File",
+  "file_error": "Error loading file"
 }
