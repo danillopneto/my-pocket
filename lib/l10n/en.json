@@ -1,5 +1,7 @@
-{
-  "app_title": "My Pocket",
+{  "app_title": "My Pocket",
+  "app_tagline": "Managing your finances",
+  "loading_preferences": "Loading preferences...",
+  "loading_app": "Loading app...",
   "welcome": "Welcome to My Pocket!",
   "login": "Login",
   "login_with_google": "Login with Google",

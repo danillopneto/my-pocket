@@ -14,7 +14,7 @@ import 'screens/settings_screen.dart';
 import 'firebase_options.dart';
 import 'services/user_preferences_service.dart';
 import 'screens/bulk_add_expenses.dart';
-import 'widgets/app_loading_indicator.dart';
+import 'widgets/splash_screen.dart';
 import 'utils/firebase_user_utils.dart';
 
 void main() async {
@@ -80,11 +80,18 @@ class _MyAppState extends State<MyApp> {
     // No-op: EasyLocalization handles locale
   }
 
+  String _getLoadingMessage() {
+    // Fallback message when localization context is not available yet
+    return 'Loading preferences...';
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_loadingPrefs) {
-      return const MaterialApp(
-        home: Scaffold(body: Center(child: AppLoadingIndicator())),
+      return MaterialApp(
+        home: SplashScreen(
+          message: _getLoadingMessage(),
+        ),
       );
     }
     return BrowserTabTitleUpdater(
@@ -123,7 +130,9 @@ class _MyAppState extends State<MyApp> {
             stream: FirebaseAuth.instance.authStateChanges(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Scaffold(body: AppLoadingIndicator());
+                return SplashScreen(
+                  message: 'loading_app'.tr(),
+                );
               }
               if (snapshot.hasData) {
                 return DashboardScreen();

@@ -1,5 +1,7 @@
-{
-  "app_title": "Mi Bolsillo",
+{  "app_title": "Mi Bolsillo",
+  "app_tagline": "Gestionando tus finanzas",
+  "loading_preferences": "Cargando preferencias...",
+  "loading_app": "Cargando aplicación...",
   "welcome": "¡Bienvenido a Mi Bolsillo!",
   "login": "Iniciar sesión",
   "login_with_google": "Iniciar sesión con Google",
