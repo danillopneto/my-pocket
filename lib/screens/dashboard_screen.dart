@@ -49,13 +49,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
   String? _aiAnalysisResult;
   bool _aiAnalysisLoading = false;
   String? _aiAnalysisError;
-
   @override
   void initState() {
     super.initState();
     final now = DateTime.now();
     _filterStartDate = now.subtract(Duration(days: 30));
-    _filterEndDate = now;
+    // Set end date to end of today to include all expenses added today
+    _filterEndDate = DateTime(now.year, now.month, now.day, 23, 59, 59);
   }
 
   @override

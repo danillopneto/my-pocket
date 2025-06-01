@@ -59,7 +59,8 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
     _loadUserPrefs();
     final now = DateTime.now();
     _filterStartDate = now.subtract(Duration(days: 30));
-    _filterEndDate = now;
+    // Set end date to end of today to include all expenses added today
+    _filterEndDate = DateTime(now.year, now.month, now.day, 23, 59, 59);
 
     // Add search listener
     _searchController.addListener(_onSearchChanged);

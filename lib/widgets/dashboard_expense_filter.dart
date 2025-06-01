@@ -31,7 +31,6 @@ class _DashboardExpenseFilterState extends State<DashboardExpenseFilter> {
   DateTime? _endDate;
   List<String> _categoryIds = [];
   bool _isExpanded = false; // Default to collapsed state
-
   @override
   void initState() {
     super.initState();
@@ -39,7 +38,9 @@ class _DashboardExpenseFilterState extends State<DashboardExpenseFilter> {
     if (widget.initialStartDate == null || widget.initialEndDate == null) {
       final now = DateTime.now();
       _startDate = widget.initialStartDate ?? DateTime(now.year, now.month, 1);
-      _endDate = widget.initialEndDate ?? now;
+      // Set end date to end of today to include all expenses added today
+      _endDate = widget.initialEndDate ??
+          DateTime(now.year, now.month, now.day, 23, 59, 59);
     } else {
       _startDate = widget.initialStartDate;
       _endDate = widget.initialEndDate;
@@ -70,7 +71,9 @@ class _DashboardExpenseFilterState extends State<DashboardExpenseFilter> {
     final now = DateTime.now();
     setState(() {
       _startDate = widget.initialStartDate ?? DateTime(now.year, now.month, 1);
-      _endDate = widget.initialEndDate ?? now;
+      // Set end date to end of today to include all expenses added today
+      _endDate = widget.initialEndDate ??
+          DateTime(now.year, now.month, now.day, 23, 59, 59);
       _categoryIds = [];
     });
   }
