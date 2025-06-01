@@ -18,7 +18,7 @@ class ExtractExpensesDataService {
     final prompt =
         '''Analyze the following image looking for expenses and extract all data in the following JSON format:
 {
-    "description": "{Summary of all expenses}",
+    "description": "{Summary of purchase in user language (max 5 words)}",
     "place": "{company name}",
     "date": "{date of the expense}",
     "category": "{name of the category}",
@@ -59,7 +59,7 @@ IMPORTANT INSTRUCTIONS:
     final prompt =
         '''Analyze the following image looking for expenses and extract all data in the following JSON format:
 {
-    "description": "{Summary of all expenses}",
+    "description": "{Summary of purchase in user language (max 5 words)}",
     "place": "{company name}",
     "date": "{date of the expense}",
     "category": "{name of the category}",

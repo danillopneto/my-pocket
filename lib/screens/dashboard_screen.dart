@@ -22,7 +22,6 @@ import '../services/expenses_service.dart';
 import '../widgets/edit_expense_dialog.dart';
 import '../services/analyze_expenses_service.dart';
 import '../services/summary_service.dart';
-import '../services/migration_service.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -35,7 +34,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   final FirestoreService _firestoreService = FirestoreService();
   final UserPreferencesService _prefsService = UserPreferencesService();
   final SummaryService _summaryService = SummaryService();
-  final MigrationService _migrationService = MigrationService();
 
   DateTime? _filterStartDate;
   DateTime? _filterEndDate;
@@ -52,8 +50,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   void initState() {
     super.initState();
-    // Run migrations in background after a short delay
-    _migrationService.runMigrationsInBackground();
     final now = DateTime.now();
     _filterStartDate = DateTime(now.year, now.month, 1);
     _filterEndDate = now;
@@ -97,8 +93,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       if (!expenseSnap.hasData) {
                         return const AppLoadingIndicator();
                       }
-                      final allExpenses = expenseSnap.data!;
-                      final expenses = allExpenses;
+                      final expenses = expenseSnap.data!;
                       // --- Summary calculations ---
                       final summary = _summaryService.calculateSummary(
                         expenses,
@@ -373,11 +368,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                             ],
                                           ),
                                         ),
-                                      ),
-
-                                      // Recent Transactions (full width below chart on mobile)
+                                      ), // Recent Transactions (full width below chart on mobile)
                                       RecentTransactionsCard(
-                                        expenses: expenses,
                                         categories: categories,
                                         paymentMethods: paymentMethods,
                                         maxItems:
@@ -453,7 +445,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                           height:
                                               400, // Fixed height for the container
                                           child: RecentTransactionsCard(
-                                            expenses: expenses,
                                             categories: categories,
                                             paymentMethods: paymentMethods,
                                             maxItems:
@@ -704,6 +695,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   paymentMethodId: paymentMethods.isNotEmpty
                                       ? paymentMethods.first.id ?? ''
                                       : '',
+                                  itemNames:
+                                      null, // New expenses start with no items
                                 ),
                                 categories: categories,
                                 paymentMethods: paymentMethods,
@@ -711,7 +704,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 onSubmit: (expense) async {
                                   await ExpensesService(
                                           firestoreService: _firestoreService)
-                                      .updateExpense(context, expense, expense);
+                                      .upsertExpense(context, expense, expense);
                                   if (!context.mounted) return;
                                   Navigator.of(context).pop();
                                 },

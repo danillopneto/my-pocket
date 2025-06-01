@@ -115,7 +115,7 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
           paymentMethods: _paymentMethods,
           isNew: false,
           onSubmit: (edited) async {
-            await _expensesService.updateExpense(context, expense, edited);
+            await _expensesService.upsertExpense(context, expense, edited);
           },
         );
       },

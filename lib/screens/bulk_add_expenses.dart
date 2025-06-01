@@ -258,6 +258,8 @@ class _BulkAddExpensesScreenState extends State<BulkAddExpensesScreen> {
                                     place: place,
                                     categoryId: category.id!,
                                     paymentMethodId: paymentMethod.id!,
+                                    itemNames:
+                                        null, // Bulk imports don't have extracted items
                                   );
                                   validExpenses.add(expense);
                                   added++;

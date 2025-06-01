@@ -8,7 +8,7 @@ class ExpensesService {
   final FirestoreService firestoreService;
 
   ExpensesService({required this.firestoreService});
-  Future<void> updateExpense(
+  Future<void> upsertExpense(
       BuildContext context, Expense oldExpense, Expense edited) async {
     await withCurrentUserAsync((user) async {
       final updated = Expense(
@@ -22,6 +22,7 @@ class ExpensesService {
         categoryId: edited.categoryId,
         paymentMethodId: edited.paymentMethodId,
         receiptImageUrl: edited.receiptImageUrl,
+        itemNames: edited.itemNames, // Preserve itemNames from edited expense
       );
 
       // Check if this is a new expense (id is null) or existing expense

@@ -610,7 +610,14 @@ class _ExpenseFormState extends State<ExpenseForm> {
                       // Use existing URL or null if upload failed
                       finalReceiptImageUrl = _receiptImageUrl;
                     }
-                  }
+                  } // Populate itemNames from extracted items for search functionality
+                  final itemNames = _extractedItems.isNotEmpty
+                      ? _extractedItems
+                          .map((item) => item.name.toLowerCase().trim())
+                          .where((name) => name.isNotEmpty)
+                          .toSet() // Remove duplicates
+                          .toList()
+                      : null;
 
                   widget.onSubmit(
                     Expense(
@@ -624,6 +631,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
                       categoryId: _categoryId,
                       paymentMethodId: _paymentMethodId,
                       receiptImageUrl: finalReceiptImageUrl,
+                      itemNames: itemNames,
                     ),
                   );
                 }

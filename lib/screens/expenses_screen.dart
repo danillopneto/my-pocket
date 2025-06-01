@@ -80,7 +80,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
         paymentMethods: _paymentMethods,
         isNew: false,
         onSubmit: (edited) async {
-          await _expensesService.updateExpense(context, expense, edited);
+          await _expensesService.upsertExpense(context, expense, edited);
           if (!context.mounted) return;
           Navigator.of(context).pop();
           _loadRecentExpenses();
@@ -108,12 +108,13 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
           categoryId: _categories.isNotEmpty ? _categories.first.id ?? '' : '',
           paymentMethodId:
               _paymentMethods.isNotEmpty ? _paymentMethods.first.id ?? '' : '',
+          itemNames: null, // New expenses start with no items
         ),
         categories: _categories,
         paymentMethods: _paymentMethods,
         isNew: true,
         onSubmit: (expense) async {
-          await _expensesService.updateExpense(context, expense, expense);
+          await _expensesService.upsertExpense(context, expense, expense);
           if (!context.mounted) return;
           Navigator.of(context).pop();
           _loadRecentExpenses();

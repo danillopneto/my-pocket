@@ -12,6 +12,8 @@ class Expense {
   final String categoryId;
   final String paymentMethodId;
   final String? receiptImageUrl; // URL of the uploaded receipt image
+  final List<String>? itemNames; // List of item names for search functionality
+
   Expense({
     this.id,
     required this.date,
@@ -23,6 +25,7 @@ class Expense {
     required this.categoryId,
     required this.paymentMethodId,
     this.receiptImageUrl,
+    this.itemNames,
   });
 
   factory Expense.fromMap(Map<String, dynamic> map, {String? id}) {
@@ -45,6 +48,9 @@ class Expense {
       categoryId: map['categoryId'] ?? '',
       paymentMethodId: map['paymentMethodId'] ?? '',
       receiptImageUrl: map['receiptImageUrl'],
+      itemNames: map['itemNames'] != null
+          ? List<String>.from(map['itemNames'] as List)
+          : null,
     );
   }
 
@@ -59,6 +65,7 @@ class Expense {
       'categoryId': categoryId,
       'paymentMethodId': paymentMethodId,
       'receiptImageUrl': receiptImageUrl,
+      'itemNames': itemNames,
     };
   }
 }
