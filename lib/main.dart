@@ -147,7 +147,7 @@ class _MyAppState extends State<MyApp> {
             '/add-expenses': (context) => AddMultipleExpensesScreen(),
             '/expenses-list': (context) => const ExpensesListScreen(),
             '/categories': (context) => const CategoriesScreen(),
-            '/paymentMethods': (context) => const PaymentMethodsScreen(),
+            '/payment-methods': (context) => const PaymentMethodsScreen(),
             '/settings': (context) => SettingsScreen(
                   onThemeChanged: setThemeMode,
                   onLocaleChanged: setLocale,

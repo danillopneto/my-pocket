@@ -62,11 +62,11 @@ class DashboardEmptyState extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 8),
-
-            // Get started message
+            const SizedBox(height: 8), // Get started message
             Text(
-              'get_started_message'.tr(),
+              categories.isEmpty || paymentMethods.isEmpty
+                  ? 'setup_categories_and_payment_methods'.tr()
+                  : 'get_started_message'.tr(),
               style: theme.textTheme.bodyLarge?.copyWith(
                 color: colorScheme.onSurface.withOpacity(0.7),
               ),
@@ -74,24 +74,97 @@ class DashboardEmptyState extends StatelessWidget {
             ),
             const SizedBox(height: 32),
 
-            // Add expense button
-            ElevatedButton.icon(
-              onPressed: onAddExpense,
-              icon: const Icon(Icons.add),
-              label: Text('add_your_first_expense'.tr()),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: colorScheme.primary,
-                foregroundColor: colorScheme.onPrimary,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 12,
+            // Show setup requirements prominently if categories or payment methods are empty
+            if (categories.isEmpty || paymentMethods.isEmpty) ...[
+              Card(
+                elevation: 3,
+                color: colorScheme.errorContainer,
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.warning_outlined,
+                        color: colorScheme.onErrorContainer,
+                        size: 32,
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        'setup_required_title'.tr(),
+                        style: theme.textTheme.titleLarge?.copyWith(
+                          color: colorScheme.onErrorContainer,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'setup_required_message'.tr(),
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: colorScheme.onErrorContainer,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Setup buttons
+                      Wrap(
+                        spacing: 12,
+                        runSpacing: 12,
+                        alignment: WrapAlignment.center,
+                        children: [
+                          if (categories.isEmpty)
+                            ElevatedButton.icon(
+                              onPressed: () {
+                                Navigator.of(context).pushNamed('/categories');
+                              },
+                              icon: const Icon(Icons.category_outlined),
+                              label: Text('manage_categories'.tr()),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: colorScheme.primary,
+                                foregroundColor: colorScheme.onPrimary,
+                              ),
+                            ),
+                          if (paymentMethods.isEmpty)
+                            ElevatedButton.icon(
+                              onPressed: () {
+                                Navigator.of(context)
+                                    .pushNamed('/payment-methods');
+                              },
+                              icon: const Icon(Icons.payment),
+                              label: Text('manage_payment_methods'.tr()),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: colorScheme.primary,
+                                foregroundColor: colorScheme.onPrimary,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 24),
+              const SizedBox(height: 24),
+            ] else ...[
+              // Add expense button (only show when setup is complete)
+              ElevatedButton.icon(
+                onPressed: onAddExpense,
+                icon: const Icon(Icons.add),
+                label: Text('add_your_first_expense'.tr()),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: colorScheme.primary,
+                  foregroundColor: colorScheme.onPrimary,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+            ],
 
-            // Setup suggestions if categories or payment methods are empty
-            if (categories.isEmpty || paymentMethods.isEmpty) ...[
+            // Optional setup suggestions if everything is ready
+            if (categories.isNotEmpty && paymentMethods.isNotEmpty) ...[
               Card(
                 elevation: 1,
                 color: colorScheme.surfaceContainerLow,
@@ -106,7 +179,7 @@ class DashboardEmptyState extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'setup_categories_first'.tr(),
+                        'setup_categories_and_payment_methods'.tr(),
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: colorScheme.onSurface.withOpacity(0.8),
                         ),
@@ -114,29 +187,27 @@ class DashboardEmptyState extends StatelessWidget {
                       ),
                       const SizedBox(height: 16),
 
-                      // Setup buttons
+                      // Additional setup buttons
                       Wrap(
                         spacing: 8,
                         runSpacing: 8,
                         alignment: WrapAlignment.center,
                         children: [
-                          if (categories.isEmpty)
-                            TextButton.icon(
-                              onPressed: () {
-                                Navigator.of(context).pushNamed('/categories');
-                              },
-                              icon: const Icon(Icons.category_outlined),
-                              label: Text('manage_categories'.tr()),
-                            ),
-                          if (paymentMethods.isEmpty)
-                            TextButton.icon(
-                              onPressed: () {
-                                Navigator.of(context)
-                                    .pushNamed('/payment-methods');
-                              },
-                              icon: const Icon(Icons.payment),
-                              label: Text('manage_payment_methods'.tr()),
-                            ),
+                          TextButton.icon(
+                            onPressed: () {
+                              Navigator.of(context).pushNamed('/categories');
+                            },
+                            icon: const Icon(Icons.category_outlined),
+                            label: Text('manage_categories'.tr()),
+                          ),
+                          TextButton.icon(
+                            onPressed: () {
+                              Navigator.of(context)
+                                  .pushNamed('/payment-methods');
+                            },
+                            icon: const Icon(Icons.payment),
+                            label: Text('manage_payment_methods'.tr()),
+                          ),
                         ],
                       ),
                     ],
