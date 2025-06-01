@@ -9,7 +9,7 @@ class EditExpenseDialog extends StatelessWidget {
   final Expense expense;
   final List<Category> categories;
   final List<PaymentMethod> paymentMethods;
-  final void Function(Expense edited) onSubmit;
+  final Future<void> Function(Expense edited) onSubmit;
   final bool isNew;
 
   const EditExpenseDialog({
@@ -27,8 +27,8 @@ class EditExpenseDialog extends StatelessWidget {
       backgroundColor: Theme.of(context).colorScheme.surface,
       title: Text((isNew ? 'add_expense' : 'edit_expense').tr()),
       content: ExpenseForm(
-        onSubmit: (edited) {
-          onSubmit(edited);
+        onSubmit: (edited) async {
+          await onSubmit(edited);
           if (context.mounted) Navigator.of(context).pop();
         },
         initial: expense,

@@ -157,7 +157,8 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
                   setState(() {
                     _pendingDeleteIds.add(expense.id!);
                   });
-                  await _expensesService.deleteExpenseWithUndo(
+                  final wasDeleted =
+                      await _expensesService.deleteExpenseWithUndo(
                     context: context,
                     expense: expense,
                     pendingDeleteIds: _pendingDeleteIds,
@@ -168,8 +169,11 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
                     _pendingDeleteIds.remove(expense.id!);
                   });
                   _loadRecentExpenses();
-                  showAppSnackbar(context, 'expense_deleted'.tr(),
-                      backgroundColor: Colors.green);
+                  // Only show success message if actually deleted
+                  if (wasDeleted) {
+                    showAppSnackbar(context, 'expense_deleted'.tr(),
+                        backgroundColor: Colors.green);
+                  }
                 },
                 showTotal: false,
               ),

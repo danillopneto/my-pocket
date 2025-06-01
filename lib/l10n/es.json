@@ -83,6 +83,10 @@
   "confirm_delete": "Confirmar Eliminación",
   "delete_expense_confirm": "¿Está seguro de que desea eliminar este gasto?",
   "delete": "Eliminar",
+  "undo": "Deshacer",
+  "deleting_expense_undo": "Eliminando gasto... Toca Deshacer para cancelar",
+  "deleting_expense": "Eliminando gasto...",
+  "delete_expense_error": "Error al eliminar el gasto",
   "no_expenses_to_display": "No hay gastos para mostrar",
   "payment_method_deleted": "Método de pago eliminado",
   "are_you_sure_delete_payment_method": "¿Está seguro de que desea eliminar este método de pago?",
@@ -154,5 +158,7 @@
   "receipt_image": "Imagen del Recibo",
   "no_file_attached": "No hay archivo adjunto",
   "download_file": "Descargar Archivo",
-  "file_error": "Error al cargar archivo"
+  "file_error": "Error al cargar archivo",
+  "saving": "Guardando...",
+  "saving_expense": "Guardando gasto..."
 }

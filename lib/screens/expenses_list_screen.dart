@@ -58,7 +58,7 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
     _loadEntities();
     _loadUserPrefs();
     final now = DateTime.now();
-    _filterStartDate = DateTime(now.year, now.month, 1);
+    _filterStartDate = now.subtract(Duration(days: 30));
     _filterEndDate = now;
 
     // Add search listener
@@ -129,10 +129,12 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
     );
     if (!mounted) return;
     if (confirm != true) return;
+
     setState(() {
       _pendingDeleteIds.add(expense.id!);
     });
-    await _expensesService.deleteExpenseWithUndo(
+
+    final wasDeleted = await _expensesService.deleteExpenseWithUndo(
       context: context,
       expense: expense,
       pendingDeleteIds: _pendingDeleteIds,
@@ -140,12 +142,17 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
         if (mounted) setState(() {});
       },
     );
+
     if (!mounted) return;
     setState(() {
       _pendingDeleteIds.remove(expense.id!);
     });
-    showAppSnackbar(context, 'expense_deleted'.tr(),
-        backgroundColor: Colors.green);
+
+    // Only show success message if actually deleted
+    if (wasDeleted) {
+      showAppSnackbar(context, 'expense_deleted'.tr(),
+          backgroundColor: Colors.green);
+    }
     // No need to reload, stream will update
   }
 

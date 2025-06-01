@@ -27,7 +27,7 @@ class ReceiptUploadService {
       // Generate unique filename to prevent collisions
       final timestamp = DateTime.now().millisecondsSinceEpoch;
       final fileExtension = path.extension(originalFileName).toLowerCase();
-      final fileName = 'receipt_${timestamp}$fileExtension';
+      final fileName = 'receipt_$timestamp$fileExtension';
 
       // Industry standard file organization structure
       final filePath = 'receipts/${user.uid}/$year/$month/$fileName';

@@ -15,7 +15,7 @@ import '../services/extract_expenses_data_service.dart';
 import '../services/receipt_upload_service.dart';
 
 class ExpenseForm extends StatefulWidget {
-  final void Function(Expense expense) onSubmit;
+  final Future<void> Function(Expense expense) onSubmit;
   final Expense? initial;
   final List<Category> categories;
   final List<PaymentMethod> paymentMethods;
@@ -38,6 +38,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
   late TextEditingController _valueController;
   late TextEditingController _placeController;
   bool _aiLoading = false;
+  bool _saving = false; // Add loading state for save operation
   String? _aiError;
   late DateTime _date;
   late String _description;
@@ -581,64 +582,88 @@ class _ExpenseFormState extends State<ExpenseForm> {
             ),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: () async {
-                if (_formKey.currentState?.validate() ?? false) {
-                  _formKey.currentState
-                      ?.save(); // Save form state to trigger onSaved callbacks
+              onPressed: (_saving || _aiLoading)
+                  ? null
+                  : () async {
+                      if (_formKey.currentState?.validate() ?? false) {
+                        setState(() => _saving = true);
 
-                  String? finalReceiptImageUrl = _receiptImageUrl;
+                        try {
+                          _formKey.currentState
+                              ?.save(); // Save form state to trigger onSaved callbacks
 
-                  // Upload the receipt image if we have new image data
-                  if (_previewBytes != null && _selectedFileName != null) {
-                    try {
-                      finalReceiptImageUrl =
-                          await ReceiptUploadService.uploadReceiptImage(
-                        imageBytes: _previewBytes!,
-                        originalFileName: _selectedFileName!,
-                      );
-                    } catch (e) {
-                      // Show error but don't prevent saving the expense
-                      if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('receipt_upload_error'.tr()),
-                            backgroundColor:
-                                Theme.of(context).colorScheme.error,
-                          ),
-                        );
+                          String? finalReceiptImageUrl = _receiptImageUrl;
+
+                          // Upload the receipt image if we have new image data
+                          if (_previewBytes != null &&
+                              _selectedFileName != null) {
+                            try {
+                              finalReceiptImageUrl =
+                                  await ReceiptUploadService.uploadReceiptImage(
+                                imageBytes: _previewBytes!,
+                                originalFileName: _selectedFileName!,
+                              );
+                            } catch (e) {
+                              // Show error but don't prevent saving the expense
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('receipt_upload_error'.tr()),
+                                    backgroundColor:
+                                        Theme.of(context).colorScheme.error,
+                                  ),
+                                );
+                              }
+                              // Use existing URL or null if upload failed
+                              finalReceiptImageUrl = _receiptImageUrl;
+                            }
+                          } // Populate itemNames from extracted items for search functionality
+                          final itemNames = _extractedItems.isNotEmpty
+                              ? _extractedItems
+                                  .map((item) => item.name.toLowerCase().trim())
+                                  .where((name) => name.isNotEmpty)
+                                  .toSet() // Remove duplicates
+                                  .toList()
+                              : null;
+                          await widget.onSubmit(
+                            Expense(
+                              id: widget.initial?.id,
+                              date: _date,
+                              createdAt:
+                                  widget.initial?.createdAt ?? DateTime.now(),
+                              description: _description,
+                              value: _value,
+                              installments: _installments,
+                              place: _place,
+                              categoryId: _categoryId,
+                              paymentMethodId: _paymentMethodId,
+                              receiptImageUrl: finalReceiptImageUrl,
+                              itemNames: itemNames,
+                            ),
+                          );
+                        } finally {
+                          if (mounted) {
+                            setState(() => _saving = false);
+                          }
+                        }
                       }
-                      // Use existing URL or null if upload failed
-                      finalReceiptImageUrl = _receiptImageUrl;
-                    }
-                  } // Populate itemNames from extracted items for search functionality
-                  final itemNames = _extractedItems.isNotEmpty
-                      ? _extractedItems
-                          .map((item) => item.name.toLowerCase().trim())
-                          .where((name) => name.isNotEmpty)
-                          .toSet() // Remove duplicates
-                          .toList()
-                      : null;
-
-                  widget.onSubmit(
-                    Expense(
-                      id: widget.initial?.id,
-                      date: _date,
-                      createdAt: widget.initial?.createdAt ?? DateTime.now(),
-                      description: _description,
-                      value: _value,
-                      installments: _installments,
-                      place: _place,
-                      categoryId: _categoryId,
-                      paymentMethodId: _paymentMethodId,
-                      receiptImageUrl: finalReceiptImageUrl,
-                      itemNames: itemNames,
-                    ),
-                  );
-                }
-              },
-              child: Text(widget.initial == null
-                  ? 'add_expense'.tr()
-                  : 'save_changes'.tr()),
+                    },
+              child: _saving
+                  ? Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                        const SizedBox(width: 8),
+                        Text('saving_expense'.tr()),
+                      ],
+                    )
+                  : Text(widget.initial == null
+                      ? 'add_expense'.tr()
+                      : 'save_changes'.tr()),
             ),
           ],
         ),

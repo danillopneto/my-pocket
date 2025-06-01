@@ -84,6 +84,10 @@
   "confirm_delete": "Confirmar Exclusão",
   "delete_expense_confirm": "Tem certeza de que deseja excluir esta despesa?",
   "delete": "Excluir",
+  "undo": "Desfazer",
+  "deleting_expense_undo": "Excluindo despesa... Toque em Desfazer para cancelar",
+  "deleting_expense": "Excluindo despesa...",
+  "delete_expense_error": "Falha ao excluir despesa",
   "no_expenses_to_display": "Nenhuma despesa para exibir",
   "payment_method_deleted": "Método de pagamento excluído",
   "are_you_sure_delete_payment_method": "Tem certeza de que deseja excluir este método de pagamento?",
@@ -154,5 +158,7 @@
   "receipt_image": "Imagem do Recibo",
   "no_file_attached": "Nenhum arquivo anexado",
   "download_file": "Baixar Arquivo",
-  "file_error": "Erro ao carregar arquivo"
+  "file_error": "Erro ao carregar arquivo",
+  "saving": "Salvando...",
+  "saving_expense": "Salvando despesa..."
 }

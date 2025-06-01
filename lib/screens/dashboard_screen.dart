@@ -51,7 +51,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void initState() {
     super.initState();
     final now = DateTime.now();
-    _filterStartDate = DateTime(now.year, now.month, 1);
+    _filterStartDate = now.subtract(Duration(days: 30));
     _filterEndDate = now;
   }
 

@@ -1,6 +1,6 @@
 [
   {
-    "origin": ["http://localhost:5000", "https://localhost:5000"],
+    "origin": ["http://localhost:5000", "https://localhost:5000", "https://meubolsohoje.web.app/"],
     "method": ["GET", "POST", "PUT", "DELETE", "HEAD"],
     "maxAgeSeconds": 3600,
     "responseHeader": ["Content-Type", "Authorization", "x-goog-resumable"]
