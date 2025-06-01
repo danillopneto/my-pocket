@@ -21,6 +21,7 @@ import '../widgets/dashboard_search_card.dart';
 import '../services/expenses_service.dart';
 import '../widgets/edit_expense_dialog.dart';
 import '../widgets/floating_actions.dart';
+import '../widgets/dashboard_empty_state.dart';
 
 import '../services/analyze_expenses_service.dart';
 import '../services/summary_service.dart';
@@ -96,6 +97,53 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         return const AppLoadingIndicator();
                       }
                       final expenses = expenseSnap.data!;
+
+                      // Show empty state if no expenses exist
+                      if (expenses.isEmpty) {
+                        return ScaffoldWithDrawer(
+                          selected: 'dashboard',
+                          titleKey: 'dashboard',
+                          body: DashboardEmptyState(
+                            categories: categories,
+                            paymentMethods: paymentMethods,
+                            onAddExpense: () {
+                              showDialog(
+                                context: context,
+                                builder: (context) => EditExpenseDialog(
+                                  expense: Expense(
+                                    id: null,
+                                    date: DateTime.now(),
+                                    createdAt: DateTime.now(),
+                                    description: '',
+                                    value: 0,
+                                    installments: 1,
+                                    place: '',
+                                    categoryId: categories.isNotEmpty
+                                        ? categories.first.id ?? ''
+                                        : '',
+                                    paymentMethodId: paymentMethods.isNotEmpty
+                                        ? paymentMethods.first.id ?? ''
+                                        : '',
+                                    itemNames: null,
+                                  ),
+                                  categories: categories,
+                                  paymentMethods: paymentMethods,
+                                  isNew: true,
+                                  onSubmit: (expense) async {
+                                    await ExpensesService(
+                                            firestoreService: _firestoreService)
+                                        .upsertExpense(
+                                            context, expense, expense);
+                                    if (!context.mounted) return;
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              );
+                            },
+                          ),
+                        );
+                      }
+
                       // --- Summary calculations ---
                       final summary = _summaryService.calculateSummary(
                         expenses,

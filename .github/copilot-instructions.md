@@ -28,6 +28,9 @@
    - Use dependency injection for services where possible.
    - Follow existing code style and structure for consistency.
 
+8. **Running**
+   - Always run `flutter run -d web-server --web-port=5000` to test web changes.
+
 > **Summary:**
 > - Always use language files for text.
 > - Always use currency/date format services for values.
