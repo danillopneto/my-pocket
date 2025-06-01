@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:my_pocket/screens/add_multiple_expenses_screen.dart';
 import 'package:universal_html/html.dart' as html;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'screens/login_screen.dart';
 import 'screens/dashboard_screen.dart';
-import 'screens/expenses_screen.dart';
 import 'screens/expenses_list_screen.dart';
 import 'screens/categories_screen.dart';
 import 'screens/payment_methods_screen.dart';
@@ -135,7 +135,7 @@ class _MyAppState extends State<MyApp> {
           routes: {
             '/login': (context) => const LoginScreen(),
             '/dashboard': (context) => DashboardScreen(),
-            '/expenses': (context) => const ExpensesScreen(),
+            '/add-expenses': (context) => AddMultipleExpensesScreen(),
             '/expenses-list': (context) => const ExpensesListScreen(),
             '/categories': (context) => const CategoriesScreen(),
             '/paymentMethods': (context) => const PaymentMethodsScreen(),

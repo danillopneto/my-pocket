@@ -33,8 +33,8 @@ final List<DrawerNavItem> drawerNavItems = [
     isExpansion: true,
     children: [
       DrawerNavItem(
-        route: '/expenses',
-        labelKey: 'add_expense',
+        route: '/add-expenses',
+        labelKey: 'add_multiple_expenses',
         icon: Icons.add_chart,
         selectedKey: 'expenses',
       ),
