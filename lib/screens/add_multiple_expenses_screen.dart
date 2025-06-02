@@ -25,7 +25,10 @@ class _AddMultipleExpensesScreenState extends State<AddMultipleExpensesScreen> {
               Icon(
                 Icons.add_box_outlined,
                 size: 120,
-                color: Theme.of(context).colorScheme.primary.withOpacity(0.6),
+                color: Theme.of(context)
+                    .colorScheme
+                    .primary
+                    .withValues(alpha: (0.6 * 255).toDouble()),
               ),
               const SizedBox(height: 24),
               Text(

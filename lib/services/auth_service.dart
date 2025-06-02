@@ -23,7 +23,6 @@ class AuthService {
         final userCredential = await _auth.signInWithPopup(provider);
         return userCredential.user;
       } catch (e) {
-        print('Google Sign-In error: $e');
         return null;
       }
     } else {
@@ -56,8 +55,7 @@ class AuthService {
         password: password,
       );
       return userCredential.user;
-    } on FirebaseAuthException catch (e) {
-      print('Email Sign-In error: $e');
+    } on FirebaseAuthException {
       return null;
     }
   }
@@ -81,8 +79,7 @@ class AuthService {
         await userCredential.user!.updateDisplayName(displayName);
       }
       return userCredential.user;
-    } on FirebaseAuthException catch (e) {
-      print('Email Sign-Up error: $e');
+    } on FirebaseAuthException {
       return null;
     }
   }
@@ -92,8 +89,7 @@ class AuthService {
     try {
       await _auth.sendPasswordResetEmail(email: email);
       return true;
-    } on FirebaseAuthException catch (e) {
-      print('Reset password error: $e');
+    } on FirebaseAuthException {
       return false;
     }
   }

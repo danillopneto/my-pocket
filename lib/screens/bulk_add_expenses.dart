@@ -192,6 +192,7 @@ class _BulkAddExpensesScreenState extends State<BulkAddExpensesScreen> {
                                   .where((l) => l.trim().isNotEmpty)
                                   .toList();
                               if (lines.length < 2) {
+                                if (!mounted) return;
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                       content: Text('bulk_paste_no_data'.tr())),
@@ -275,6 +276,7 @@ class _BulkAddExpensesScreenState extends State<BulkAddExpensesScreen> {
                               });
                               setState(() => parsing = false);
                               if (added > 0) {
+                                if (!mounted) return;
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text('bulk_paste_result'.tr(args: [
@@ -285,6 +287,7 @@ class _BulkAddExpensesScreenState extends State<BulkAddExpensesScreen> {
                                   ),
                                 );
                               } else {
+                                if (!mounted) return;
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text('bulk_paste_result'.tr(args: [

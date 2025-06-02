@@ -1,4 +1,6 @@
 // Generic Firestore error logger utility
+// ignore_for_file: avoid_print
+
 Stream<T> logFirestoreStreamErrors<T>(Stream<T> stream, {String? context}) {
   return stream.handleError((error, stack) {
     print('Firestore error${context != null ? ' [$context]' : ''}:');

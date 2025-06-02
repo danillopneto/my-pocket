@@ -103,13 +103,6 @@ class OpenAiAiService extends AiService {
       'temperature': 0.7,
     });
 
-    // Debug: Print request structure (without full base64 data)
-    print('OpenAI _analyzeImage - Model: $defaultModel');
-    print(
-        'OpenAI _analyzeImage - Content types: ${content.map((c) => c['type']).join(', ')}');
-    print('OpenAI _analyzeImage - MIME type: $mimeType');
-    print('OpenAI _analyzeImage - Base64 length: ${fileBase64.length}');
-
     final response = await http.post(
       url,
       headers: {
@@ -188,23 +181,6 @@ class OpenAiAiService extends AiService {
   @override
   void setProvider(String providerName) {
     // No-op for now. Add logic if supporting multiple providers.
-  }
-
-  /// Sets a custom model to use for requests
-  void setModel(String model) {
-    // This could be implemented to allow switching between different OpenAI models
-    // For now, we'll keep using the default model
-  }
-
-  /// Gets available OpenAI models (ordered by cost-effectiveness for vision tasks)
-  List<String> getAvailableModels() {
-    return [
-      'gpt-4o-mini', // Cheapest model with vision capabilities
-      'gpt-4o', // GPT-4 Omni (more expensive but higher quality)
-      'gpt-4-turbo', // GPT-4 Turbo (vision support, high cost)
-      'gpt-4', // GPT-4 (vision support, highest cost)
-      'gpt-3.5-turbo', // GPT-3.5 Turbo (text only, no vision)
-    ];
   }
 
   /// Handles HTTP response and extracts content or throws appropriate error

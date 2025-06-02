@@ -18,8 +18,6 @@ import '../widgets/recent_transactions_card.dart';
 import '../services/currency_format_service.dart';
 import '../widgets/dashboard_expense_filter.dart';
 import '../widgets/dashboard_search_card.dart';
-import '../services/expenses_service.dart';
-import '../widgets/edit_expense_dialog.dart';
 import '../widgets/floating_actions.dart';
 import '../widgets/dashboard_empty_state.dart';
 
@@ -256,7 +254,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                           color: Theme.of(context)
                                               .colorScheme
                                               .outline
-                                              .withOpacity(0.5),
+                                              .withValues(
+                                                  alpha:
+                                                      (0.6 * 255).toDouble()),
                                         ),
                                       ),
                                       child: Row(
@@ -513,7 +513,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                           color: Theme.of(context)
                                               .colorScheme
                                               .outline
-                                              .withOpacity(0.5),
+                                              .withValues(
+                                                  alpha:
+                                                      (0.6 * 255).toDouble()),
                                         ),
                                       ),
                                       child: Row(
