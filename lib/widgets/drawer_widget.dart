@@ -33,6 +33,12 @@ final List<DrawerNavItem> drawerNavItems = [
     isExpansion: true,
     children: [
       DrawerNavItem(
+        route: '/add-expense',
+        labelKey: 'add_expense',
+        icon: Icons.add,
+        selectedKey: 'add-expense',
+      ),
+      DrawerNavItem(
         route: '/add-expenses',
         labelKey: 'add_multiple_expenses',
         icon: Icons.add_chart,
@@ -51,7 +57,7 @@ final List<DrawerNavItem> drawerNavItems = [
         selectedKey: 'categories',
       ),
       DrawerNavItem(
-        route: '/paymentMethods',
+        route: '/payment-methods',
         labelKey: 'payment_methods',
         icon: Icons.account_balance_wallet,
         selectedKey: 'paymentMethods',

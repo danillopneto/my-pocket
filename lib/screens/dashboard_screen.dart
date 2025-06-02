@@ -107,38 +107,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             categories: categories,
                             paymentMethods: paymentMethods,
                             onAddExpense: () {
-                              showDialog(
-                                context: context,
-                                builder: (context) => EditExpenseDialog(
-                                  expense: Expense(
-                                    id: null,
-                                    date: DateTime.now(),
-                                    createdAt: DateTime.now(),
-                                    description: '',
-                                    value: 0,
-                                    installments: 1,
-                                    place: '',
-                                    categoryId: categories.isNotEmpty
-                                        ? categories.first.id ?? ''
-                                        : '',
-                                    paymentMethodId: paymentMethods.isNotEmpty
-                                        ? paymentMethods.first.id ?? ''
-                                        : '',
-                                    itemNames: null,
-                                  ),
-                                  categories: categories,
-                                  paymentMethods: paymentMethods,
-                                  isNew: true,
-                                  onSubmit: (expense) async {
-                                    await ExpensesService(
-                                            firestoreService: _firestoreService)
-                                        .upsertExpense(
-                                            context, expense, expense);
-                                    if (!context.mounted) return;
-                                    Navigator.of(context).pop();
-                                  },
-                                ),
-                              );
+                              Navigator.pushNamed(context, '/add-expense');
                             },
                           ),
                         );
@@ -759,47 +728,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   ),
                                 ),
                               ], // <-- This closes the ListView children
-                            ), // <-- This closes the ListView
-                            // FloatingActions positioned in the bottom right
+                            ), // <-- This closes the ListView                            // FloatingActions positioned in the bottom right
                             Positioned(
                               bottom: 16,
                               right: 16,
-                              child: FloatingActions(onAddExpense: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (context) => EditExpenseDialog(
-                                    expense: Expense(
-                                      id: null,
-                                      date: DateTime.now(),
-                                      createdAt: DateTime.now(),
-                                      description: '',
-                                      value: 0,
-                                      installments: 1,
-                                      place: '',
-                                      categoryId: categories.isNotEmpty
-                                          ? categories.first.id ?? ''
-                                          : '',
-                                      paymentMethodId: paymentMethods.isNotEmpty
-                                          ? paymentMethods.first.id ?? ''
-                                          : '',
-                                      itemNames:
-                                          null, // New expenses start with no items
-                                    ),
-                                    categories: categories,
-                                    paymentMethods: paymentMethods,
-                                    isNew: true,
-                                    onSubmit: (expense) async {
-                                      await ExpensesService(
-                                              firestoreService:
-                                                  _firestoreService)
-                                          .upsertExpense(
-                                              context, expense, expense);
-                                      if (!context.mounted) return;
-                                      Navigator.of(context).pop();
-                                    },
-                                  ),
-                                );
-                              }),
+                              child: FloatingActions(),
                             ),
                           ], // <-- This closes the Stack children
                         ), // <-- This closes the Stack

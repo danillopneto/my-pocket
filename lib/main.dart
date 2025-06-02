@@ -11,6 +11,7 @@ import 'screens/expenses_list_screen.dart';
 import 'screens/categories_screen.dart';
 import 'screens/payment_methods_screen.dart';
 import 'screens/settings_screen.dart';
+import 'screens/add_expense_screen.dart';
 import 'firebase_options.dart';
 import 'services/user_preferences_service.dart';
 import 'screens/bulk_add_expenses.dart';
@@ -145,6 +146,7 @@ class _MyAppState extends State<MyApp> {
             '/login': (context) => const LoginScreen(),
             '/dashboard': (context) => DashboardScreen(),
             '/add-expenses': (context) => AddMultipleExpensesScreen(),
+            '/add-expense': (context) => const AddExpenseScreen(),
             '/expenses-list': (context) => const ExpensesListScreen(),
             '/categories': (context) => const CategoriesScreen(),
             '/payment-methods': (context) => const PaymentMethodsScreen(),

@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 class FloatingActions extends StatefulWidget {
-  final VoidCallback onAddExpense;
-
-  const FloatingActions({super.key, required this.onAddExpense});
+  const FloatingActions({super.key});
 
   @override
   State<FloatingActions> createState() => _FloatingActionsState();
@@ -84,8 +82,8 @@ class _FloatingActionsState extends State<FloatingActions>
                       _buildActionButton(
                         icon: Icons.add,
                         label: 'add_expense'.tr(),
-                        onPressed: () =>
-                            _onActionSelected((widget.onAddExpense)),
+                        onPressed: () => _onActionSelected(
+                            () => Navigator.pushNamed(context, '/add-expense')),
                       ),
                       const SizedBox(height: 16),
                     ],
