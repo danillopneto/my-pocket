@@ -174,13 +174,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                           try {
                                             final service =
                                                 AnalyzeExpensesService();
-                                            final result =
-                                                await service.analyzeExpenses(
-                                              expenses,
-                                              categories: categories,
-                                              paymentMethods: paymentMethods,
-                                              summary: summary,
-                                            );
+                                            final result = await service
+                                                .analyzeExpenses(expenses,
+                                                    categories: categories,
+                                                    paymentMethods:
+                                                        paymentMethods,
+                                                    summary: summary,
+                                                    userPreferences: userPrefs);
                                             setState(() {
                                               _aiAnalysisResult = result;
                                               _aiAnalysisLoading = false;
