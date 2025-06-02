@@ -100,6 +100,8 @@
   "confirm_delete": "Confirmar Exclusão",
   "delete_expense_confirm": "Tem certeza de que deseja excluir esta despesa?",
   "delete": "Excluir",
+  "delete_right_away": "Excluir agora",
+  "undo_with_countdown": "Desfazer ({0}s)",
   "undo": "Desfazer",
   "deleting_expense_undo": "Excluindo despesa... Toque em Desfazer para cancelar",
   "deleting_expense": "Excluindo despesa...",
@@ -176,5 +178,7 @@
   "download_file": "Baixar Arquivo",
   "file_error": "Erro ao carregar arquivo",
   "saving": "Salvando...",
-  "saving_expense": "Salvando despesa..."
+  "saving_expense": "Salvando despesa...",
+  "are_you_sure_delete_category": "Tem certeza de que deseja excluir esta categoria?",
+  "category_deleted": "Categoria excluída"
 }

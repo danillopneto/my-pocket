@@ -52,13 +52,12 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                 final confirm = await showDialog<bool>(
                   context: context,
                   builder: (context) => ConfirmDeleteDialog(
-                    content:
-                        'Are you sure you want to delete this category?'.tr(),
+                    content: 'are_you_sure_delete_category'.tr(),
                   ),
                 );
                 if (confirm == true && cat.id != null) {
                   await _firestoreService.deleteCategory(user.uid, cat.id!);
-                  showAppSnackbar(context, 'Category deleted'.tr(),
+                  showAppSnackbar(context, 'category_deleted'.tr(),
                       backgroundColor: Colors.green);
                 }
               },

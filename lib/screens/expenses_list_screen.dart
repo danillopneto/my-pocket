@@ -11,7 +11,6 @@ import '../widgets/edit_expense_dialog.dart';
 import '../services/expenses_service.dart';
 import '../widgets/expenses_list.dart';
 import '../services/entity_data_provider.dart';
-import '../widgets/confirm_delete_dialog.dart';
 import '../widgets/snackbar_helper.dart';
 import '../widgets/app_loading_indicator.dart';
 import '../utils/firebase_user_utils.dart';
@@ -46,7 +45,6 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
   List<Category> _categories = [];
   List<PaymentMethod> _paymentMethods = [];
   UserPreferences? _userPrefs;
-  final List<String> _pendingDeleteIds = [];
 
   // Search functionality
   final TextEditingController _searchController = TextEditingController();
@@ -124,30 +122,10 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
   }
 
   void _deleteExpense(Expense expense) async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (context) => ConfirmDeleteDialog(),
-    );
-    if (!mounted) return;
-    if (confirm != true) return;
-
-    setState(() {
-      _pendingDeleteIds.add(expense.id!);
-    });
-
     final wasDeleted = await _expensesService.deleteExpenseWithUndo(
       context: context,
       expense: expense,
-      pendingDeleteIds: _pendingDeleteIds,
-      onLocalUpdate: () {
-        if (mounted) setState(() {});
-      },
     );
-
-    if (!mounted) return;
-    setState(() {
-      _pendingDeleteIds.remove(expense.id!);
-    });
 
     // Only show success message if actually deleted
     if (wasDeleted) {
@@ -228,10 +206,6 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
                     );
                   }
                   var expenses = snapshot.data!;
-                  // Filter out pending deletes
-                  expenses = expenses
-                      .where((e) => !_pendingDeleteIds.contains(e.id))
-                      .toList();
 
                   if (expenses.isEmpty) {
                     return Center(

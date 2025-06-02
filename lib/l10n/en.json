@@ -101,6 +101,8 @@
   "confirm_delete": "Confirm Deletion",
   "delete_expense_confirm": "Are you sure you want to delete this expense?",
   "delete": "Delete",
+  "delete_right_away": "Delete right away",
+  "undo_with_countdown": "Undo ({0}s)",
   "undo": "Undo",
   "deleting_expense_undo": "Deleting expense... Tap Undo to cancel",
   "deleting_expense": "Deleting expense...",
@@ -176,5 +178,7 @@
   "download_file": "Download File",
   "file_error": "Error loading file",
   "saving": "Saving...",
-  "saving_expense": "Saving expense..."
+  "saving_expense": "Saving expense...",
+  "are_you_sure_delete_category": "Are you sure you want to delete this category?",
+  "category_deleted": "Category deleted"
 }

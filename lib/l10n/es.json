@@ -99,6 +99,8 @@
   "confirm_delete": "Confirmar Eliminación",
   "delete_expense_confirm": "¿Está seguro de que desea eliminar este gasto?",
   "delete": "Eliminar",
+  "delete_right_away": "Eliminar ahora",
+  "undo_with_countdown": "Deshacer ({0}s)",
   "undo": "Deshacer",
   "deleting_expense_undo": "Eliminando gasto... Toca Deshacer para cancelar",
   "deleting_expense": "Eliminando gasto...",
@@ -176,5 +178,7 @@
   "download_file": "Descargar Archivo",
   "file_error": "Error al cargar archivo",
   "saving": "Guardando...",
-  "saving_expense": "Guardando gasto..."
+  "saving_expense": "Guardando gasto...",
+  "are_you_sure_delete_category": "¿Está seguro de que desea eliminar esta categoría?",
+  "category_deleted": "Categoría eliminada"
 }

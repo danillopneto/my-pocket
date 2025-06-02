@@ -36,25 +36,12 @@ class ExpensesService {
     });
   }
 
-  Future<bool> deleteExpenseWithUndo({
-    required BuildContext context,
-    required Expense expense,
-    required List<String> pendingDeleteIds,
-    required VoidCallback onLocalUpdate,
-  }) async {
-    return await withCurrentUserAsync<bool>((user) async {
-          if (expense.id == null) return false;
-          final stream = firestoreService.getExpenses(user.uid);
-          final snapshot = await stream.first;
-          final localExpenses = List<Expense>.from(snapshot);
-          return await showUndoableDelete(
-            context: context,
-            expense: expense,
-            localExpenses: localExpenses,
-            firestoreService: firestoreService,
-            onLocalUpdate: onLocalUpdate,
-          );
-        }) ??
-        false;
+  Future<bool> deleteExpenseWithUndo(
+      {required BuildContext context, required Expense expense}) async {
+    return await showConfirmDeleteWithUndo(
+      context: context,
+      expense: expense,
+      firestoreService: firestoreService,
+    );
   }
 }
